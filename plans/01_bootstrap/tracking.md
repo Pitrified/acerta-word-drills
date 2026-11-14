@@ -22,6 +22,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 3  | Pair matching            | [`03_pair_matching.md`](03_pair_matching.md) | done |
 | 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | done |
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
+| 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -129,3 +130,14 @@ Append-only. Newest at the bottom.
   the earlier build with its data kept), and the arm64 one was handed to the user.
   Waiting on the user: the install and a round on the phone, the keystore, the GitHub repo
   and `main`, the numbers for the spin-offs.
+- 2026-11-14 : the user saw the screenshots and asked for the board layout to be fixed now:
+  phase 6, `06_board_layout.md`. Review before the code: the screenshots show the round
+  screen's body running under the navigation bar (the feedback box ends at the screen's
+  bottom edge), so a board moved to the bottom needs the safe area, and the plan says so.
+- 2026-11-14 : phase 6 done. Feedback and tiles sit at the bottom of the round screen inside
+  the safe area, the tiles fill their column and are larger. One new layout test (equal
+  widths, feedback above the tiles, last tile above the navigation bar); two mutations
+  (no bottom safe area, tiles not stretched) each make it fail, file restored.
+  `scripts/check.sh` passes with 173 tests and `scripts/e2e.sh` passes. Close review: the
+  release build was looked at on the emulator before and after a wrong tap; a word too long
+  for its tile still wraps inside it, as before.

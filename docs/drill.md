@@ -136,6 +136,9 @@ Selecting or deselecting a word records nothing.
 The round is finished when every pair is locked; wrong taps do not end it.
 
 The screen shows the Portuguese words in the pair order of the round on the left and the right column on the right, both scrolling together.
+The feedback line and the two columns sit together at the bottom of the screen, above the system navigation bar, with the feedback directly above the tiles: a thumb reaches the tiles without covering it.
+A longer note grows upwards, so the tiles do not move, and a round taller than the screen scrolls as a whole.
+Every tile is as wide as its column.
 A tile is idle, selected, locked (disabled) or wrong, drawn with the theme colours.
 The tiles have the keys `left-<text>` and `right-<text>`, and the feedback line `round-feedback`.
 

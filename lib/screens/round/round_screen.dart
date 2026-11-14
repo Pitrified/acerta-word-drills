@@ -67,69 +67,79 @@ class _Board extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final round = state.round!;
     final notifier = ref.read(roundProvider.notifier);
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    // Feedback and tiles sit together at the bottom, where a thumb reaches
+    // the tiles without covering the feedback. A longer note grows upwards,
+    // so the tiles stay put; a round taller than the screen scrolls.
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        for (final pair in round.pairs)
-                          WordTile(
-                            key: Key('left-${pair.left}'),
-                            text: pair.left,
-                            status: _status(
-                              word: pair.left,
-                              selected: state.selectedLeft,
-                              matched: state.matchedLeft,
-                              wrong: state.wrongLeft,
-                            ),
-                            onTap: () => notifier.tapLeft(pair.left),
-                          ),
-                      ],
+                  Container(
+                    constraints: const BoxConstraints(minHeight: 56),
+                    alignment: Alignment.bottomCenter,
+                    child: Text(
+                      state.feedback ?? '',
+                      key: const Key('round-feedback'),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        for (final right in round.rightColumn)
-                          WordTile(
-                            key: Key('right-$right'),
-                            text: right,
-                            status: _status(
-                              word: right,
-                              selected: state.selectedRight,
-                              matched: state.matchedRight,
-                              wrong: state.wrongRight,
-                            ),
-                            onTap: () => notifier.tapRight(right),
-                          ),
-                      ],
-                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final pair in round.pairs)
+                              WordTile(
+                                key: Key('left-${pair.left}'),
+                                text: pair.left,
+                                status: _status(
+                                  word: pair.left,
+                                  selected: state.selectedLeft,
+                                  matched: state.matchedLeft,
+                                  wrong: state.wrongLeft,
+                                ),
+                                onTap: () => notifier.tapLeft(pair.left),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final right in round.rightColumn)
+                              WordTile(
+                                key: Key('right-$right'),
+                                text: right,
+                                status: _status(
+                                  word: right,
+                                  selected: state.selectedRight,
+                                  matched: state.matchedRight,
+                                  wrong: state.wrongRight,
+                                ),
+                                onTap: () => notifier.tapRight(right),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          // Two lines of room, so the columns stay put for most notes; a
-          // longer note takes the height it needs.
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
-            child: Text(
-              state.feedback ?? '',
-              key: const Key('round-feedback'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

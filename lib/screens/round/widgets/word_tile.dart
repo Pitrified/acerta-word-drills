@@ -55,11 +55,11 @@ class WordTile extends StatelessWidget {
           ),
           onTap: status == WordTileStatus.matched ? null : onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
             child: Text(
               text,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: foreground,
                 decoration: status == WordTileStatus.matched
                     ? TextDecoration.lineThrough

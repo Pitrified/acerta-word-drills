@@ -122,6 +122,44 @@ void main() {
     expect(find.byKey(const Key('start-round')), findsOneWidget);
   });
 
+  testWidgets('the board sits at the bottom, feedback above equal tiles', (
+    tester,
+  ) async {
+    // A tall phone with a system navigation bar of 48 at the bottom.
+    tester.view.physicalSize = const Size(412, 915);
+    tester.view.devicePixelRatio = 1;
+    tester.view.padding = const FakeViewPadding(bottom: 48);
+    addTearDown(tester.view.reset);
+
+    final container = await _pumpApp(tester);
+    await tester.tap(find.byKey(const Key('start-round')));
+    await tester.pumpAndSettle();
+
+    final round = container.read(roundProvider).round!;
+    Rect rect(String key) => tester.getRect(find.byKey(Key(key)));
+    final tiles = [
+      for (final pair in round.pairs) rect('left-${pair.left}'),
+      for (final right in round.rightColumn) rect('right-$right'),
+    ];
+
+    // Every tile is as wide as its column, and the columns are equal.
+    expect({for (final tile in tiles) tile.width}, hasLength(1));
+    expect(tiles.first.width, greaterThan(150));
+
+    // The feedback is above the first tile.
+    final firstTop = tiles
+        .map((tile) => tile.top)
+        .reduce((a, b) => a < b ? a : b);
+    expect(rect('round-feedback').bottom, lessThanOrEqualTo(firstTop));
+
+    // The last tile ends just above the navigation bar, not under it.
+    final lastBottom = tiles
+        .map((tile) => tile.bottom)
+        .reduce((a, b) => a > b ? a : b);
+    expect(lastBottom, lessThanOrEqualTo(915 - 48));
+    expect(lastBottom, greaterThan(915 - 48 - 24));
+  });
+
   testWidgets('8 pairs and a decoy fit a small phone without overflow', (
     tester,
   ) async {
