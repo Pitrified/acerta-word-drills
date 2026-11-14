@@ -21,7 +21,11 @@ final fixedNow = DateTime.utc(2026, 1, 1, 10);
 
 /// A progress store in memory.
 class FakeProgressRepository implements ProgressRepository {
-  final Map<String, WordProgress> _all = {};
+  /// A store that starts with the records in [initial].
+  FakeProgressRepository([Map<String, WordProgress>? initial])
+    : _all = {...?initial};
+
+  final Map<String, WordProgress> _all;
 
   @override
   Map<String, WordProgress> get all => Map.unmodifiable(_all);
@@ -70,30 +74,39 @@ class FakeSettingsRepository implements SettingsRepository {
   Future<void> write(DrillSettings settings) async => _settings = settings;
 }
 
-/// An A1 card `w<index>`, translated `en<index>` and `it<index>`.
+/// A card `w<index>`, translated `en<index>` and `it<index>`.
 ///
-/// It has one full false friend in English, `look<index>`, with a note.
-WordCard fakeCard(int index) => WordCard(
+/// It is A1 and has one full false friend in English, `look<index>`, with a
+/// note, unless [level], [en], [it] or [lookalikes] say otherwise.
+WordCard fakeCard(
+  int index, {
+  Level level = Level.a1,
+  List<String>? en,
+  List<String>? it,
+  List<Lookalike>? lookalikes,
+}) => WordCard(
   id: 'id$index',
   text: 'w$index',
   pos: 'noun',
-  level: Level.a1,
+  level: level,
   freq: 1,
   gloss: 'gloss $index',
-  en: ['en$index'],
-  it: ['it$index'],
-  lookalikes: [
-    Lookalike(
-      language: 'en',
-      text: 'look$index',
-      kind: LookalikeKind.full,
-      note: 'note $index',
-    ),
-  ],
+  en: en ?? ['en$index'],
+  it: it ?? ['it$index'],
+  lookalikes:
+      lookalikes ??
+      [
+        Lookalike(
+          language: 'en',
+          text: 'look$index',
+          kind: LookalikeKind.full,
+          note: 'note $index',
+        ),
+      ],
 );
 
-/// A card repository of [count] [fakeCard]s.
-CardRepository fakeCardRepository(int count) => CardRepository(
+/// A card repository holding [cards].
+CardRepository cardRepositoryOf(List<WordCard> cards) => CardRepository(
   meta: const CardsMeta(
     format: 1,
     language: 'pt',
@@ -101,8 +114,12 @@ CardRepository fakeCardRepository(int count) => CardRepository(
     corpusBuiltAt: '2026-01-01T00:00:00+00:00',
     count: 0,
   ),
-  cards: [for (var i = 0; i < count; i++) fakeCard(i)],
+  cards: cards,
 );
+
+/// A card repository of [count] [fakeCard]s.
+CardRepository fakeCardRepository(int count) =>
+    cardRepositoryOf([for (var i = 0; i < count; i++) fakeCard(i)]);
 
 /// The provider overrides every test of the round uses.
 ///
@@ -114,6 +131,9 @@ List<Override> roundOverrides({
   /// Replaces [cards] to hold the loading or fail the loading of the words.
   Future<CardRepository> Function()? loadCards,
   FakeSettingsRepository? settings,
+
+  /// Replaces the fixed clock, to let time pass between rounds.
+  DateTime Function()? clock,
   int seed = 1,
 }) => [
   cardRepositoryProvider.overrideWith(
@@ -123,7 +143,7 @@ List<Override> roundOverrides({
   settingsRepositoryProvider.overrideWithValue(
     settings ?? FakeSettingsRepository(),
   ),
-  clockProvider.overrideWithValue(() => fixedNow),
+  clockProvider.overrideWithValue(clock ?? () => fixedNow),
   randomProvider.overrideWithValue(Random(seed)),
 ];
 

@@ -1,0 +1,157 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app.dart';
+import '../../../models/round_summary.dart';
+import '../../../providers/progress_provider.dart';
+import '../../../providers/round_provider.dart';
+import '../../../providers/round_summary_provider.dart';
+
+/// A finished round, pair by pair, with Next round and Home always in reach.
+class RoundSummaryView extends ConsumerWidget {
+  const RoundSummaryView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(roundSummaryProvider);
+    if (summary == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Expanded(
+          // At most 8 entries, so they are all built and none is lazy.
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Round done', style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 4),
+                Text(
+                  '${summary.rightFirstTime} of ${summary.entries.length} '
+                  'right first time',
+                  key: const Key('summary-score'),
+                  style: theme.textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 8),
+                for (final entry in summary.entries) _EntryCard(entry: entry),
+              ],
+            ),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    key: const Key('next-round'),
+                    onPressed: () =>
+                        unawaited(ref.read(roundProvider.notifier).start()),
+                    child: const Text('Next round'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    key: const Key('round-home'),
+                    onPressed: () => context.go(AppRoutes.home),
+                    child: const Text('Home'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EntryCard extends ConsumerWidget {
+  const _EntryCard({required this.entry});
+
+  final SummaryEntry entry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final card = entry.pair.card;
+    return Card(
+      key: Key('summary-${card.id}'),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${card.text} - ${entry.pair.right}',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                if (entry.missed)
+                  Container(
+                    key: Key('missed-${card.id}'),
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.errorContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'missed',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.onErrorContainer,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            Text(
+              '${card.level.label} · ${card.pos}',
+              style: theme.textTheme.labelMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(card.gloss),
+            for (final lookalike in card.lookalikes)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '${lookalike.languageLabel}: ${lookalike.text} '
+                  '(${lookalike.kind.label})'
+                  '${lookalike.note.isEmpty ? '' : ' - ${lookalike.note}'}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                key: Key('hide-${card.id}'),
+                onPressed: () => unawaited(
+                  ref
+                      .read(progressProvider.notifier)
+                      .setHidden(card.id, hidden: !entry.hidden),
+                ),
+                child: Text(entry.hidden ? 'Hidden, undo' : "Don't show again"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -8,12 +8,18 @@ acerta-word-drills/                   # Flutter project root, package name acert
   assets/cards/                       # pt_cards.json, the bundled word cards
   lib/
     main.dart                         # Entry point
-    app.dart                          # App widget, router
+    app.dart                          # App widget, router, route paths
+    build_info.dart                   # Version label and source address, from --dart-define
+    data_credit.dart                  # The data credit and WordNet notice, registered as licenses
     models/                           # Freezed data models (generated)
-    providers/                        # Riverpod providers (cards, clock, progress, settings, round)
+    providers/                        # Riverpod providers (cards, clock, progress, settings, round, round summary, derived word lists and counts)
     screens/                          # UI screens (one folder per screen)
       home/
-      round/                          # RoundScreen, widgets/ (WordTile)
+      round/                          # RoundScreen, widgets/ (WordTile, RoundSummaryView)
+      settings/
+      hidden_words/
+      progress/
+      about/
     services/                         # Business logic services
       cards/                          # CardRepository, loads the asset
       logging/                        # AppLogger
@@ -21,10 +27,12 @@ acerta-word-drills/                   # Flutter project root, package name acert
       progress/                       # ProgressRepository, Hive box progress
       selection/                      # computeWeight, selectCards
       settings/                       # SettingsRepository, Hive box settings
+    utils/                            # Helpers shared by screens (count formatting)
+    widgets/                          # Widgets shared by screens (AsyncValueView)
   test/                               # Mirrors lib/
     providers/
     screens/
-    support/                          # Fakes shared by the tests: repositories in memory, card builders
+    support/                          # Fakes shared by the tests: repositories in memory, card builders, the app pump
   scripts/                            # check.sh, gates, build-apk.sh, plans.py
   tool/                               # export_cards.py, writes the card asset
   docs/
@@ -44,7 +52,7 @@ Folders for further services appear when the first file for them does.
 | Screens | lib/screens/ | Providers, Models | Services directly |
 
 Widgets used by one screen live in that screen's `widgets/` folder.
-There is no shared `lib/widgets/` or `lib/utils/` today; create one when a second screen needs the same widget or helper.
+`lib/widgets/` and `lib/utils/` hold what more than one screen uses.
 
 Key constraint: screens never import from services directly - they go through providers.
 

@@ -9,7 +9,10 @@ The tooling and conventions come from [fala-language-tutor](https://github.com/P
 ## What it does today
 
 - A round of pair matching can be played from the home screen: tap a Portuguese word and its translation, one false-friend decoy may sit among the answers, and progress is kept on the phone.
-- Level, round size and answer language are at their defaults (B1, 5 pairs, English) until the settings screen exists.
+- A finished round shows each pair with its gloss and look-alikes, marks the words missed, and can hide a word from later rounds.
+- Settings set the level cap, the pairs per round and the answer language, list and restore hidden words, and reset the progress.
+- A progress screen shows the words seen per level and the words missed most.
+- An about screen shows the version, the source address, the data credit and the open-source licenses.
 - Android only, min API 26, target API 36. Flutter 3.47.7.
 - No network access: the release manifest asks for no internet permission.
 
@@ -20,6 +23,7 @@ The tooling and conventions come from [fala-language-tutor](https://github.com/P
 | [docs/](docs/) | What the project is now: structure, standards, build and release, privacy |
 | [docs/getting-started.md](docs/getting-started.md) | Run the gates and the app |
 | [docs/content.md](docs/content.md) | The word asset, how to regenerate it, how the app loads it |
+| [docs/functional-specs.md](docs/functional-specs.md) | What each screen shows and does |
 | [docs/drill.md](docs/drill.md) | How a round is chosen, built and graded, and what progress and settings store |
 | [.github/copilot-instructions.md](.github/copilot-instructions.md) | The rules an AI assistant works under here |
 | [plans/](plans/) | The development diary: how the project got to where it is |

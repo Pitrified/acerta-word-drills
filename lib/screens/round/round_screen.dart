@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app.dart';
 import '../../models/round_state.dart';
 import '../../providers/round_provider.dart';
+import 'widgets/round_summary.dart';
 import 'widgets/word_tile.dart';
 
 /// The pair matching round: Portuguese words on the left, answers on the right.
@@ -20,7 +21,7 @@ class RoundScreen extends ConsumerWidget {
         RoundStatus.loading => const Center(child: CircularProgressIndicator()),
         RoundStatus.notEnoughWords => const _NotEnoughWords(),
         RoundStatus.playing => _Board(state: state),
-        RoundStatus.finished => const _Finished(),
+        RoundStatus.finished => const RoundSummaryView(),
       },
     );
   }
@@ -38,30 +39,6 @@ class _NotEnoughWords extends StatelessWidget {
           Text('Not enough words for a round at this level.'),
           SizedBox(height: 16),
           _HomeButton(),
-        ],
-      ),
-    );
-  }
-}
-
-class _Finished extends ConsumerWidget {
-  const _Finished();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Round done', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 24),
-          FilledButton(
-            key: const Key('next-round'),
-            onPressed: () => ref.read(roundProvider.notifier).start(),
-            child: const Text('Next round'),
-          ),
-          const SizedBox(height: 12),
-          const _HomeButton(),
         ],
       ),
     );

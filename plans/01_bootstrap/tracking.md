@@ -20,7 +20,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 1  | Repo skeleton and gates  | [`01_skeleton.md`](01_skeleton.md)           | done |
 | 2  | Word content             | [`02_content.md`](02_content.md)             | done |
 | 3  | Pair matching            | [`03_pair_matching.md`](03_pair_matching.md) | done |
-| 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | planned |
+| 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | done |
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | planned |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
@@ -90,3 +90,22 @@ Append-only. Newest at the bottom.
   on the emulator and progress after a restart, which nothing in this phase can prove; the
   sub-plan now says what was proven here (widget test of the whole app on fakes, Hive round
   trip in the repository test) and leaves the emulator proof to `05_device_run.md`.
+- 2026-11-14 : phase 3 committed as `b8ee853`. Phase 4 started. Review before the code:
+  `04_screens.md` still planned to store the settings (done in phase 3, corrected); the about
+  screen's source link is plain selectable text, with no launcher dependency; the credit and
+  the WordNet notice become Dart constants that a test compares with `DATA_LICENSE.md`.
+  Pitfall noted: the progress and hidden-word lists look cards up by id, and an id that left
+  the asset has to be skipped, not crash.
+- 2026-11-14 : phase 4 done. A sonnet subagent wrote the round summary, settings, hidden
+  words, progress and about screens, their providers, `lib/build_info.dart`,
+  `lib/data_credit.dart` (held equal to `DATA_LICENSE.md` by a test), the two defines in
+  `scripts/build-apk.sh` and `docs/functional-specs.md`; it reported seven mutations caught.
+  Review of its diff changed two things: `CardRepository.poolSize` repeated the filter of
+  `pool` and now returns its length, and the most missed line read "1 errors in 1 seen",
+  now "missed 1 of 1". Seven other mutations run independently over the whole suite (the
+  missed flag, the hidden flag of the summary, the seen count, the most missed limit,
+  restore, a drift of the credit text, the pairs slider), all caught, files restored.
+  `scripts/check.sh` passes with 171 tests. Close review: every screen is reached from home
+  and back in `test/screens/navigation_test.dart`, a raised level cap brings a C1 word into
+  the next round in `test/providers/round_level_cap_test.dart`. Nothing has been looked at
+  on a screen yet: the layout tests only assert that nothing overflows at 320 x 568.

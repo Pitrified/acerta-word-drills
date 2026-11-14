@@ -24,7 +24,7 @@ Or run it directly on a connected device:
 flutter run --release
 ```
 
-`scripts/build-apk.sh` builds the split release APKs described below, or passes its arguments to `flutter build apk`, and prints a label made of the version name from `pubspec.yaml` and the first eight characters of the commit, with `-dirty` when the tree has uncommitted changes.
+`scripts/build-apk.sh` builds the split release APKs described below, or passes its arguments to `flutter build apk`, and prints a label made of the version name from `pubspec.yaml` and the first eight characters of the commit, with `-dirty` when the tree has uncommitted changes; see [Version label](#version-label) for how the app gets it.
 
 ## Split APKs
 
@@ -129,6 +129,18 @@ Check a release build with:
 ```bash
 aapt2 dump permissions build/app/outputs/flutter-apk/app-release.apk
 ```
+
+## Version label
+
+`scripts/build-apk.sh` passes the version name from `pubspec.yaml` and the commit it prints as two defines to `flutter build apk`:
+
+```bash
+flutter build apk --dart-define=APP_VERSION=0.1.0 --dart-define=GIT_COMMIT=1a2b3c4d
+```
+
+The app joins them as `<APP_VERSION>+<GIT_COMMIT>`, with `-dirty` after the commit when the tree had uncommitted changes, and shows the result on the about screen and on the licenses page it opens.
+A build made without the defines, such as `flutter run` or a bare `flutter build apk`, shows `dev+local`.
+The values are read in `lib/build_info.dart`.
 
 ## Version management
 

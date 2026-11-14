@@ -30,4 +30,7 @@ if [[ ${#args[@]} -eq 0 ]]; then
 fi
 
 echo "building $version+$commit"
-flutter build apk "${args[@]}"
+flutter build apk \
+  --dart-define=APP_VERSION="$version" \
+  --dart-define=GIT_COMMIT="$commit" \
+  "${args[@]}"

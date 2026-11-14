@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'screens/about/about_screen.dart';
+import 'screens/hidden_words/hidden_words_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/progress/progress_screen.dart';
 import 'screens/round/round_screen.dart';
+import 'screens/settings/settings_screen.dart';
 
 /// Route path constants.
 abstract final class AppRoutes {
   static const home = '/';
   static const round = '/round';
+  static const settings = '/settings';
+  static const hiddenWords = '/settings/hidden';
+  static const progress = '/progress';
+  static const about = '/about';
 }
 
 /// App-level GoRouter configuration.
@@ -26,6 +34,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.round,
         builder: (context, state) => const RoundScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.hiddenWords,
+        builder: (context, state) => const HiddenWordsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.progress,
+        builder: (context, state) => const ProgressScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        builder: (context, state) => const AboutScreen(),
       ),
     ],
   );

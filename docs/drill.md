@@ -113,7 +113,7 @@ The status is one of:
 | `loading` | `start` is drawing the words; also the state before the first round |
 | `playing` | A round is on screen with pairs left to match |
 | `notEnoughWords` | The pool could not fill a round of at least 2 pairs; the screen offers Home |
-| `finished` | Every pair is locked; the screen offers Next round and Home |
+| `finished` | Every pair is locked; the screen shows the round summary, with Next round and Home |
 
 `start` reads the settings, the progress, the clock and the random source, draws `pairsPerRound + 3` cards from the pool and builds the round.
 A hidden word weighs 0, so it is never drawn and the pool is not filtered a second time.
@@ -138,3 +138,8 @@ The round is finished when every pair is locked; wrong taps do not end it.
 The screen shows the Portuguese words in the pair order of the round on the left and the right column on the right, both scrolling together.
 A tile is idle, selected, locked (disabled) or wrong, drawn with the theme colours.
 The tiles have the keys `left-<text>` and `right-<text>`, and the feedback line `round-feedback`.
+
+When the round is finished the board gives way to the summary, built by `roundSummaryProvider` from the round, the missed set and the progress.
+It holds one entry per pair in round order, each flagged missed (its card id is in the missed set) and hidden (its progress record has the hidden flag), and the count of pairs never missed.
+Hiding a word from the summary calls `setHidden` on the progress, so the word has weight 0 from the next round on, and `Hidden, undo` restores it.
+What the summary shows is in [functional-specs.md](functional-specs.md#round-summary).

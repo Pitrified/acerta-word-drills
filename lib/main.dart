@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app.dart';
+import 'data_credit.dart';
 import 'providers/progress_provider.dart';
 import 'providers/settings_provider.dart';
 import 'services/progress/progress_repository.dart';
@@ -13,6 +14,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   final progress = await ProgressRepository.open();
   final settings = await SettingsRepository.open();
+  registerDataLicenses();
   runApp(
     ProviderScope(
       overrides: [

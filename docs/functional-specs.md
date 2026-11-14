@@ -1,0 +1,81 @@
+# Functional specs
+
+What the app does, screen by screen.
+The rules of the drill itself (the pool, the weights, the draw, grading, what is stored) are in [drill.md](drill.md) and are not repeated here.
+The words and their fields are in [content.md](content.md).
+
+The interface is in English.
+Every screen except home has an app bar with a back button, so home is reachable from each of them.
+
+## Home
+
+Home shows the app name, then, once the words are loaded:
+
+- One line with the current setup, such as `Up to B1 · 5 pairs · English · 1,893 words`: the level cap, the pairs per round, the answer language and the number of words in the pool for that cap and language.
+  The count does not exclude hidden words.
+- The Start round button.
+- Entries for Progress, Settings and About.
+
+While the words load home shows a spinner, and if they cannot be loaded it says `The words could not be loaded.`.
+
+## Round
+
+Start round draws a round from the current settings and opens the round screen, where the pairs are matched as described in [drill.md](drill.md#the-round-on-screen).
+When the pool cannot fill a round the screen says `Not enough words for a round at this level.` and offers Home.
+
+## Round summary
+
+When every pair is matched the round screen shows the summary in place of the board.
+It has a heading, `Round done`, and a line such as `4 of 5 right first time`: the pairs never missed out of all the pairs.
+
+Below that is one card per pair, in round order:
+
+- The Portuguese word and the right word that was played.
+- The level and the part of speech.
+- The English gloss, whatever the answer language.
+- Every look-alike of the word, English and Italian: its language, its text, its kind in words (`false friend`, `partial false friend` or `cognate`) and its note when it has one.
+- A `missed` mark when the word was matched wrongly at least once in the round.
+- A `Don't show again` button, which hides the word.
+  A hidden word shows `Hidden, undo` in its place, which brings it back.
+  The button follows the stored progress, so it reads the same after the screen is rebuilt.
+
+The list scrolls.
+Next round and Home stay at the bottom of the screen: Next round starts another round, Home returns to the home screen.
+
+## Settings
+
+Every change is written at once.
+
+- Level cap, A1 to C2, as a row of options that wraps on a narrow screen.
+- Pairs per round, 3 to 8, on a slider with the current number beside it.
+- Answer language, English or Italian, with a line under it saying how many words at or under the level cap have a translation in the chosen language.
+- Hidden words, with their count; it opens the hidden words screen.
+- Reset progress, which asks for confirmation: the counts of every word are forgotten and hidden words stay hidden.
+  Cancel changes nothing; Reset clears the counts and shows `Progress reset`.
+
+## Hidden words
+
+The hidden words sorted by text, each with its first English translation and a Restore button.
+With none hidden the screen says `No hidden words.`.
+An id in the progress that is no longer in the card set is left out.
+
+## Progress
+
+- For each level from A1 to C2, `<seen> of <total> words seen` with a progress bar.
+  A word is seen when it has at least one graded tap; a word that was only hidden is not.
+  The total of a level is the number of cards at exactly that level.
+- A total line over all levels.
+- Most missed: up to 10 words with at least one error, most errors first and ties by text, each with its first English translation and its error and seen counts.
+  With none the screen says `No missed words yet.`.
+
+An id in the progress that is no longer in the card set is left out of both.
+
+## About
+
+- The app name and the version label, such as `0.1.0+1a2b3c4d`; a build made without the two defines of [build-and-release.md](build-and-release.md#version-label) shows `dev+local`.
+- The address of the source repository, as selectable text.
+  The app has no network permission and opens no links.
+- The data credit of [DATA_LICENSE.md](../DATA_LICENSE.md), as selectable text.
+- An Open-source licenses button, which opens the licenses page of Flutter.
+  The page lists the packages of the app, `WordNet 3.0` with the WordNet license notice, and `lang-tools lexical data` with the data credit.
+  Both are registered at start from `lib/data_credit.dart`, and `test/data_credit_test.dart` checks that they match `DATA_LICENSE.md`.

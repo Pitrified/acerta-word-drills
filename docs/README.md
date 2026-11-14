@@ -10,7 +10,8 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 4. [getting-started.md](getting-started.md) - Get it running locally
 5. [content.md](content.md) - WHAT words the app ships and how they are loaded
 6. [drill.md](drill.md) - HOW a round is chosen, built, graded and remembered
-7. [build-and-release.md](build-and-release.md) - HOW an APK is built and signed
+7. [functional-specs.md](functional-specs.md) - WHAT each screen shows and does
+8. [build-and-release.md](build-and-release.md) - HOW an APK is built and signed
 
 ## Index
 
@@ -22,6 +23,7 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 - [getting-started.md](getting-started.md)
 - [content.md](content.md) - the word asset, its export and its loading
 - [drill.md](drill.md) - word selection, round building, grading, progress and settings
+- [functional-specs.md](functional-specs.md) - the screens, one by one
 
 ### AI workflow
 
@@ -42,6 +44,7 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 | Getting started | How do I run it? |
 | Content | Which words ship, and how do they get updated? |
 | Drill | How is a round chosen, graded and remembered? |
+| Functional specs | What does each screen show and do? |
 | Build and release | How do we ship? |
 | Privacy policy | What happens to the user's data? |
 

@@ -86,6 +86,10 @@ class CardRepository {
         card,
   ];
 
+  /// The number of cards [pool] returns.
+  int poolSize({required Level maxLevel, required AnswerLanguage language}) =>
+      pool(maxLevel: maxLevel, language: language).length;
+
   /// The card with [id], or null when there is none.
   WordCard? byId(String id) => _byId[id];
 

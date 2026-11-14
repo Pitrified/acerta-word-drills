@@ -15,7 +15,14 @@ enum LookalikeKind {
 
   /// Descends from the same word and means the same.
   @JsonValue('cognate')
-  cognate,
+  cognate;
+
+  /// The kind in words, as shown to the learner.
+  String get label => switch (this) {
+    LookalikeKind.full => 'false friend',
+    LookalikeKind.partial => 'partial false friend',
+    LookalikeKind.cognate => 'cognate',
+  };
 }
 
 /// A word in another language that looks like the Portuguese one.
@@ -33,6 +40,13 @@ abstract class Lookalike with _$Lookalike {
 
   factory Lookalike.fromJson(Map<String, dynamic> json) =>
       _$LookalikeFromJson(json);
+
+  /// The language of the look-alike in words; an unknown code is shown as is.
+  String get languageLabel => switch (language) {
+    'en' => 'English',
+    'it' => 'Italian',
+    _ => language,
+  };
 
   /// Whether the word misleads: a false friend rather than a cognate.
   bool get isTrap => kind != LookalikeKind.cognate;

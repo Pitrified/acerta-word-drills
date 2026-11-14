@@ -17,6 +17,7 @@ which keeps the guide to setting up Flutter and the AI playbook.
 - Word asset and its export: [docs/content.md](../docs/content.md)
 - AI collaboration: [docs/ai-development-playbook.md](https://github.com/Pitrified/flutter-setup-project/blob/main/docs/ai-development-playbook.md)
 - Drill logic (selection, rounds, progress, settings): [docs/drill.md](../docs/drill.md)
+- What each screen shows and does: [docs/functional-specs.md](../docs/functional-specs.md)
 - Build and release: [docs/build-and-release.md](../docs/build-and-release.md)
 - Git workflow: [docs/git-workflow.md](../docs/git-workflow.md)
 

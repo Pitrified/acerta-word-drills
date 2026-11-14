@@ -73,7 +73,7 @@ A layout change therefore bumps `FORMAT` in the tool and `supportedCardsFormat` 
 ## Loading
 
 `CardRepository.load` reads the asset once at start and parses it in a background isolate, so the 7 MB parse stays off the UI isolate.
-The repository holds the cards in memory and answers the pool for a level and an answer language, a card by id, and the count at a level.
+The repository holds the cards in memory and answers the pool for a level and an answer language and its size, a card by id, and the count at exactly one level.
 `cardRepositoryProvider` exposes it.
 
 ## License

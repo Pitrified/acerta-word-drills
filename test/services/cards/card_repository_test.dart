@@ -67,6 +67,22 @@ void main() {
     expect(english, contains('2'));
   });
 
+  test('poolSize is the length of the pool', () {
+    final repository = CardRepository.parse(_text());
+    for (final level in Level.values) {
+      for (final language in AnswerLanguage.values) {
+        expect(
+          repository.poolSize(maxLevel: level, language: language),
+          repository.pool(maxLevel: level, language: language).length,
+        );
+      }
+    }
+    expect(
+      repository.poolSize(maxLevel: Level.b1, language: AnswerLanguage.en),
+      4,
+    );
+  });
+
   test('byId finds a card and misses an unknown id', () {
     final repository = CardRepository.parse(_text());
     expect(repository.byId('3')?.level, Level.b1);
