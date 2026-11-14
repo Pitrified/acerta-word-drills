@@ -124,3 +124,8 @@ Append-only. Newest at the bottom.
   instructions. Close review: the phase stays `in progress`, because its last "Done when"
   line (the app on the user's phone, a round played) is the user's, and the spin-offs wait
   for `main` and for a number from the user.
+- 2026-11-14 : phase 5 committed as `6da171c`. The release APKs were built again from that
+  commit, so the about screen reads `0.1.0+6da171c4` (seen on the emulator, installed over
+  the earlier build with its data kept), and the arm64 one was handed to the user.
+  Waiting on the user: the install and a round on the phone, the keystore, the GitHub repo
+  and `main`, the numbers for the spin-offs.
