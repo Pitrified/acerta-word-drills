@@ -1,0 +1,32 @@
+name: acerta
+description: Portuguese vocabulary drills that work offline
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod:
+  freezed_annotation:
+  go_router:
+  hive:
+  hive_flutter:
+  json_annotation:
+
+dev_dependencies:
+  build_runner:
+  custom_lint:
+  flutter_lints:
+  flutter_test:
+    sdk: flutter
+  freezed:
+  integration_test:
+    sdk: flutter
+  json_serializable:
+  riverpod_lint:
+
+flutter:
+  uses-material-design: true
