@@ -21,7 +21,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 2  | Word content             | [`02_content.md`](02_content.md)             | done |
 | 3  | Pair matching            | [`03_pair_matching.md`](03_pair_matching.md) | done |
 | 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | done |
-| 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | planned |
+| 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -109,3 +109,18 @@ Append-only. Newest at the bottom.
   and back in `test/screens/navigation_test.dart`, a raised level cap brings a C1 word into
   the next round in `test/providers/round_level_cap_test.dart`. Nothing has been looked at
   on a screen yet: the layout tests only assert that nothing overflows at 320 x 568.
+- 2026-11-14 : phase 4 committed as `f5b53c1`. Phase 5 started. Review before the code: the
+  plan's "checks progress after a restart" cannot be two runs of `flutter test`, which
+  removes the app after each; the restart is inside the one run (unmount, close the boxes,
+  `main` again) and a real force-stop is checked by hand with the release APK, which is also
+  the first look at the screens. `05_device_run.md` now says so.
+- 2026-11-14 : phase 5, the run. `integration_test/app_test.dart` and `scripts/e2e.sh`
+  written; the run passes on `fala_api36` (48 s after a 31 s build) and fails at the restart
+  stage when the progress writes are kept out of the box, file restored. The release split
+  build works (arm64 20.1 MB, debug-signed, no internet permission). By hand with the x86_64
+  release APK: progress and the hidden word survive `am force-stop`; home, round, summary,
+  progress, settings and about looked at by screenshot, findings in `05_device_run.md`.
+  Docs: the emulator run in `docs/getting-started.md`, the structure, README and
+  instructions. Close review: the phase stays `in progress`, because its last "Done when"
+  line (the app on the user's phone, a round played) is the user's, and the spin-offs wait
+  for `main` and for a number from the user.

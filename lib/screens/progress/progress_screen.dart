@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/words_provider.dart';
+import '../../utils/format_count.dart';
 import '../../widgets/async_value_view.dart';
 
 /// How much of each level has been seen, and the words missed most.
@@ -31,8 +32,8 @@ class ProgressScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${level.level.label}: ${level.seen} of ${level.total} '
-                        'words seen',
+                        '${level.level.label}: ${formatCount(level.seen)} of '
+                        '${formatCount(level.total)} words seen',
                       ),
                       const SizedBox(height: 4),
                       LinearProgressIndicator(
@@ -42,7 +43,8 @@ class ProgressScreen extends ConsumerWidget {
                   ),
                 ),
               Text(
-                'Total: $seenTotal of $total words seen',
+                'Total: ${formatCount(seenTotal)} of '
+                '${formatCount(total)} words seen',
                 key: const Key('progress-total'),
                 style: theme.textTheme.titleMedium,
               ),

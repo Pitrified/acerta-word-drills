@@ -45,6 +45,7 @@ python3 scripts/plans.py list --index 02      # what that folder contains
 ```bash
 scripts/check.sh          # links, plan folders, codegen, format, analyze, test (-v for full output)
 scripts/install-hooks.sh  # once per clone, so a commit runs them too
+scripts/e2e.sh            # not a gate: the real app on an Android emulator, about a minute and a half
 ```
 
 CI runs `scripts/check.sh` and nothing else.

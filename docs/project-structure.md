@@ -33,7 +33,8 @@ acerta-word-drills/                   # Flutter project root, package name acert
     providers/
     screens/
     support/                          # Fakes shared by the tests: repositories in memory, card builders, the app pump
-  scripts/                            # check.sh, gates, build-apk.sh, plans.py
+  integration_test/                   # app_test.dart, the end-to-end run on an emulator
+  scripts/                            # check.sh, gates, e2e.sh, build-apk.sh, plans.py
   tool/                               # export_cards.py, writes the card asset
   docs/
   pubspec.yaml

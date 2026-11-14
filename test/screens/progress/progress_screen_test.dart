@@ -94,6 +94,18 @@ void main() {
     expect(find.text('No missed words yet.'), findsOneWidget);
   });
 
+  testWidgets('writes a count over 999 with a thousands separator', (
+    tester,
+  ) async {
+    await _open(
+      tester,
+      progress: FakeProgressRepository({}),
+      levels: List.filled(1200, 0),
+    );
+    expect(find.text('A1: 0 of 1,200 words seen'), findsOneWidget);
+    expect(find.text('Total: 0 of 1,200 words seen'), findsOneWidget);
+  });
+
   testWidgets('skips a progress id that is not in the card set', (
     tester,
   ) async {

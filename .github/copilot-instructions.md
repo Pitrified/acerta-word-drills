@@ -96,6 +96,10 @@ two environments agree, until something has run in both: say what was checked, a
 Adding a check to `check.sh` beats writing the rule down a second time: when a correction has to
 be given twice, the fix is a mechanism, not more prose.
 
+`scripts/e2e.sh` is the slow check outside the gates: the real app on the emulator, with the real
+word asset and real Hive boxes (`docs/getting-started.md`, "The run on an emulator"). Run it after
+a change to `lib/main.dart`, a repository or a route, and before handing over an APK.
+
 ## Which machine
 
 The build box has no screen and no phone attached. It builds, analyzes, tests, and runs the app

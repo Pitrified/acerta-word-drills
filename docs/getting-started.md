@@ -49,6 +49,27 @@ git clone --no-hardlinks . /tmp/acerta-clean && cd /tmp/acerta-clean
 scripts/check.sh
 ```
 
+## The run on an emulator
+
+`scripts/e2e.sh` runs `integration_test/app_test.dart`: the real app on an Android emulator, with the real word asset, real Hive boxes and the real clock.
+The widget tests cannot cover that: a `testWidgets` body runs on a fake clock, where a Hive write never completes, so they run on in-memory repositories (`test/support/`).
+
+```bash
+scripts/e2e.sh                   # boot the emulator if needed, run, leave it up
+scripts/e2e.sh --stop-emulator   # also shut down an emulator this run booted
+```
+
+It boots the AVD `fala_api36` headless when `emulator-5554` is not already up (`AVD` and `DEVICE` override both), uninstalls the app so the run starts with no data, and writes `test.log` and `emulator.log` under `build/e2e/`.
+With the emulator up and a warm Gradle, a run takes about a minute and a half.
+It is not a gate in `scripts/check.sh` and CI does not run it, because it needs an emulator: run it before handing over an APK and after a change to `lib/main.dart`, a repository or a route.
+
+The test is one test in stages, each starting from the state the last one left:
+a fresh install with the default settings, a round with one wrong tap, the summary and what the round wrote to the progress box, hiding a word, a second round with none of the first round's words, the progress screen, a lower level cap and Italian answers, a restart, and the hidden word brought back.
+
+`flutter test` on a device removes the app when it ends, so the restart happens inside the run: the test unmounts the app, closes the Hive boxes and calls `main` again, and the new app reads its settings and progress back from the files on the device.
+That does not prove the data survives the process being killed.
+Check that by hand with a release APK: play a round, `adb shell am force-stop com.acerta.app`, open the app again and look at the progress screen.
+
 ## Target versions
 
 | Concern | Value |
