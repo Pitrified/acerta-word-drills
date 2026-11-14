@@ -141,3 +141,8 @@ Append-only. Newest at the bottom.
   `scripts/check.sh` passes with 173 tests and `scripts/e2e.sh` passes. Close review: the
   release build was looked at on the emulator before and after a wrong tap; a word too long
   for its tile still wraps inside it, as before.
+- 2026-11-14 : phase 6 committed as `f92a7c8`. The release APKs were built again from that
+  commit; the about screen reads `0.1.0+f92a7c83` and the board was looked at on the emulator
+  in a fresh round and after a wrong tap. The arm64 one was handed to the user; it has the
+  same debug signature as the earlier one, so it installs over it with the progress kept.
+  Still waiting on the user for phase 5: the install and a round on the phone.
