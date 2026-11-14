@@ -1,5 +1,5 @@
 ---
-status: planned
+status: done
 ---
 
 # Phase 2 - Word content
@@ -55,3 +55,13 @@ Context: [`00_start.md`](00_start.md), depends on [`01_skeleton.md`](01_skeleton
 - The asset regenerates byte for byte from the same corpus.
 - `scripts/check.sh` passes, with the asset test in it.
 - The asset's size and count are recorded in `docs/content.md`.
+
+## What the implementation found
+
+- The asset is 7.0 MB plain and 2.0 MB gzipped, so every level ships and the level cap is
+  an in-app filter.
+- freezed 3.2.3 wraps list fields in a way the Dart 3.13 parser rejects, so `WordCard` turns
+  the wrapping off; the repository's own card list is unmodifiable.
+- `@JsonKey` on a freezed factory parameter trips an analyzer warning, so the snake_case
+  asset keys are mapped by `field_rename: snake` in `build.yaml`, for every model.
+- The real-asset test parses all 29,376 cards in about 2 seconds.

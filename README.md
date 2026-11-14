@@ -18,6 +18,7 @@ The tooling and conventions come from [fala-language-tutor](https://github.com/P
 |----------|---------------|
 | [docs/](docs/) | What the project is now: structure, standards, build and release, privacy |
 | [docs/getting-started.md](docs/getting-started.md) | Run the gates and the app |
+| [docs/content.md](docs/content.md) | The word asset, how to regenerate it, how the app loads it |
 | [.github/copilot-instructions.md](.github/copilot-instructions.md) | The rules an AI assistant works under here |
 | [plans/](plans/) | The development diary: how the project got to where it is |
 

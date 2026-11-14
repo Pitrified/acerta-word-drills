@@ -1,0 +1,39 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'lookalike.freezed.dart';
+part 'lookalike.g.dart';
+
+/// How a look-alike word relates to the Portuguese word.
+enum LookalikeKind {
+  /// Never means the same as the Portuguese word.
+  @JsonValue('full')
+  full,
+
+  /// Shares an everyday meaning with the Portuguese word.
+  @JsonValue('partial')
+  partial,
+
+  /// Descends from the same word and means the same.
+  @JsonValue('cognate')
+  cognate,
+}
+
+/// A word in another language that looks like the Portuguese one.
+@freezed
+abstract class Lookalike with _$Lookalike {
+  const Lookalike._();
+
+  const factory Lookalike({
+    /// Language code of the look-alike, such as `en`.
+    required String language,
+    required String text,
+    required LookalikeKind kind,
+    @Default('') String note,
+  }) = _Lookalike;
+
+  factory Lookalike.fromJson(Map<String, dynamic> json) =>
+      _$LookalikeFromJson(json);
+
+  /// Whether the word misleads: a false friend rather than a cognate.
+  bool get isTrap => kind != LookalikeKind.cognate;
+}

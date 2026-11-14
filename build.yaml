@@ -4,3 +4,5 @@ targets:
       json_serializable:
         options:
           explicit_to_json: true
+          # Asset keys are snake_case (lang_tools, corpus_built_at).
+          field_rename: snake

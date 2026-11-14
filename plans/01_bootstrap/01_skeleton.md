@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 1 - Repo skeleton and gates
@@ -18,7 +18,8 @@ Context: [`00_start.md`](00_start.md).
 
 ## Plan
 
-- `git init`, branch `main`; work on `feat/01_bootstrap`.
+- `git init` straight onto `feat/01_bootstrap`: `main` gets its first commit when the user
+  merges or creates it, since a commit on `main` is theirs to make.
 - From fala-language-tutor, copied and adapted (names, ids, anything about OpenAI or speech
   removed):
   - `scripts/check.sh`, `scripts/gates/`, `scripts/install-hooks.sh`, `.githooks/`,
@@ -48,3 +49,17 @@ Context: [`00_start.md`](00_start.md).
 - `scripts/check.sh` passes in a clean clone.
 - `flutter build apk --debug` succeeds.
 - No file mentions fala, OpenAI or speech except as a named reference in the docs.
+
+## What the implementation found
+
+- Gradle needs a JDK 17 with a compiler, and the box's default `java` is a 25 runtime without
+  one: `scripts/build-apk.sh` sets `JAVA_HOME` to the distro's JDK 17 when it is unset, and
+  `docs/build-and-release.md` says so.
+- The first build made Gradle download Android NDK r28c, SDK Platform 35 and CMake 3.22.1
+  into `~/android-sdk`, outside the repo.
+- `unnecessary_await_in_return` is deprecated in Dart 3.13 and fails `flutter analyze`, so it is
+  not in `analysis_options.yaml`.
+- `scripts/build-apk.sh` passes no version or commit to the app yet: nothing reads them until
+  the about screen exists ([`04_screens.md`](04_screens.md)).
+- The debug APK is 127 MiB (debug, every ABI); the release size is measured in
+  [`05_device_run.md`](05_device_run.md).

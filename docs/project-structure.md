@@ -5,24 +5,27 @@
 ```
 acerta-word-drills/                   # Flutter project root, package name acerta
   android/                            # Android-specific (mostly generated)
+  assets/cards/                       # pt_cards.json, the bundled word cards
   lib/
     main.dart                         # Entry point
     app.dart                          # App widget, router
     models/                           # Freezed data models (generated)
-    providers/                        # Riverpod providers
+    providers/                        # Riverpod providers (cards_provider.dart)
     screens/                          # UI screens (one folder per screen)
       home/
     services/                         # Business logic services
+      cards/                          # CardRepository, loads the asset
       logging/                        # AppLogger
   test/                               # Mirrors lib/
     screens/
   scripts/                            # check.sh, gates, build-apk.sh, plans.py
+  tool/                               # export_cards.py, writes the card asset
   docs/
   pubspec.yaml
   analysis_options.yaml
 ```
 
-Folders for models, providers and further services appear when the first file for them does.
+Folders for further services appear when the first file for them does.
 
 ## Layer rules
 
