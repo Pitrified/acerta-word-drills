@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'screens/home/home_screen.dart';
+import 'screens/round/round_screen.dart';
 
 /// Route path constants.
 abstract final class AppRoutes {
   static const home = '/';
+  static const round = '/round';
 }
 
 /// App-level GoRouter configuration.
@@ -20,6 +22,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.round,
+        builder: (context, state) => const RoundScreen(),
       ),
     ],
   );

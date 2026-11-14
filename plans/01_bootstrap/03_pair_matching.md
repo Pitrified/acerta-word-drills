@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 3 - Pair matching
@@ -44,7 +44,27 @@ Context: [`00_start.md`](00_start.md), depends on [`02_content.md`](02_content.m
 
 ## Done when
 
-- A round can be played on the emulator from the home screen, and a second round avoids the
-  words just seen.
-- Progress is still there after the app is killed and reopened.
+- A round can be played from the home screen in a widget test of the whole app, and a second
+  round avoids the words just seen.
+- Progress round-trips through a real Hive box in the repository test.
 - `scripts/check.sh` passes.
+- The same on the emulator, with the app killed and reopened, is proven by the scripted run of
+  [`05_device_run.md`](05_device_run.md): it needs the real app and a real clock, which a
+  widget test does not have.
+
+## What the implementation found
+
+- The round reads the level cap, the round size and the answer language, so the settings
+  model, its Hive repository and its provider were written here; phase 4 keeps only the
+  settings screen.
+- "Reset progress" keeps the hidden words hidden: `resetCounts` forgets counts and last seen
+  times only.
+- Hive writes never complete inside `testWidgets` (fake clock), so the widget tests run on
+  in-memory fakes of the two repositories and `lib/main.dart`, which opens the real boxes,
+  has no test until the emulator run.
+- A missed word comes back rarely at first: its weight is 1 + 3 per error, against 5 for
+  each of the thousands of words never seen, and the recency factor holds it back for the
+  first hours. The web drill behaves the same. Left as is; a follow-up if it shows on the
+  phone.
+- The longest trap note is 102 characters, three lines on a small phone, so the feedback
+  line has a minimum height and grows instead of a fixed one.

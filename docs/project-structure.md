@@ -10,14 +10,21 @@ acerta-word-drills/                   # Flutter project root, package name acert
     main.dart                         # Entry point
     app.dart                          # App widget, router
     models/                           # Freezed data models (generated)
-    providers/                        # Riverpod providers (cards_provider.dart)
+    providers/                        # Riverpod providers (cards, clock, progress, settings, round)
     screens/                          # UI screens (one folder per screen)
       home/
+      round/                          # RoundScreen, widgets/ (WordTile)
     services/                         # Business logic services
       cards/                          # CardRepository, loads the asset
       logging/                        # AppLogger
+      pair_matching/                  # buildRound, gradeTap
+      progress/                       # ProgressRepository, Hive box progress
+      selection/                      # computeWeight, selectCards
+      settings/                       # SettingsRepository, Hive box settings
   test/                               # Mirrors lib/
+    providers/
     screens/
+    support/                          # Fakes shared by the tests: repositories in memory, card builders
   scripts/                            # check.sh, gates, build-apk.sh, plans.py
   tool/                               # export_cards.py, writes the card asset
   docs/

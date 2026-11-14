@@ -19,7 +19,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | -- | ------------------------ | -------------------------------------------- | ------ |
 | 1  | Repo skeleton and gates  | [`01_skeleton.md`](01_skeleton.md)           | done |
 | 2  | Word content             | [`02_content.md`](02_content.md)             | done |
-| 3  | Pair matching            | [`03_pair_matching.md`](03_pair_matching.md) | in progress |
+| 3  | Pair matching            | [`03_pair_matching.md`](03_pair_matching.md) | done |
 | 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | planned |
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | planned |
 
@@ -68,3 +68,25 @@ Append-only. Newest at the bottom.
   the isolate was untested, so a test with a fake bundle was added; nothing else changed.
   Close review: the asset regenerates byte for byte, the gates pass with the real-asset test
   in them, size and counts are in `docs/content.md`.
+- 2026-11-14 : phase 3 started. Review before the code: the round needs the settings (level
+  cap, pairs, answer language), which `04_screens.md` had planned to store, so the settings
+  model, repository and provider moved into phase 3 and the screen stays in phase 4. The
+  phase was split in two for the subagents: the logic (3a) and the round on screen (3b).
+- 2026-11-14 : phase 3a. A sonnet subagent ported selection and pair matching from lang-tutor
+  and wrote the progress and settings stores with their providers and `docs/drill.md`; it
+  reported eleven mutations caught. Review: every source file read against lang-tutor's
+  rules, no change needed; six mutations run again independently (uniform draw, error boost,
+  decoy language, trap note for the same left word, shared translation, `resetCounts` keeps
+  hidden), all six made a test fail, files restored.
+- 2026-11-14 : phase 3 done. The same subagent setup wrote 3b (round state, `roundProvider`,
+  the round screen and its tile, home with the start button, the `/round` route, Hive opened
+  in `main`), was cut off by a usage limit part way and resumed with its context. Review of
+  its diff changed three things: the feedback line had a fixed height that the longest trap
+  note (102 characters) would overrun, now a minimum height; the fake progress store's reset
+  dropped hidden words, unlike the real one; one tap rule in `docs/drill.md` reworded. Four
+  mutations of the round provider run independently (error not recorded, finished too early,
+  matched word not ignored, clock not read at the tap), all caught, file restored.
+  `scripts/check.sh` passes with 106 tests. Close review: the "Done when" asked for a round
+  on the emulator and progress after a restart, which nothing in this phase can prove; the
+  sub-plan now says what was proven here (widget test of the whole app on fakes, Hive round
+  trip in the repository test) and leaves the emulator proof to `05_device_run.md`.

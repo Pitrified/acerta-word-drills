@@ -9,7 +9,8 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 3. [git-workflow.md](git-workflow.md) - HOW changes are committed and merged
 4. [getting-started.md](getting-started.md) - Get it running locally
 5. [content.md](content.md) - WHAT words the app ships and how they are loaded
-6. [build-and-release.md](build-and-release.md) - HOW an APK is built and signed
+6. [drill.md](drill.md) - HOW a round is chosen, built, graded and remembered
+7. [build-and-release.md](build-and-release.md) - HOW an APK is built and signed
 
 ## Index
 
@@ -20,6 +21,7 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 - [git-workflow.md](git-workflow.md)
 - [getting-started.md](getting-started.md)
 - [content.md](content.md) - the word asset, its export and its loading
+- [drill.md](drill.md) - word selection, round building, grading, progress and settings
 
 ### AI workflow
 
@@ -39,6 +41,7 @@ The tooling and conventions of this repo come from [fala-language-tutor](https:/
 | Git workflow | How do changes land? |
 | Getting started | How do I run it? |
 | Content | Which words ship, and how do they get updated? |
+| Drill | How is a round chosen, graded and remembered? |
 | Build and release | How do we ship? |
 | Privacy policy | What happens to the user's data? |
 
