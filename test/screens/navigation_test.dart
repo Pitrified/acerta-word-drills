@@ -52,4 +52,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('start-round')), findsOneWidget);
   });
+
+  testWidgets('words to learn open from settings and Back leads home', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tapKey(tester, 'home-settings');
+    await tapKey(tester, 'settings-learn');
+    expect(find.widgetWithText(AppBar, 'Words to learn'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('start-round')), findsOneWidget);
+  });
 }

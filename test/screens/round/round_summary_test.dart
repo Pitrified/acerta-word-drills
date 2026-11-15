@@ -36,6 +36,9 @@ Future<List<RoundPair>> _playRound(
   return pairs;
 }
 
+String _titleOf(WidgetTester tester, RoundPair pair) =>
+    tester.widget<Text>(find.byKey(Key('summary-title-${pair.card.id}'))).data!;
+
 void main() {
   testWidgets('shows one entry per pair, in round order', (tester) async {
     final container = await pumpApp(tester);
@@ -48,7 +51,9 @@ void main() {
       expect(
         find.descendant(
           of: entry,
-          matching: find.text('${pair.left} - ${pair.right}'),
+          matching: find.text(
+            '${pair.left} - ${pair.right} - ${pair.card.it.first}',
+          ),
         ),
         findsOneWidget,
       );
@@ -261,6 +266,109 @@ void main() {
         final box = tester.getRect(find.byKey(Key(key)));
         expect(box.right, lessThanOrEqualTo(320));
         expect(box.left, greaterThanOrEqualTo(0));
+      }
+    });
+  });
+
+  group('Learn this', () {
+    testWidgets('marks the word with the time and undoes it', (tester) async {
+      final learn = FakeLearnRepository();
+      final container = await pumpApp(tester, learn: learn);
+      final pairs = await _playRound(tester, container);
+      final id = pairs[2].card.id;
+
+      expect(find.text('Learn this'), findsNWidgets(pairs.length));
+      await tapKey(tester, 'learn-$id');
+      expect(learn.all, {id: fixedNow});
+      expect(find.text('To learn, undo'), findsOneWidget);
+      expect(find.text('Learn this'), findsNWidgets(pairs.length - 1));
+
+      await tapKey(tester, 'learn-$id');
+      expect(learn.all, isEmpty);
+      expect(find.text('To learn, undo'), findsNothing);
+    });
+
+    testWidgets('does not hide or report the word', (tester) async {
+      final progress = FakeProgressRepository();
+      final reports = FakeReportRepository();
+      final container = await pumpApp(
+        tester,
+        progress: progress,
+        reports: reports,
+      );
+      final id = (await _playRound(tester, container))[0].card.id;
+      await tapKey(tester, 'learn-$id');
+      expect(progress.of(id)?.hidden ?? false, isFalse);
+      expect(reports.all, isEmpty);
+    });
+
+    testWidgets('all three buttons fit a small phone', (tester) async {
+      useSmallPhone(tester);
+      final container = await pumpApp(tester);
+      final id = (await _playRound(tester, container))[0].card.id;
+      await tapKey(tester, 'learn-$id');
+      await tapKey(tester, 'report-$id');
+      expect(tester.takeException(), isNull);
+      for (final key in ['report-$id', 'hide-$id', 'learn-$id']) {
+        final box = tester.getRect(find.byKey(Key(key)));
+        expect(box.right, lessThanOrEqualTo(320));
+        expect(box.left, greaterThanOrEqualTo(0));
+      }
+    });
+  });
+
+  group('the title', () {
+    testWidgets('an English round adds the first Italian translation', (
+      tester,
+    ) async {
+      final cards = cardRepositoryOf([
+        for (var i = 0; i < 12; i++)
+          fakeCard(i, it: i.isEven ? ['itA$i', 'itB$i'] : []),
+      ]);
+      final container = await pumpApp(tester, cards: cards);
+      final pairs = await _playRound(tester, container, missFirst: false);
+      final withIt = pairs.where((p) => p.card.it.isNotEmpty);
+      final without = pairs.where((p) => p.card.it.isEmpty);
+      expect(withIt, isNotEmpty);
+      expect(without, isNotEmpty);
+      for (final pair in withIt) {
+        expect(
+          _titleOf(tester, pair),
+          '${pair.left} - ${pair.right} - ${pair.card.it.first}',
+        );
+      }
+      for (final pair in without) {
+        expect(_titleOf(tester, pair), '${pair.left} - ${pair.right}');
+      }
+    });
+
+    testWidgets('an Italian round adds the first English translation', (
+      tester,
+    ) async {
+      final cards = cardRepositoryOf([
+        for (var i = 0; i < 12; i++)
+          fakeCard(i, en: i.isEven ? ['enA$i', 'enB$i'] : []),
+      ]);
+      final container = await pumpApp(
+        tester,
+        cards: cards,
+        settings: FakeSettingsRepository(
+          const DrillSettings(answerLanguage: AnswerLanguage.it),
+        ),
+      );
+      final pairs = await _playRound(tester, container, missFirst: false);
+      final withEn = pairs.where((p) => p.card.en.isNotEmpty);
+      final without = pairs.where((p) => p.card.en.isEmpty);
+      expect(withEn, isNotEmpty);
+      expect(without, isNotEmpty);
+      for (final pair in withEn) {
+        expect(
+          _titleOf(tester, pair),
+          '${pair.left} - ${pair.right} - ${pair.card.en.first}',
+        );
+      }
+      for (final pair in without) {
+        expect(_titleOf(tester, pair), '${pair.left} - ${pair.right}');
       }
     });
   });

@@ -12,7 +12,7 @@ acerta-word-drills/                   # Flutter project root, package name acert
     build_info.dart                   # Version label and source address, from --dart-define
     data_credit.dart                  # The data credit and WordNet notice, registered as licenses
     models/                           # Freezed data models (generated)
-    providers/                        # Riverpod providers (cards, clock, progress, reports, settings, round, round summary, derived word lists and counts)
+    providers/                        # Riverpod providers (cards, clock, progress, reports, learn, settings, round, round summary, derived word lists and counts)
     screens/                          # UI screens (one folder per screen)
       home/
       round/                          # RoundScreen, widgets/ (WordTile, RoundSummaryView)
@@ -20,9 +20,11 @@ acerta-word-drills/                   # Flutter project root, package name acert
       hidden_words/
       progress/
       reports/
+      learn/
       about/
     services/                         # Business logic services
       cards/                          # CardRepository, loads the asset
+      learn/                          # LearnRepository, Hive box learn
       logging/                        # AppLogger
       pair_matching/                  # buildRound, gradeTap
       progress/                       # ProgressRepository, Hive box progress

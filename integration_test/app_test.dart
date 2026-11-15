@@ -18,6 +18,7 @@ import 'package:acerta/models/answer_language.dart';
 import 'package:acerta/models/level.dart';
 import 'package:acerta/models/pair_round.dart';
 import 'package:acerta/models/round_state.dart';
+import 'package:acerta/providers/learn_provider.dart';
 import 'package:acerta/providers/progress_provider.dart';
 import 'package:acerta/providers/reports_provider.dart';
 import 'package:acerta/providers/round_provider.dart';
@@ -153,8 +154,21 @@ void main() {
     expect(progress[missed.card.id]!.correct, 1);
     expect(progress[first.pairs[1].card.id]!.seen, 1);
 
-    // 4. Hide a word from the summary, and report another pair, which hides
-    //    its word too.
+    // The title adds the first Italian translation of the card when it has
+    // one, and stays at two parts when it has none.
+    for (final pair in first.pairs) {
+      final title = textOf(tester, 'summary-title-${pair.card.id}');
+      final it = pair.card.it;
+      expect(
+        title,
+        it.isEmpty
+            ? '${pair.left} - ${pair.right}'
+            : '${pair.left} - ${pair.right} - ${it.first}',
+      );
+    }
+
+    // 4. Hide a word from the summary, report another pair, which hides its
+    //    word too, and mark a fifth to learn, which leaves it in play.
     final hidden = first.pairs[2].card;
     await tapKey(tester, 'hide-${hidden.id}');
     expect(container.read(progressProvider)[hidden.id]!.hidden, true);
@@ -170,6 +184,15 @@ void main() {
     expect(report.right, reportedPair.right);
     expect(report.language, AnswerLanguage.en);
     expect(report.translations, reported.en);
+
+    final toLearn = first.pairs[4].card;
+    await tapKey(tester, 'learn-${toLearn.id}');
+    expect(container.read(learnProvider).keys, [toLearn.id]);
+    expect(find.text('To learn, undo'), findsOneWidget);
+    expect(
+      container.read(progressProvider)[toLearn.id]?.hidden ?? false,
+      false,
+    );
 
     // 5. The next round holds none of the words just played.
     await tapKey(tester, 'next-round');
@@ -254,6 +277,9 @@ void main() {
     expect(reports[reported.id]!.right, reportedPair.right);
     expect(reports[reported.id]!.reportedAt, isNotNull);
 
+    expect(container.read(learnProvider).keys, [toLearn.id]);
+    expect(container.read(learnProvider)[toLearn.id], isNotNull);
+
     // 9. The hidden words are still listed, and can be brought back. A
     //    reported word comes back too, and its report stays listed until it
     //    is removed.
@@ -272,5 +298,13 @@ void main() {
     await tapKey(tester, 'report-remove-${reported.id}');
     await waitFor(tester, find.text('No reported pairs.'));
     expect(container.read(reportsProvider), isEmpty);
+
+    // The marked word is listed, and Remove empties the list.
+    await tester.pageBack();
+    await tapKey(tester, 'settings-learn');
+    expect(find.byKey(Key('learn-row-${toLearn.id}')), findsOneWidget);
+    await tapKey(tester, 'learn-remove-${toLearn.id}');
+    await waitFor(tester, find.text('No words to learn.'));
+    expect(container.read(learnProvider), isEmpty);
   });
 }

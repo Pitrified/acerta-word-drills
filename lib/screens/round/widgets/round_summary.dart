@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app.dart';
+import '../../../models/answer_language.dart';
 import '../../../models/round_summary.dart';
 import '../../../models/word_report.dart';
 import '../../../providers/clock_provider.dart';
+import '../../../providers/learn_provider.dart';
 import '../../../providers/progress_provider.dart';
 import '../../../providers/reports_provider.dart';
 import '../../../providers/round_provider.dart';
@@ -89,7 +91,19 @@ class _EntryCard extends ConsumerWidget {
     final reported = ref.watch(
       reportsProvider.select((r) => r.containsKey(card.id)),
     );
+    final marked = ref.watch(
+      learnProvider.select((l) => l.containsKey(card.id)),
+    );
     final language = ref.read(roundProvider).round!.language;
+    final otherLanguage = AnswerLanguage.values.firstWhere(
+      (l) => l != language,
+    );
+    final other = card.translationsIn(otherLanguage);
+    final title = [
+      card.text,
+      entry.pair.right,
+      if (other.isNotEmpty) other.first,
+    ].join(' - ');
     return Card(
       key: Key('summary-${card.id}'),
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -103,7 +117,8 @@ class _EntryCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${card.text} - ${entry.pair.right}',
+                    title,
+                    key: Key('summary-title-${card.id}'),
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
@@ -184,6 +199,15 @@ class _EntryCard extends ConsumerWidget {
                     child: Text(
                       entry.hidden ? 'Hidden, undo' : "Don't show again",
                     ),
+                  ),
+                  TextButton(
+                    key: Key('learn-${card.id}'),
+                    onPressed: () => unawaited(
+                      marked
+                          ? ref.read(learnProvider.notifier).remove(card.id)
+                          : ref.read(learnProvider.notifier).add(card.id),
+                    ),
+                    child: Text(marked ? 'To learn, undo' : 'Learn this'),
                   ),
                 ],
               ),

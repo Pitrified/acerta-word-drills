@@ -106,6 +106,22 @@ Its `add` also hides the word, `undo` removes the report and unhides the word, a
 `main` has to override `reportRepositoryProvider` with an opened repository.
 The file the reports are saved to is in [content.md](content.md#the-reports-file).
 
+## Words to learn
+
+`LearnRepository` keeps the words the learner marked in the Hive box `learn`, apart from the progress: the key is the card id and the value is the time of the mark as ISO 8601 UTC text.
+Resetting the progress leaves the marks alone.
+The decoded marks are held in memory and every change is written to the box before it returns.
+
+| Operation | Effect |
+|-----------|--------|
+| `add` | Marks a word at a time, replacing an earlier mark |
+| `remove` | Drops the mark of one word |
+
+`learnProvider` wraps the repository like the reports provider; its `add` stamps the mark with the clock in UTC.
+`learnWordsProvider` joins the marks with the cards by id, newest mark first, and skips an id that is no longer in the card set.
+A mark has no effect on selection or rounds.
+`main` has to override `learnRepositoryProvider` with an opened repository.
+
 ## Settings
 
 `SettingsRepository` keeps the `DrillSettings` as JSON text under the key `drill` of the Hive box `settings`.
@@ -165,4 +181,6 @@ It holds one entry per pair in round order, each flagged missed (its card id is 
 Hiding a word from the summary calls `setHidden` on the progress, so the word has weight 0 from the next round on, and `Hidden, undo` restores it.
 Reporting a pair from the summary adds a `WordReport` to the reports and calls `setHidden` the same way; `Reported, undo` removes the report and unhides the word.
 Removing a report from the reported pairs screen, or clearing them all, leaves the words hidden.
+Marking a word with `Learn this` adds it to the learn marks and nothing else; `To learn, undo` removes the mark.
+The title of an entry adds the first translation in the answer language that is not the round's, when the card has one.
 What the summary shows is in [functional-specs.md](functional-specs.md#round-summary).

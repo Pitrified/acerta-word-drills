@@ -24,6 +24,8 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
 | 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | done |
+| 8  | Words to learn           | [`08_learn_list.md`](08_learn_list.md)       | in progress |
+| 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | draft |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -177,3 +179,22 @@ Append-only. Newest at the bottom.
   emulator it installed over the `6676e6f` build with the two reports kept, survived a
   force-stop, and a second save wrote a file whose lines carry `0.1.0+d69ce175`. The arm64
   APK was handed to the user.
+- 2026-11-15 : the user asked for three more things: remove medical terms through a general
+  topic picker, a button to mark words to learn, and the Italian translation on the summary.
+  Measured on the asset: a hypernym rule (disease, symptom, drug, treatment, branches of
+  medicine) catches 867 words, 853 of them C2; 25,310 of the 29,376 words are C2, 4,556 of
+  them with no frequency. The user's answers: keep relatively common medical words
+  ("cortisone or lung is ok, atelectasia is not"), the fix is in lang-tools, "we have too
+  many C2 words"; topics as on/off chips with medical off; the mark is just a list; the
+  summary title reads `estudo - work - studio`. Split agreed: lang-tools
+  `20_rare_words_topics` (a commonness floor, the C2 band, a medical topic), acerta phase 8
+  now (`08_learn_list.md`), the picker as phase 9 (`09_topic_picker.md`, draft) after
+  lang-tools. Review of phase 8 before the code: the list reads cards by id like the hidden
+  words screen, so a mark on an id that left the asset is skipped; no other finding.
+- 2026-11-15 : phase 8, the code. A sonnet subagent wrote `LearnRepository` (Hive box
+  `learn`), `learnProvider` and `learnWordsProvider`, the Learn this button, the summary
+  title with the other language, the words to learn screen, the tests, the e2e stages and
+  the docs, plus one privacy policy line on the marks (kept); it reported four mutations
+  caught (title without the other language, mark not stored, reset clearing the marks,
+  order reversed). Review of its diff: no change. `scripts/check.sh` passes with 232
+  tests, `scripts/e2e.sh` passes (57 s).

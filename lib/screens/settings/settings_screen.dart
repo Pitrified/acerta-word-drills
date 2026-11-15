@@ -8,6 +8,7 @@ import '../../app.dart';
 import '../../models/answer_language.dart';
 import '../../models/drill_settings.dart';
 import '../../models/level.dart';
+import '../../providers/learn_provider.dart';
 import '../../providers/progress_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -25,6 +26,7 @@ class SettingsScreen extends ConsumerWidget {
     final pool = ref.watch(poolSizesProvider).value?[settings.answerLanguage];
     final hidden = ref.watch(hiddenCountProvider);
     final reports = ref.watch(reportsProvider).length;
+    final learn = ref.watch(learnProvider).length;
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -117,6 +119,13 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Reported pairs'),
               trailing: Text('$reports'),
               onTap: () => unawaited(context.push(AppRoutes.reports)),
+            ),
+            ListTile(
+              key: const Key('settings-learn'),
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Words to learn'),
+              trailing: Text('$learn'),
+              onTap: () => unawaited(context.push(AppRoutes.learn)),
             ),
             ListTile(
               key: const Key('settings-reset'),

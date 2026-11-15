@@ -21,6 +21,8 @@ The pairs you report as wrong are kept on the device too, until you remove them.
 They leave the phone only if you choose Save to file on the reported pairs screen: the app then writes them to a file in a place you pick, and sends it nowhere.
 What you do with that file is up to you.
 
+The words you mark to learn are kept on the device only, until you remove them.
+
 ## Data deletion
 
 All local data is deleted by clearing the app's data in Android Settings or by uninstalling the app.

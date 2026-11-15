@@ -30,7 +30,8 @@ It has a heading, `Round done`, and a line such as `4 of 5 right first time`: th
 
 Below that is one card per pair, in round order:
 
-- The Portuguese word and the right word that was played.
+- The Portuguese word and the right word that was played, then the first translation of the word in the other answer language when it has one: `estudo - work - studio` in an English round, the English word after the Italian one in an Italian round.
+  A word with no translation in the other language shows the two parts only.
 - The level and the part of speech.
 - The English gloss, whatever the answer language.
 - Every look-alike of the word, English and Italian: its language, its text, its kind in words (`false friend`, `partial false friend` or `cognate`) and its note when it has one.
@@ -42,7 +43,9 @@ Below that is one card per pair, in round order:
   It stores the report and hides the word; its label then reads `Reported, undo`, which removes the report and shows the word again.
   The `Don't show again` button of a reported word reads `Hidden, undo` like any hidden word.
   A word hidden by hand is not reported.
-  The two buttons sit in one right-aligned row and wrap on a narrow screen.
+- A `Learn this` button, which adds the word to the words to learn; its label then reads `To learn, undo`, which takes the word off the list.
+  It does not hide the word or change the rounds.
+  The three buttons sit in one right-aligned row and wrap on a narrow screen.
 
 The list scrolls.
 Next round and Home stay at the bottom of the screen: Next round starts another round, Home returns to the home screen.
@@ -56,15 +59,24 @@ Every change is written at once.
 - Answer language, English or Italian, with a line under it saying how many words at or under the level cap have a translation in the chosen language.
 - Hidden words, with their count; it opens the hidden words screen.
 - Reported pairs, with their count; it opens the reported pairs screen.
+- Words to learn, with their count; it opens the words to learn screen.
 - Reset progress, which asks for confirmation: the counts of every word are forgotten and hidden words stay hidden.
   Cancel changes nothing; Reset clears the counts and shows `Progress reset`.
-  The reported pairs are kept.
+  The reported pairs and the words to learn are kept.
 
 ## Hidden words
 
 The hidden words sorted by text, each with its first English translation and a Restore button.
 With none hidden the screen says `No hidden words.`.
 An id in the progress that is no longer in the card set is left out.
+
+## Words to learn
+
+The words marked with `Learn this`, newest mark first.
+Each row shows the Portuguese word, with its first English translation, its first Italian translation and its level under it, separated by `·`; a translation the word does not have is left out.
+Each row has a Remove button.
+With none the screen says `No words to learn.`.
+An id that is no longer in the card set is left out.
 
 ## Reported pairs
 

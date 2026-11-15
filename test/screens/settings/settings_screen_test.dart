@@ -12,6 +12,7 @@ Future<void> _openSettings(
   WidgetTester tester, {
   FakeProgressRepository? progress,
   FakeReportRepository? reports,
+  FakeLearnRepository? learn,
   FakeSettingsRepository? settings,
   List<int>? levels,
   List<List<String>?> it = const [],
@@ -20,6 +21,7 @@ Future<void> _openSettings(
     tester,
     progress: progress,
     reports: reports,
+    learn: learn,
     settings: settings,
     cards: levels == null
         ? null
@@ -230,6 +232,46 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('settings-reports')),
+        matching: find.text('1'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Words to learn shows the count and opens the list', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      learn: FakeLearnRepository({'id1': fixedNow, 'id2': fixedNow}),
+    );
+    await tapKey(tester, 'home-settings');
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('settings-learn')),
+        matching: find.text('2'),
+      ),
+      findsOneWidget,
+    );
+    await tapKey(tester, 'settings-learn');
+    expect(find.widgetWithText(AppBar, 'Words to learn'), findsOneWidget);
+    expect(find.byKey(const Key('learn-row-id1')), findsOneWidget);
+  });
+
+  testWidgets('Reset progress keeps the words to learn', (tester) async {
+    final learn = FakeLearnRepository({'id1': fixedNow});
+    final progress = FakeProgressRepository({
+      'id1': const WordProgress(seen: 1, hidden: true),
+      'id2': const WordProgress(seen: 2),
+    });
+    await _openSettings(tester, progress: progress, learn: learn);
+    await tapKey(tester, 'settings-reset');
+    await tapKey(tester, 'reset-confirm');
+    expect(progress.of('id2'), isNull);
+    expect(learn.all.keys, ['id1']);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('settings-learn')),
         matching: find.text('1'),
       ),
       findsOneWidget,

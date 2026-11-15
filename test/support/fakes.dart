@@ -11,10 +11,12 @@ import 'package:acerta/models/word_progress.dart';
 import 'package:acerta/models/word_report.dart';
 import 'package:acerta/providers/cards_provider.dart';
 import 'package:acerta/providers/clock_provider.dart';
+import 'package:acerta/providers/learn_provider.dart';
 import 'package:acerta/providers/progress_provider.dart';
 import 'package:acerta/providers/reports_provider.dart';
 import 'package:acerta/providers/settings_provider.dart';
 import 'package:acerta/services/cards/card_repository.dart';
+import 'package:acerta/services/learn/learn_repository.dart';
 import 'package:acerta/services/progress/progress_repository.dart';
 import 'package:acerta/services/reports/report_export.dart';
 import 'package:acerta/services/reports/report_repository.dart';
@@ -85,6 +87,23 @@ class FakeReportRepository implements ReportRepository {
 
   @override
   Future<void> clear() async => _all.clear();
+}
+
+/// A learn store in memory.
+class FakeLearnRepository implements LearnRepository {
+  /// A store that starts with the marks in [initial], by card id.
+  FakeLearnRepository([Map<String, DateTime>? initial]) : _all = {...?initial};
+
+  final Map<String, DateTime> _all;
+
+  @override
+  Map<String, DateTime> get all => Map.unmodifiable(_all);
+
+  @override
+  Future<void> add(String id, DateTime when) async => _all[id] = when;
+
+  @override
+  Future<void> remove(String id) async => _all.remove(id);
 }
 
 /// A file saver that records what it was asked to write.
@@ -189,6 +208,7 @@ CardRepository fakeCardRepository(int count) =>
 List<Override> roundOverrides({
   required FakeProgressRepository progress,
   FakeReportRepository? reports,
+  FakeLearnRepository? learn,
   FakeFileSaver? saver,
   CardRepository? cards,
 
@@ -205,6 +225,7 @@ List<Override> roundOverrides({
   ),
   progressRepositoryProvider.overrideWithValue(progress),
   reportRepositoryProvider.overrideWithValue(reports ?? FakeReportRepository()),
+  learnRepositoryProvider.overrideWithValue(learn ?? FakeLearnRepository()),
   fileSaverProvider.overrideWithValue(saver ?? FakeFileSaver()),
   settingsRepositoryProvider.overrideWithValue(
     settings ?? FakeSettingsRepository(),
