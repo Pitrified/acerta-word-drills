@@ -9,11 +9,13 @@ import 'fakes.dart';
 
 /// Pumps the whole app on fakes and returns its container.
 ///
-/// [progress] and [settings] are the fakes the test can read back.
+/// [progress], [reports], [saver] and [settings] are the fakes the test can read back.
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   CardRepository? cards,
   FakeProgressRepository? progress,
+  FakeReportRepository? reports,
+  FakeFileSaver? saver,
   FakeSettingsRepository? settings,
   DateTime Function()? clock,
   int seed = 1,
@@ -23,6 +25,8 @@ Future<ProviderContainer> pumpApp(
       overrides: roundOverrides(
         cards: cards ?? fakeCardRepository(12),
         progress: progress ?? FakeProgressRepository(),
+        reports: reports,
+        saver: saver,
         settings: settings ?? FakeSettingsRepository(const DrillSettings()),
         clock: clock,
         seed: seed,

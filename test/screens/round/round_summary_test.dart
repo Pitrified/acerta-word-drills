@@ -164,6 +164,107 @@ void main() {
     },
   );
 
+  group('Report pair', () {
+    testWidgets('reports the pair with what was on screen and hides it', (
+      tester,
+    ) async {
+      final progress = FakeProgressRepository();
+      final reports = FakeReportRepository();
+      final container = await pumpApp(
+        tester,
+        progress: progress,
+        reports: reports,
+      );
+      final pairs = await _playRound(tester, container);
+      final pair = pairs[3];
+      final id = pair.card.id;
+
+      expect(find.text('Report pair'), findsNWidgets(pairs.length));
+      await tapKey(tester, 'report-$id');
+
+      final report = reports.all[id]!;
+      expect(report.text, pair.left);
+      expect(report.right, pair.right);
+      expect(report.language, AnswerLanguage.en);
+      expect(report.translations, pair.card.en);
+      expect(report.gloss, pair.card.gloss);
+      expect(report.pos, 'noun');
+      expect(report.level, Level.a1);
+      expect(report.reportedAt, fixedNow);
+      expect(progress.of(id)!.hidden, isTrue);
+      expect(find.text('Reported, undo'), findsOneWidget);
+      expect(find.text('Report pair'), findsNWidgets(pairs.length - 1));
+      // The hide button shows the hidden state as it does for a hand hide.
+      expect(
+        find.descendant(
+          of: find.byKey(Key('hide-$id')),
+          matching: find.text('Hidden, undo'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('an Italian round reports the Italian translations', (
+      tester,
+    ) async {
+      final reports = FakeReportRepository();
+      final container = await pumpApp(
+        tester,
+        reports: reports,
+        settings: FakeSettingsRepository(
+          const DrillSettings(answerLanguage: AnswerLanguage.it),
+        ),
+      );
+      final pairs = await _playRound(tester, container, missFirst: false);
+      await tapKey(tester, 'report-${pairs[0].card.id}');
+      final report = reports.all[pairs[0].card.id]!;
+      expect(report.language, AnswerLanguage.it);
+      expect(report.translations, pairs[0].card.it);
+    });
+
+    testWidgets('Reported, undo removes the report and shows the word', (
+      tester,
+    ) async {
+      final progress = FakeProgressRepository();
+      final reports = FakeReportRepository();
+      final container = await pumpApp(
+        tester,
+        progress: progress,
+        reports: reports,
+      );
+      final id = (await _playRound(tester, container))[0].card.id;
+      await tapKey(tester, 'report-$id');
+      await tapKey(tester, 'report-$id');
+
+      expect(reports.all, isEmpty);
+      expect(progress.of(id)!.hidden, isFalse);
+      expect(find.text('Reported, undo'), findsNothing);
+      expect(find.text('Hidden, undo'), findsNothing);
+    });
+
+    testWidgets('a word hidden by hand is not reported', (tester) async {
+      final reports = FakeReportRepository();
+      final container = await pumpApp(tester, reports: reports);
+      final id = (await _playRound(tester, container))[0].card.id;
+      await tapKey(tester, 'hide-$id');
+      expect(reports.all, isEmpty);
+      expect(find.text('Reported, undo'), findsNothing);
+    });
+
+    testWidgets('both buttons fit a small phone', (tester) async {
+      useSmallPhone(tester);
+      final container = await pumpApp(tester);
+      final id = (await _playRound(tester, container))[0].card.id;
+      await tapKey(tester, 'report-$id');
+      expect(tester.takeException(), isNull);
+      for (final key in ['report-$id', 'hide-$id']) {
+        final box = tester.getRect(find.byKey(Key(key)));
+        expect(box.right, lessThanOrEqualTo(320));
+        expect(box.left, greaterThanOrEqualTo(0));
+      }
+    });
+  });
+
   testWidgets('a hidden word is not drawn in later rounds', (tester) async {
     var now = fixedNow;
     final container = await pumpApp(tester, clock: () => now);

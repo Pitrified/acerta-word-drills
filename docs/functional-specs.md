@@ -38,6 +38,11 @@ Below that is one card per pair, in round order:
 - A `Don't show again` button, which hides the word.
   A hidden word shows `Hidden, undo` in its place, which brings it back.
   The button follows the stored progress, so it reads the same after the screen is rebuilt.
+- A `Report pair` button beside it, for a pair the data gets wrong.
+  It stores the report and hides the word; its label then reads `Reported, undo`, which removes the report and shows the word again.
+  The `Don't show again` button of a reported word reads `Hidden, undo` like any hidden word.
+  A word hidden by hand is not reported.
+  The two buttons sit in one right-aligned row and wrap on a narrow screen.
 
 The list scrolls.
 Next round and Home stay at the bottom of the screen: Next round starts another round, Home returns to the home screen.
@@ -50,14 +55,32 @@ Every change is written at once.
 - Pairs per round, 3 to 8, on a slider with the current number beside it.
 - Answer language, English or Italian, with a line under it saying how many words at or under the level cap have a translation in the chosen language.
 - Hidden words, with their count; it opens the hidden words screen.
+- Reported pairs, with their count; it opens the reported pairs screen.
 - Reset progress, which asks for confirmation: the counts of every word are forgotten and hidden words stay hidden.
   Cancel changes nothing; Reset clears the counts and shows `Progress reset`.
+  The reported pairs are kept.
 
 ## Hidden words
 
 The hidden words sorted by text, each with its first English translation and a Restore button.
 With none hidden the screen says `No hidden words.`.
 An id in the progress that is no longer in the card set is left out.
+
+## Reported pairs
+
+The reports from the round summary, oldest first.
+Each row reads `<Portuguese word> - <right word>`, with the answer language and the date of the report under it, and has a Remove button.
+Removing a report does not show the word again; that is done from the hidden words screen or with `Reported, undo` on the summary.
+With none the screen says `No reported pairs.`.
+
+Two buttons stay at the bottom, both off while there is no report:
+
+- Save to file opens the Android dialog for a new file, named like `acerta-reports-20261115-0930.jsonl`, and writes every report to it.
+  The learner chooses the folder.
+  It shows `Saved <n> reports` (`Saved 1 report` for one), nothing when the dialog is cancelled and `Could not save the file` when writing fails.
+  Saving keeps the reports.
+- Clear all removes every report after a confirmation; the words stay hidden.
+  The file is described in [content.md](content.md#the-reports-file).
 
 ## Progress
 

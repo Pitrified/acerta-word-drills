@@ -23,6 +23,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | done |
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
+| 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -146,3 +147,21 @@ Append-only. Newest at the bottom.
   in a fresh round and after a wrong tap. The arm64 one was handed to the user; it has the
   same debug signature as the earlier one, so it installs over it with the progress kept.
   Still waiting on the user for phase 5: the install and a round on the phone.
+- 2026-11-15 : the user played on the phone and asked for two things: a button to report a
+  wrong pair ("voluto - abandoned"), and why a round had six tiles on the right for five on
+  the left. The sixth was the decoy "prove" for "prover", a full false friend in the asset,
+  working as `docs/drill.md` says; the user chose to keep it as it is. For the report they
+  chose: on the summary only, hiding the word too, out as a file saved on the phone. Phase 7,
+  `07_report_pairs.md`. Review before the code: `MainActivity` is the bare Flutter one, so
+  the save channel is its first native code; the summary reads the answer language from the
+  round, which carries it; the privacy policy says the data stays on the phone, so it gets a
+  line on the saved file, added to the plan. No other finding.
+- 2026-11-15 : phase 7, the code. A sonnet subagent wrote `WordReport`, `ReportRepository`
+  (Hive box `reports`), `reportsProvider`, the report button on the summary, the reported
+  pairs screen, `ReportExport` and the save channel in `MainActivity`, the tests, the e2e
+  stages and the docs; it reported four mutations caught (report without hiding, undo
+  without showing, reset clearing the reports, a field dropped from the file). Review of its
+  diff changed three things: the snackbar said "Saved 1 reports", now singular, with a test;
+  the channel caught only an I/O error, and a provider refusing the write with a
+  `SecurityException` would have crashed the app; the report time is stored in UTC.
+  `scripts/check.sh` passes with 209 tests, `scripts/e2e.sh` passes (53 s).

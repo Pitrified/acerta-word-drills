@@ -19,6 +19,7 @@ import 'package:acerta/models/level.dart';
 import 'package:acerta/models/pair_round.dart';
 import 'package:acerta/models/round_state.dart';
 import 'package:acerta/providers/progress_provider.dart';
+import 'package:acerta/providers/reports_provider.dart';
 import 'package:acerta/providers/round_provider.dart';
 import 'package:acerta/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -152,11 +153,23 @@ void main() {
     expect(progress[missed.card.id]!.correct, 1);
     expect(progress[first.pairs[1].card.id]!.seen, 1);
 
-    // 4. Hide a word from the summary.
+    // 4. Hide a word from the summary, and report another pair, which hides
+    //    its word too.
     final hidden = first.pairs[2].card;
     await tapKey(tester, 'hide-${hidden.id}');
     expect(container.read(progressProvider)[hidden.id]!.hidden, true);
     expect(find.text('Hidden, undo'), findsOneWidget);
+
+    final reportedPair = first.pairs[3];
+    final reported = reportedPair.card;
+    await tapKey(tester, 'report-${reported.id}');
+    expect(container.read(progressProvider)[reported.id]!.hidden, true);
+    expect(find.text('Reported, undo'), findsOneWidget);
+    expect(find.text('Hidden, undo'), findsNWidgets(2));
+    final report = container.read(reportsProvider)[reported.id]!;
+    expect(report.right, reportedPair.right);
+    expect(report.language, AnswerLanguage.en);
+    expect(report.translations, reported.en);
 
     // 5. The next round holds none of the words just played.
     await tapKey(tester, 'next-round');
@@ -179,13 +192,21 @@ void main() {
     await tester.pageBack();
     await waitFor(tester, find.byKey(const Key('start-round')));
 
-    // 7. Settings: a lower level cap and Italian answers.
+    // 7. Settings: a lower level cap and Italian answers. Two words are
+    //    hidden, one of them reported.
     await tapKey(tester, 'home-settings');
     await tapKey(tester, 'level-A2');
     await tapKey(tester, 'language-it');
     expect(
       find.descendant(
         of: find.byKey(const Key('settings-hidden')),
+        matching: find.text('2'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('settings-reports')),
         matching: find.text('1'),
       ),
       findsOneWidget,
@@ -202,6 +223,7 @@ void main() {
       expect(pair.card.level.index, lessThanOrEqualTo(Level.a2.index));
       expect(pair.card.it, contains(pair.right));
       expect(pair.card.id, isNot(hidden.id));
+      expect(pair.card.id, isNot(reported.id));
     }
     await tester.pageBack();
     await waitFor(tester, find.byKey(const Key('start-round')));
@@ -225,12 +247,30 @@ void main() {
     expect(progress[missed.card.id]!.errors, 1);
     expect(progress[missed.card.id]!.lastSeenAt, isNotNull);
     expect(progress[hidden.id]!.hidden, true);
+    expect(progress[reported.id]!.hidden, true);
+    final reports = container.read(reportsProvider);
+    expect(reports.keys, [reported.id]);
+    expect(reports[reported.id]!.text, reported.text);
+    expect(reports[reported.id]!.right, reportedPair.right);
+    expect(reports[reported.id]!.reportedAt, isNotNull);
 
-    // 9. The hidden word is still listed, and can be brought back.
+    // 9. The hidden words are still listed, and can be brought back. A
+    //    reported word comes back too, and its report stays listed until it
+    //    is removed.
     await tapKey(tester, 'home-settings');
     await tapKey(tester, 'settings-hidden');
     await tapKey(tester, 'restore-${hidden.id}');
+    await tapKey(tester, 'restore-${reported.id}');
     await waitFor(tester, find.text('No hidden words.'));
     expect(container.read(progressProvider)[hidden.id]!.hidden, false);
+    expect(container.read(progressProvider)[reported.id]!.hidden, false);
+    expect(container.read(reportsProvider), hasLength(1));
+
+    await tester.pageBack();
+    await tapKey(tester, 'settings-reports');
+    expect(find.byKey(Key('report-row-${reported.id}')), findsOneWidget);
+    await tapKey(tester, 'report-remove-${reported.id}');
+    await waitFor(tester, find.text('No reported pairs.'));
+    expect(container.read(reportsProvider), isEmpty);
   });
 }

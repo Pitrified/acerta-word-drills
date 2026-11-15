@@ -39,6 +39,24 @@ A look-alike has a `language`, a `text`, a `note` and a `kind`:
 - `partial`: a false friend that shares an everyday meaning.
 - `cognate`: an English or Italian word that descends from the same word and means the same.
 
+## The reports file
+
+The reported pairs leave the phone as a JSON lines file that the learner saves from the reported pairs screen: one JSON object per line, one line per report, UTF-8, named `acerta-reports-<yyyymmdd>-<hhmm>.jsonl`.
+The keys are snake_case like the asset.
+
+| Field | Meaning |
+|-------|---------|
+| `card_id` | The `id` of the card |
+| `text`, `pos`, `level`, `gloss` | The card fields at the time of the report |
+| `language` | The answer language of the round, `en` or `it` |
+| `right` | The right word shown in the round |
+| `translations` | Every translation of the card in `language`, most frequent first |
+| `reported_at` | When the learner reported the pair, an ISO 8601 time |
+| `app_version` | The version of the app that wrote the file, `dev` for a build without a version |
+
+The app writes the file through the Android dialog for a new file, so it needs no storage permission.
+The dialog is a method channel, `acerta/save_file`, answered by `MainActivity`.
+
 ## Size
 
 Measured on 2026-11-14, stable until the next export:

@@ -1,6 +1,6 @@
 # Privacy Policy - acerta
 
-**Last updated:** 2026-11-14
+**Last updated:** 2026-11-15
 
 ## Overview
 
@@ -16,6 +16,10 @@ There are no analytics, no advertising, no tracking and no account.
 
 Your drill progress is kept on the device only.
 It is not sent anywhere and no copy exists outside the phone.
+
+The pairs you report as wrong are kept on the device too, until you remove them.
+They leave the phone only if you choose Save to file on the reported pairs screen: the app then writes them to a file in a place you pick, and sends it nowhere.
+What you do with that file is up to you.
 
 ## Data deletion
 

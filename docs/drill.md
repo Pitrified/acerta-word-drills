@@ -88,6 +88,24 @@ A word without a record is a word never graded.
 `progressProvider` exposes the records as state and refreshes it with a new map after each operation.
 `main` has to override `progressRepositoryProvider` with an opened repository; reading it without an override throws `ProviderNotOverriddenError`.
 
+## Reports
+
+`ReportRepository` keeps one report per word in the Hive box `reports`, apart from the progress: the key is the card id and the value is the JSON text of a `WordReport`.
+Resetting the progress leaves the reports alone.
+A report holds what was on screen: the card id, the Portuguese text, part of speech, level and gloss, the answer language, the right word of the round, every translation of the card in that language, and the time of the report.
+The decoded reports are held in memory and every change is written to the box before it returns.
+
+| Operation | Effect |
+|-----------|--------|
+| `add` | Stores the report, replacing the one of the same word |
+| `remove` | Drops the report of one word |
+| `clear` | Drops every report |
+
+`reportsProvider` wraps the repository like the progress provider.
+Its `add` also hides the word, `undo` removes the report and unhides the word, and `remove` and `clear` leave the words hidden.
+`main` has to override `reportRepositoryProvider` with an opened repository.
+The file the reports are saved to is in [content.md](content.md#the-reports-file).
+
 ## Settings
 
 `SettingsRepository` keeps the `DrillSettings` as JSON text under the key `drill` of the Hive box `settings`.
@@ -145,4 +163,6 @@ The tiles have the keys `left-<text>` and `right-<text>`, and the feedback line 
 When the round is finished the board gives way to the summary, built by `roundSummaryProvider` from the round, the missed set and the progress.
 It holds one entry per pair in round order, each flagged missed (its card id is in the missed set) and hidden (its progress record has the hidden flag), and the count of pairs never missed.
 Hiding a word from the summary calls `setHidden` on the progress, so the word has weight 0 from the next round on, and `Hidden, undo` restores it.
+Reporting a pair from the summary adds a `WordReport` to the reports and calls `setHidden` the same way; `Reported, undo` removes the report and unhides the word.
+Removing a report from the reported pairs screen, or clearing them all, leaves the words hidden.
 What the summary shows is in [functional-specs.md](functional-specs.md#round-summary).

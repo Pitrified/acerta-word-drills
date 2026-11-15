@@ -36,4 +36,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('start-round')), findsOneWidget);
   });
+
+  testWidgets('reported pairs open from settings and Back leads home', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tapKey(tester, 'home-settings');
+    await tapKey(tester, 'settings-reports');
+    expect(find.widgetWithText(AppBar, 'Reported pairs'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('start-round')), findsOneWidget);
+  });
 }

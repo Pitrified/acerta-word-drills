@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:acerta/models/answer_language.dart';
 import 'package:acerta/models/cards_meta.dart';
 import 'package:acerta/models/drill_settings.dart';
 import 'package:acerta/models/level.dart';
@@ -7,12 +8,16 @@ import 'package:acerta/models/lookalike.dart';
 import 'package:acerta/models/pair_round.dart';
 import 'package:acerta/models/word_card.dart';
 import 'package:acerta/models/word_progress.dart';
+import 'package:acerta/models/word_report.dart';
 import 'package:acerta/providers/cards_provider.dart';
 import 'package:acerta/providers/clock_provider.dart';
 import 'package:acerta/providers/progress_provider.dart';
+import 'package:acerta/providers/reports_provider.dart';
 import 'package:acerta/providers/settings_provider.dart';
 import 'package:acerta/services/cards/card_repository.dart';
 import 'package:acerta/services/progress/progress_repository.dart';
+import 'package:acerta/services/reports/report_export.dart';
+import 'package:acerta/services/reports/report_repository.dart';
 import 'package:acerta/services/settings/settings_repository.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
@@ -60,6 +65,63 @@ class FakeProgressRepository implements ProgressRepository {
     _all.updateAll((id, progress) => const WordProgress(hidden: true));
   }
 }
+
+/// A reports store in memory.
+class FakeReportRepository implements ReportRepository {
+  /// A store that starts with the reports in [initial].
+  FakeReportRepository([Iterable<WordReport> initial = const []])
+    : _all = {for (final r in initial) r.cardId: r};
+
+  final Map<String, WordReport> _all;
+
+  @override
+  Map<String, WordReport> get all => Map.unmodifiable(_all);
+
+  @override
+  Future<void> add(WordReport report) async => _all[report.cardId] = report;
+
+  @override
+  Future<void> remove(String id) async => _all.remove(id);
+
+  @override
+  Future<void> clear() async => _all.clear();
+}
+
+/// A file saver that records what it was asked to write.
+class FakeFileSaver implements FileSaver {
+  /// Whether the learner accepts the dialog; false stands for a cancel.
+  bool accept = true;
+
+  /// An error to throw instead of saving.
+  Object? error;
+
+  /// The file names and texts of every call, in order.
+  final List<({String fileName, String text})> saved = [];
+
+  @override
+  Future<bool> saveText({
+    required String fileName,
+    required String text,
+  }) async {
+    if (error != null) throw error!;
+    if (!accept) return false;
+    saved.add((fileName: fileName, text: text));
+    return true;
+  }
+}
+
+/// A report of the card [index] of [fakeCard], in English.
+WordReport fakeReport(int index, {DateTime? reportedAt}) => WordReport(
+  cardId: 'id$index',
+  text: 'w$index',
+  pos: 'noun',
+  level: Level.a1,
+  gloss: 'gloss $index',
+  language: AnswerLanguage.en,
+  right: 'en$index',
+  translations: ['en$index'],
+  reportedAt: reportedAt ?? fixedNow,
+);
 
 /// A settings store in memory.
 class FakeSettingsRepository implements SettingsRepository {
@@ -126,6 +188,8 @@ CardRepository fakeCardRepository(int count) =>
 /// Pass [cards], or [loadCards] to control how the words load.
 List<Override> roundOverrides({
   required FakeProgressRepository progress,
+  FakeReportRepository? reports,
+  FakeFileSaver? saver,
   CardRepository? cards,
 
   /// Replaces [cards] to hold the loading or fail the loading of the words.
@@ -140,6 +204,8 @@ List<Override> roundOverrides({
     (ref) => loadCards == null ? Future.value(cards) : loadCards(),
   ),
   progressRepositoryProvider.overrideWithValue(progress),
+  reportRepositoryProvider.overrideWithValue(reports ?? FakeReportRepository()),
+  fileSaverProvider.overrideWithValue(saver ?? FakeFileSaver()),
   settingsRepositoryProvider.overrideWithValue(
     settings ?? FakeSettingsRepository(),
   ),

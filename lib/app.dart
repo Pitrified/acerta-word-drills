@@ -6,6 +6,7 @@ import 'screens/about/about_screen.dart';
 import 'screens/hidden_words/hidden_words_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/progress/progress_screen.dart';
+import 'screens/reports/reports_screen.dart';
 import 'screens/round/round_screen.dart';
 import 'screens/settings/settings_screen.dart';
 
@@ -15,6 +16,7 @@ abstract final class AppRoutes {
   static const round = '/round';
   static const settings = '/settings';
   static const hiddenWords = '/settings/hidden';
+  static const reports = '/settings/reports';
   static const progress = '/progress';
   static const about = '/about';
 }
@@ -42,6 +44,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.hiddenWords,
         builder: (context, state) => const HiddenWordsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.reports,
+        builder: (context, state) => const ReportsScreen(),
       ),
       GoRoute(
         path: AppRoutes.progress,

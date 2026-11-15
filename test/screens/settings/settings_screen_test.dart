@@ -11,6 +11,7 @@ import '../../support/pump_app.dart';
 Future<void> _openSettings(
   WidgetTester tester, {
   FakeProgressRepository? progress,
+  FakeReportRepository? reports,
   FakeSettingsRepository? settings,
   List<int>? levels,
   List<List<String>?> it = const [],
@@ -18,6 +19,7 @@ Future<void> _openSettings(
   await pumpApp(
     tester,
     progress: progress,
+    reports: reports,
     settings: settings,
     cards: levels == null
         ? null
@@ -192,6 +194,46 @@ void main() {
       expect(progress.of('id2'), const WordProgress(hidden: true));
       expect(find.text('Progress reset'), findsOneWidget);
     });
+  });
+
+  testWidgets('Reported pairs shows the count and opens the list', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      reports: FakeReportRepository([fakeReport(1), fakeReport(2)]),
+    );
+    await tapKey(tester, 'home-settings');
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('settings-reports')),
+        matching: find.text('2'),
+      ),
+      findsOneWidget,
+    );
+    await tapKey(tester, 'settings-reports');
+    expect(find.widgetWithText(AppBar, 'Reported pairs'), findsOneWidget);
+    expect(find.byKey(const Key('report-row-id1')), findsOneWidget);
+  });
+
+  testWidgets('Reset progress keeps the reported pairs', (tester) async {
+    final reports = FakeReportRepository([fakeReport(1)]);
+    final progress = FakeProgressRepository({
+      'id1': const WordProgress(seen: 1, hidden: true),
+      'id2': const WordProgress(seen: 2),
+    });
+    await _openSettings(tester, progress: progress, reports: reports);
+    await tapKey(tester, 'settings-reset');
+    await tapKey(tester, 'reset-confirm');
+    expect(progress.of('id2'), isNull);
+    expect(reports.all.keys, ['id1']);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('settings-reports')),
+        matching: find.text('1'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('fits a 320 x 568 phone', (tester) async {

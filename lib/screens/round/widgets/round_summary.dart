@@ -6,7 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app.dart';
 import '../../../models/round_summary.dart';
+import '../../../models/word_report.dart';
+import '../../../providers/clock_provider.dart';
 import '../../../providers/progress_provider.dart';
+import '../../../providers/reports_provider.dart';
 import '../../../providers/round_provider.dart';
 import '../../../providers/round_summary_provider.dart';
 
@@ -83,6 +86,10 @@ class _EntryCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final card = entry.pair.card;
+    final reported = ref.watch(
+      reportsProvider.select((r) => r.containsKey(card.id)),
+    );
+    final language = ref.read(roundProvider).round!.language;
     return Card(
       key: Key('summary-${card.id}'),
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -139,14 +146,46 @@ class _EntryCard extends ConsumerWidget {
               ),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
-                key: Key('hide-${card.id}'),
-                onPressed: () => unawaited(
-                  ref
-                      .read(progressProvider.notifier)
-                      .setHidden(card.id, hidden: !entry.hidden),
-                ),
-                child: Text(entry.hidden ? 'Hidden, undo' : "Don't show again"),
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                children: [
+                  TextButton(
+                    key: Key('report-${card.id}'),
+                    onPressed: () => unawaited(
+                      reported
+                          ? ref.read(reportsProvider.notifier).undo(card.id)
+                          : ref
+                                .read(reportsProvider.notifier)
+                                .add(
+                                  WordReport(
+                                    cardId: card.id,
+                                    text: card.text,
+                                    pos: card.pos,
+                                    level: card.level,
+                                    gloss: card.gloss,
+                                    language: language,
+                                    right: entry.pair.right,
+                                    translations: card.translationsIn(language),
+                                    reportedAt: ref
+                                        .read(clockProvider)()
+                                        .toUtc(),
+                                  ),
+                                ),
+                    ),
+                    child: Text(reported ? 'Reported, undo' : 'Report pair'),
+                  ),
+                  TextButton(
+                    key: Key('hide-${card.id}'),
+                    onPressed: () => unawaited(
+                      ref
+                          .read(progressProvider.notifier)
+                          .setHidden(card.id, hidden: !entry.hidden),
+                    ),
+                    child: Text(
+                      entry.hidden ? 'Hidden, undo' : "Don't show again",
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
