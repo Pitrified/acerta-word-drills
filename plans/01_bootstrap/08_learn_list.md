@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 8 - Words to learn, and the other language in the summary
@@ -64,3 +64,12 @@ Technical:
 - `scripts/check.sh` and `scripts/e2e.sh` pass.
 - On the emulator with the release build: a word marked from the summary is in the list,
   and an English round's summary shows the Italian word where the card has one.
+
+## What the implementation found
+
+- On the emulator with the release build of `d073de6`: an English round's summary reads
+  `equipe - team - squadra`, `simples - simple - semplice`, `agência - office - agenzia`;
+  the three buttons fit on one line at 1080 px; two words marked with Learn this are listed
+  under Words to learn, newest first, with `office · agenzia · B1`.
+- `agência - office` is itself a pair to report: the card's first English translation is
+  "office", for a gloss about a government unit.

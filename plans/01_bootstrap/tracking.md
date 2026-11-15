@@ -24,7 +24,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
 | 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | done |
-| 8  | Words to learn           | [`08_learn_list.md`](08_learn_list.md)       | in progress |
+| 8  | Words to learn           | [`08_learn_list.md`](08_learn_list.md)       | done |
 | 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | draft |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
@@ -198,3 +198,9 @@ Append-only. Newest at the bottom.
   caught (title without the other language, mark not stored, reset clearing the marks,
   order reversed). Review of its diff: no change. `scripts/check.sh` passes with 232
   tests, `scripts/e2e.sh` passes (57 s).
+- 2026-11-15 : phase 8 done, committed as `d073de6`; release APK `0.1.0+d073de6e` looked at
+  on the emulator (summary titles with the Italian word, two words marked and listed) and
+  handed to the user. lang-tools `20_rare_words_topics` drafted on `feat/20_rare_words_topics`
+  with Q1 to Q3 answered: floor zipf 2.0, medical on by default and removing all medical
+  words when off, and the CEFR bands re-cut (against the recommendation to keep them).
+  Phase 9 (`09_topic_picker.md`) waits on it.

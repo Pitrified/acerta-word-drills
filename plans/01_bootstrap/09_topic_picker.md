@@ -17,8 +17,10 @@ Context: [`00_start.md`](00_start.md).
 
 Functional, from the user:
 
-- Settings lists the topics as chips, all on except medical; turning one off removes its
-  words from rounds; words with no topic always stay.
+- Settings lists the topics as chips, all on by default, medical included; turning one off
+  removes its words from rounds, and medical off removes every medical word; words with no
+  topic always stay. The rare medical words never reach the asset, through the commonness
+  floor of lang-tools.
 
 ## Plan
 
