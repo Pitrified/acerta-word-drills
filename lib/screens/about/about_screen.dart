@@ -13,7 +13,13 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          // Scrolls under the navigation bar but ends above it.
+          16 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
           Text('acerta', style: theme.textTheme.headlineMedium),
           Text(

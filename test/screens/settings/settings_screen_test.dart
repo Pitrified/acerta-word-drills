@@ -388,4 +388,32 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'scrolled to the end, the last row ends above the navigation bar',
+    (tester) async {
+      // A tall phone with a system navigation bar of 48 at the bottom, and
+      // enough topics for the screen to scroll.
+      tester.view.physicalSize = const Size(412, 915);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(bottom: 48);
+      addTearDown(tester.view.reset);
+
+      await _openSettings(
+        tester,
+        levels: List.filled(30, 0),
+        topics: [
+          for (var i = 0; i < 30; i++) ['topic$i'],
+        ],
+      );
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -5000),
+      );
+      await tester.pumpAndSettle();
+
+      final reset = tester.getRect(find.byKey(const Key('settings-reset')));
+      expect(reset.bottom, lessThanOrEqualTo(915 - 48));
+    },
+  );
 }

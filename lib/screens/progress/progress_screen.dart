@@ -22,7 +22,13 @@ class ProgressScreen extends ConsumerWidget {
           final seenTotal = levelList.fold(0, (sum, l) => sum + l.seen);
           final total = levelList.fold(0, (sum, l) => sum + l.total);
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              // Scrolls under the navigation bar but ends above it.
+              16 + MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               for (final level in levelList)
                 Padding(

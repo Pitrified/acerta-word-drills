@@ -25,7 +25,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
 | 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | done |
 | 8  | Words to learn           | [`08_learn_list.md`](08_learn_list.md)       | done |
-| 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | in progress |
+| 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | done |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -218,3 +218,6 @@ Append-only. Newest at the bottom.
   mutations caught (pool ignoring the off topics, `every` for `any`, not persisted, chip
   not wired). Review changed one thing: the chip counts use the thousands separator like
   every other count. `scripts/check.sh` passes with 249 tests, `scripts/e2e.sh` passes.
+- 2026-11-15 : phase 9 done. Looked at on the emulator: the chips, medical off. The long
+  settings screen ended under the navigation bar; settings, progress and about now pad for
+  it, with a test seen failing without it. Phase 5 still waits on the user's phone.

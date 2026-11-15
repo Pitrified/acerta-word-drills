@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 9 - Topic picker
@@ -62,3 +62,18 @@ Technical:
 - `scripts/check.sh` and `scripts/e2e.sh` pass.
 - On the emulator with the release build: the Topics chips show, medical off, and a round
   without medical words.
+
+## What the implementation found
+
+- On the emulator with the release build of `b18ec1a`: the Topics section lists 27 chips,
+  most words first (Objects 2,060 down to Weather 2), Medical 395 turned off, and with
+  medical off the count line reads 1,871 words up to B1 with an English translation. A
+  round with medical off holding no medical word is proven by the e2e stage, not by eye.
+- Scrolled to the end, the settings screen put "Reset progress" under the navigation bar:
+  a `SingleChildScrollView`, or a `ListView` given its own padding, does not add the
+  bar's inset, and the screen only became taller than the phone with the topics. Settings,
+  progress and about now add the inset to their bottom padding; hidden words, reported
+  pairs and words to learn use a `ListView` with no padding, which adds it by itself. A
+  test at 412 x 915 with a 48 bar fails without the inset (899 against 867).
+- "Health" (19 words, OMW's medicine domain) and "Medical" (395) both show; lang-tools
+  names them so.
