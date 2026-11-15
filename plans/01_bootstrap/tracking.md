@@ -25,7 +25,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
 | 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | done |
 | 8  | Words to learn           | [`08_learn_list.md`](08_learn_list.md)       | done |
-| 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | draft |
+| 9  | Topic picker             | [`09_topic_picker.md`](09_topic_picker.md)   | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -204,3 +204,17 @@ Append-only. Newest at the bottom.
   with Q1 to Q3 answered: floor zipf 2.0, medical on by default and removing all medical
   words when off, and the CEFR bands re-cut (against the recommendation to keep them).
   Phase 9 (`09_topic_picker.md`) waits on it.
+- 2026-11-15 : lang-tools `20_rare_words_topics` done (0.8.0 on `feat/20_rare_words_topics`):
+  the medical topic, the card floor and card topics, the upper CEFR edges raised, the corpus
+  rebuilt. Phase 9 started and written in full; the export now asks for `min_zipf=2.0` and
+  writes `topics` as format 2, and the asset was re-exported in 6 s: 18,210 cards (was
+  29,376), C2 8,163 (45%, was 86%), 27 topics, medical on 395 cards. Review before the code:
+  `health` (19 cards, OMW's medicine domain) and `medical` (395) both show as chips; kept
+  as lang-tools names them.
+- 2026-11-15 : phase 9, the code. A sonnet subagent wrote `WordCard.topics`, format 2,
+  `DrillSettings.offTopics` (stored as `off_topics`; an old JSON without it loads), the
+  pool filter in `CardRepository.pool` / `poolSize` with `offTopics` required, the topic
+  counts, the Topics chips, the tests, the e2e stage and the docs; it reported four
+  mutations caught (pool ignoring the off topics, `every` for `any`, not persisted, chip
+  not wired). Review changed one thing: the chip counts use the thousands separator like
+  every other count. `scripts/check.sh` passes with 249 tests, `scripts/e2e.sh` passes.

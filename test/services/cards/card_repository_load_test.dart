@@ -23,7 +23,7 @@ void main() {
     final bundle = _TextBundle(
       jsonEncode({
         'meta': {
-          'format': 1,
+          'format': 2,
           'language': 'pt',
           'lang_tools': 'v1',
           'corpus_built_at': '2026-01-01T00:00:00+00:00',

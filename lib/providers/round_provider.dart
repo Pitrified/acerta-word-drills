@@ -33,6 +33,7 @@ class RoundNotifier extends Notifier<RoundState> {
     final pool = cards.pool(
       maxLevel: settings.maxLevel,
       language: settings.answerLanguage,
+      offTopics: settings.offTopics,
     );
     final drawn = selectCards(
       pool,

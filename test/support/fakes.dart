@@ -158,13 +158,15 @@ class FakeSettingsRepository implements SettingsRepository {
 /// A card `w<index>`, translated `en<index>` and `it<index>`.
 ///
 /// It is A1 and has one full false friend in English, `look<index>`, with a
-/// note, unless [level], [en], [it] or [lookalikes] say otherwise.
+/// note and no topic, unless [level], [en], [it], [lookalikes] or [topics]
+/// say otherwise.
 WordCard fakeCard(
   int index, {
   Level level = Level.a1,
   List<String>? en,
   List<String>? it,
   List<Lookalike>? lookalikes,
+  List<String> topics = const [],
 }) => WordCard(
   id: 'id$index',
   text: 'w$index',
@@ -172,6 +174,7 @@ WordCard fakeCard(
   level: level,
   freq: 1,
   gloss: 'gloss $index',
+  topics: topics,
   en: en ?? ['en$index'],
   it: it ?? ['it$index'],
   lookalikes:
@@ -189,7 +192,7 @@ WordCard fakeCard(
 /// A card repository holding [cards].
 CardRepository cardRepositoryOf(List<WordCard> cards) => CardRepository(
   meta: const CardsMeta(
-    format: 1,
+    format: 2,
     language: 'pt',
     langTools: 'test',
     corpusBuiltAt: '2026-01-01T00:00:00+00:00',

@@ -215,11 +215,13 @@ void main() {
     await tester.pageBack();
     await waitFor(tester, find.byKey(const Key('start-round')));
 
-    // 7. Settings: a lower level cap and Italian answers. Two words are
-    //    hidden, one of them reported.
+    // 7. Settings: a lower level cap, Italian answers and medical words off.
+    //    Two words are hidden, one of them reported.
     await tapKey(tester, 'home-settings');
     await tapKey(tester, 'level-A2');
     await tapKey(tester, 'language-it');
+    await tapKey(tester, 'topic-medical');
+    expect(container.read(settingsProvider).offTopics, contains('medical'));
     expect(
       find.descendant(
         of: find.byKey(const Key('settings-hidden')),
@@ -247,6 +249,7 @@ void main() {
       expect(pair.card.it, contains(pair.right));
       expect(pair.card.id, isNot(hidden.id));
       expect(pair.card.id, isNot(reported.id));
+      expect(pair.card.topics, isNot(contains('medical')));
     }
     await tester.pageBack();
     await waitFor(tester, find.byKey(const Key('start-round')));
@@ -262,6 +265,7 @@ void main() {
     expect(container.read(settingsProvider).maxLevel, Level.a2);
     expect(container.read(settingsProvider).answerLanguage, AnswerLanguage.it);
     expect(container.read(settingsProvider).pairsPerRound, 5);
+    expect(container.read(settingsProvider).offTopics, contains('medical'));
     expect(textOf(tester, 'home-setup'), contains('Up to A2 · 5 pairs'));
 
     progress = container.read(progressProvider);

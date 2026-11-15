@@ -2,14 +2,15 @@
 
 ## The asset
 
-`assets/cards/pt_cards.json` holds every Portuguese single word of 3 letters or more in the lang-tools lexicon that has an English or an Italian translation.
+`assets/cards/pt_cards.json` holds every Portuguese single word of 3 letters or more in the lang-tools lexicon that has an English or an Italian translation and whose meaning is common enough: a frequency of at least 2.0 on the zipf scale.
+The floor keeps out words a learner of this app should not meet, such as rare medical terms ("atelectasia" is 1.43).
 It is one JSON object with a `meta` header and a `cards` list, one card per line, sorted most frequent first.
 
 ### Header
 
 | Field | Meaning |
 |-------|---------|
-| `format` | Version of the asset layout |
+| `format` | Version of the asset layout, 2 |
 | `language` | Language of the words, `pt` |
 | `known_languages`, `translation_languages` | The languages the lexicon was queried with, `en` and `it` |
 | `gloss_language` | Language of `gloss`, `en` |
@@ -29,6 +30,7 @@ It is one JSON object with a `meta` header and a `cards` list, one card per line
 | `gloss` | English definition |
 | `en`, `it` | Up to four translations, most frequent first; `en` is never empty, `it` is empty for about a third of the cards |
 | `lookalikes` | Words in another language that look like this one |
+| `topics` | The topics of the word, lowercase names such as `medical`; empty for a word with no topic, about a third of the cards |
 
 The first entry of `en` or `it` is the one a round pairs with the word.
 The others are spares for a round where two words share a translation.
@@ -59,11 +61,12 @@ The dialog is a method channel, `acerta/save_file`, answered by `MainActivity`.
 
 ## Size
 
-Measured on 2026-11-14, stable until the next export:
+Measured on 2026-11-15, stable until the next export:
 
-- 29,376 cards, 7,023,975 bytes, 2,022,112 bytes gzipped.
-- Per level: A1 330, A2 517, B1 1,046, B2 965, C1 1,208, C2 25,310.
-- 19,240 cards have an Italian translation, and all have an English one.
+- 18,210 cards, 4,881,493 bytes, 1,328,357 bytes gzipped (`gzip -9`).
+- Per level: A1 330, A2 516, B1 1,029, B2 2,664, C1 5,508, C2 8,163.
+- 13,554 cards have an Italian translation, and all have an English one.
+- 27 topics; `medical` is on 395 cards and 6,515 cards have no topic.
 
 ## Regenerating
 
@@ -90,8 +93,8 @@ A layout change therefore bumps `FORMAT` in the tool and `supportedCardsFormat` 
 
 ## Loading
 
-`CardRepository.load` reads the asset once at start and parses it in a background isolate, so the 7 MB parse stays off the UI isolate.
-The repository holds the cards in memory and answers the pool for a level and an answer language and its size, a card by id, and the count at exactly one level.
+`CardRepository.load` reads the asset once at start and parses it in a background isolate, so the 5 MB parse stays off the UI isolate.
+The repository holds the cards in memory and answers the pool for a level, an answer language and the topics that are off, and its size, a card by id, the count at exactly one level, and the number of cards of each topic.
 `cardRepositoryProvider` exposes it.
 
 ## License

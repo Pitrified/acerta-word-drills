@@ -66,7 +66,7 @@ void main() {
           ...roundOverrides(
             progress: FakeProgressRepository(),
             loadCards: () =>
-                Future<CardRepository>.error(UnsupportedCardsFormatError(2)),
+                Future<CardRepository>.error(UnsupportedCardsFormatError(1)),
           ),
         ],
         child: const AcertaApp(),

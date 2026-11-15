@@ -11,6 +11,7 @@ A round draws from every card that:
 
 - is at or under the level cap of the settings,
 - has at least one translation in the answer language,
+- has none of its topics in the off topics of the settings; a card with no topic always passes,
 - is not hidden.
 
 The whole card set is in memory, so the pool is not sampled down first.
@@ -131,8 +132,9 @@ A mark has no effect on selection or rounds.
 | `maxLevel` | B1 | A1 to C2 |
 | `pairsPerRound` | 5 | 3 to 8; a stored value outside is clamped when read |
 | `answerLanguage` | English | English or Italian |
+| `offTopics` | none | The topics whose words a round leaves out; a topic that is not listed is on |
 
-When the key is absent the defaults apply.
+When the key is absent, or a stored value lacks a field, the defaults apply.
 `settingsProvider` exposes the settings and writes each change through; `settingsRepositoryProvider` is overridden by `main` in the same way as the progress one.
 
 ## The round on screen

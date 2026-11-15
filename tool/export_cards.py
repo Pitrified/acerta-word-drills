@@ -32,13 +32,18 @@ from lang_tools.lexicon.card import MAX_CARD_LIMIT
 from lang_tools.params.lang_tools_params import get_lang_tools_params
 
 #: Version of the asset layout; the app refuses a file with another one.
-FORMAT = 1
+#: 2 added `topics` to each card.
+FORMAT = 2
 
 LANGUAGE = "pt"
 KNOWN_LANGUAGES = ["en", "it"]
 TRANSLATION_LANGUAGES = ["en", "it"]
 GLOSS_LANGUAGE = "en"
 MIN_LENGTH = 3
+
+#: Lowest frequency of a card's meaning (`sense_frequency`, zipf scale): rarer cards
+#: are words a learner of this app should not meet (pt "atelectasia" is 1.43).
+MIN_ZIPF = 2.0
 BANDS = ["A1", "A2", "B1", "B2", "C1", "C2"]
 
 #: Longest word length read as its own slice; longer words share one slice.
@@ -71,6 +76,7 @@ def _slice(band: str, **length: int) -> list[LemmaCard]:
                 translation_languages=TRANSLATION_LANGUAGES,
                 known_languages=KNOWN_LANGUAGES,
                 single_word=True,
+                min_zipf=MIN_ZIPF,
                 min_cefr=band,
                 max_cefr=band,
                 order="frequency",
@@ -114,6 +120,7 @@ def card_record(card: LemmaCard) -> dict[str, Any]:
         "level": card.cefr_level,
         "freq": round(card.sense_frequency or 0.0, 3),
         "gloss": card.gloss or "",
+        "topics": card.topics,
     }
     for language in TRANSLATION_LANGUAGES:
         record[language] = card.translations.get(language, [])[:MAX_TRANSLATIONS]

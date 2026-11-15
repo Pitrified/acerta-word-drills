@@ -114,5 +114,17 @@ void main() {
       );
       expect(settingsRepository.read(), container.read(settingsProvider));
     });
+
+    test('setTopicOn turns a topic off and on and writes through', () async {
+      final notifier = container.read(settingsProvider.notifier);
+      await notifier.setTopicOn('medical', false);
+      await notifier.setTopicOn('people', false);
+      await notifier.setTopicOn('medical', false);
+      expect(container.read(settingsProvider).offTopics, {'medical', 'people'});
+      expect(settingsRepository.read().offTopics, {'medical', 'people'});
+      await notifier.setTopicOn('medical', true);
+      expect(container.read(settingsProvider).offTopics, {'people'});
+      expect(settingsRepository.read().offTopics, {'people'});
+    });
   });
 }

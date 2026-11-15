@@ -13,7 +13,7 @@ import '../logging/app_logger.dart';
 const cardsAssetPath = 'assets/cards/pt_cards.json';
 
 /// The asset layout this build reads.
-const supportedCardsFormat = 1;
+const supportedCardsFormat = 2;
 
 /// The card asset has a layout this build does not read.
 class UnsupportedCardsFormatError extends Error {
@@ -75,20 +75,43 @@ class CardRepository {
     return counts;
   }();
 
-  /// The cards at or under [maxLevel] with a translation in [language].
+  /// The cards at or under [maxLevel] with a translation in [language] and
+  /// none of their topics in [offTopics].
   List<WordCard> pool({
     required Level maxLevel,
     required AnswerLanguage language,
+    required Set<String> offTopics,
   }) => [
     for (final card in cards)
       if (card.level.index <= maxLevel.index &&
-          card.translationsIn(language).isNotEmpty)
+          card.translationsIn(language).isNotEmpty &&
+          !card.topics.any(offTopics.contains))
         card,
   ];
 
   /// The number of cards [pool] returns.
-  int poolSize({required Level maxLevel, required AnswerLanguage language}) =>
-      pool(maxLevel: maxLevel, language: language).length;
+  int poolSize({
+    required Level maxLevel,
+    required AnswerLanguage language,
+    required Set<String> offTopics,
+  }) =>
+      pool(maxLevel: maxLevel, language: language, offTopics: offTopics).length;
+
+  /// The number of cards of each topic, most cards first, ties by name.
+  late final Map<String, int> topicCounts = () {
+    final counts = <String, int>{};
+    for (final card in cards) {
+      for (final topic in card.topics) {
+        counts[topic] = (counts[topic] ?? 0) + 1;
+      }
+    }
+    final ordered = counts.entries.toList()
+      ..sort((a, b) {
+        final byCount = b.value.compareTo(a.value);
+        return byCount != 0 ? byCount : a.key.compareTo(b.key);
+      });
+    return Map.fromEntries(ordered);
+  }();
 
   /// The card with [id], or null when there is none.
   WordCard? byId(String id) => _byId[id];

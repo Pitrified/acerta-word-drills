@@ -33,4 +33,28 @@ void main() {
     final over = container.read(roundProvider).round!.pairs;
     expect(over.map((p) => p.card.level), contains(Level.c1));
   });
+
+  test('a round with medical off draws no medical card', () async {
+    final container = ProviderContainer(
+      overrides: roundOverrides(
+        cards: cardRepositoryOf([
+          for (var i = 0; i < 10; i++) fakeCard(i, topics: ['medical']),
+          for (var i = 10; i < 20; i++) fakeCard(i, topics: ['medical', 'x']),
+          for (var i = 20; i < 40; i++) fakeCard(i),
+        ]),
+        progress: FakeProgressRepository(),
+        settings: FakeSettingsRepository(const DrillSettings(pairsPerRound: 5)),
+      ),
+    );
+    addTearDown(container.dispose);
+    final rounds = container.read(roundProvider.notifier);
+    await container
+        .read(settingsProvider.notifier)
+        .setTopicOn('medical', false);
+    for (var i = 0; i < 10; i++) {
+      await rounds.start();
+      final pairs = container.read(roundProvider).round!.pairs;
+      expect(pairs.expand((p) => p.card.topics), isNot(contains('medical')));
+    }
+  });
 }

@@ -16,6 +16,19 @@ void main() {
     expect(cards.length, repository.meta.count);
   });
 
+  test('the asset is the format this build reads', () {
+    expect(repository.meta.format, supportedCardsFormat);
+  });
+
+  test('every topic is a lowercase name and medical is among them', () {
+    for (final card in cards) {
+      for (final topic in card.topics) {
+        expect(topic, matches(RegExp(r'^[a-z][a-z_ ]*$')), reason: card.id);
+      }
+    }
+    expect(repository.topicCounts['medical'], greaterThan(0));
+  });
+
   test('ids are unique', () {
     expect(cards.map((c) => c.id).toSet().length, cards.length);
   });

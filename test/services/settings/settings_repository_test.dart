@@ -27,6 +27,18 @@ void main() {
     expect(settings.maxLevel, Level.b1);
     expect(settings.pairsPerRound, 5);
     expect(settings.answerLanguage, AnswerLanguage.en);
+    expect(settings.offTopics, isEmpty);
+  });
+
+  test('settings stored without offTopics load with none off', () async {
+    await Hive.box<String>(settingsBoxName).put(
+      'drill',
+      '{"max_level":"C1","pairs_per_round":7,"answer_language":"it"}',
+    );
+    final settings = repository.read();
+    expect(settings.maxLevel, Level.c1);
+    expect(settings.pairsPerRound, 7);
+    expect(settings.offTopics, isEmpty);
   });
 
   test('a written value is read back through a reopened box', () async {
@@ -34,6 +46,7 @@ void main() {
       maxLevel: Level.c1,
       pairsPerRound: 7,
       answerLanguage: AnswerLanguage.it,
+      offTopics: {'medical', 'people'},
     );
     await repository.write(written);
     expect(repository.read(), written);

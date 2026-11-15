@@ -27,6 +27,9 @@ abstract class WordCard with _$WordCard {
     @Default(<String>[]) List<String> en,
     @Default(<String>[]) List<String> it,
     @Default(<Lookalike>[]) List<Lookalike> lookalikes,
+
+    /// The topics of the word, such as `medical`; empty for most words.
+    @Default(<String>[]) List<String> topics,
   }) = _WordCard;
 
   factory WordCard.fromJson(Map<String, dynamic> json) =>

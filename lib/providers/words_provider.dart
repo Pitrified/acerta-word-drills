@@ -16,15 +16,26 @@ const mostMissedLimit = 10;
 /// of the settings.
 final poolSizesProvider = Provider<AsyncValue<Map<AnswerLanguage, int>>>((ref) {
   final maxLevel = ref.watch(settingsProvider.select((s) => s.maxLevel));
+  final offTopics = ref.watch(settingsProvider.select((s) => s.offTopics));
   return ref
       .watch(cardRepositoryProvider)
       .whenData(
         (cards) => {
           for (final language in AnswerLanguage.values)
-            language: cards.poolSize(maxLevel: maxLevel, language: language),
+            language: cards.poolSize(
+              maxLevel: maxLevel,
+              language: language,
+              offTopics: offTopics,
+            ),
         },
       );
 });
+
+/// The number of cards of each topic in the asset, most cards first, ties by
+/// name.
+final topicCountsProvider = Provider<AsyncValue<Map<String, int>>>(
+  (ref) => ref.watch(cardRepositoryProvider).whenData((c) => c.topicCounts),
+);
 
 /// The words the learner hid, sorted by text.
 ///

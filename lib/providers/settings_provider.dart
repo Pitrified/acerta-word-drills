@@ -30,6 +30,17 @@ class SettingsNotifier extends Notifier<DrillSettings> {
   Future<void> setAnswerLanguage(AnswerLanguage language) =>
       _write(state.copyWith(answerLanguage: language));
 
+  /// Turns the words of [topic] on or off for the rounds.
+  Future<void> setTopicOn(String topic, bool on) {
+    final off = {...state.offTopics};
+    if (on) {
+      off.remove(topic);
+    } else {
+      off.add(topic);
+    }
+    return _write(state.copyWith(offTopics: off));
+  }
+
   Future<void> _write(DrillSettings settings) async {
     await ref.read(settingsRepositoryProvider).write(settings);
     state = settings;

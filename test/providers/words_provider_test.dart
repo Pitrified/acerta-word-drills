@@ -39,6 +39,43 @@ Future<ProviderContainer> _container({
 }
 
 void main() {
+  group('topics', () {
+    Future<ProviderContainer> topical({Set<String> off = const {}}) async {
+      final container = ProviderContainer(
+        overrides: roundOverrides(
+          cards: cardRepositoryOf([
+            fakeCard(0, topics: ['medical']),
+            fakeCard(1, topics: ['medical', 'people']),
+            fakeCard(2, topics: ['people']),
+            fakeCard(3),
+            fakeCard(4, topics: ['animals']),
+          ]),
+          progress: FakeProgressRepository(),
+          settings: FakeSettingsRepository(DrillSettings(offTopics: off)),
+        ),
+      );
+      addTearDown(container.dispose);
+      await container.read(cardRepositoryProvider.future);
+      return container;
+    }
+
+    test('topicCountsProvider counts the asset, most cards first', () async {
+      final container = await topical(off: {'medical'});
+      final counts = container.read(topicCountsProvider).value!;
+      expect(counts, {'medical': 2, 'people': 2, 'animals': 1});
+      expect(counts.keys.toList(), ['medical', 'people', 'animals']);
+    });
+
+    test('poolSizesProvider leaves out the off topics', () async {
+      final container = await topical(off: {'medical'});
+      expect(container.read(poolSizesProvider).value![AnswerLanguage.en], 3);
+      await container
+          .read(settingsProvider.notifier)
+          .setTopicOn('medical', true);
+      expect(container.read(poolSizesProvider).value![AnswerLanguage.en], 5);
+    });
+  });
+
   group('poolSizesProvider', () {
     test('counts the pool of each language at the level cap', () async {
       final container = await _container(

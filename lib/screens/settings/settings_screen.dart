@@ -24,6 +24,7 @@ class SettingsScreen extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
     final pool = ref.watch(poolSizesProvider).value?[settings.answerLanguage];
+    final topics = ref.watch(topicCountsProvider).value ?? const {};
     final hidden = ref.watch(hiddenCountProvider);
     final reports = ref.watch(reportsProvider).length;
     final learn = ref.watch(learnProvider).length;
@@ -105,6 +106,33 @@ class SettingsScreen extends ConsumerWidget {
                   style: theme.textTheme.bodySmall,
                 ),
               ),
+            const SizedBox(height: 24),
+            Text('Topics', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final entry in topics.entries)
+                  FilterChip(
+                    key: Key('topic-${entry.key}'),
+                    label: Text(
+                      '${_capitalized(entry.key)} ${formatCount(entry.value)}',
+                    ),
+                    selected: !settings.offTopics.contains(entry.key),
+                    onSelected: (on) =>
+                        unawaited(notifier.setTopicOn(entry.key, on)),
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Words with no topic are always included.',
+                key: const Key('settings-topics-note'),
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
             const SizedBox(height: 16),
             ListTile(
               key: const Key('settings-hidden'),
@@ -138,6 +166,9 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  String _capitalized(String topic) =>
+      topic.isEmpty ? topic : topic[0].toUpperCase() + topic.substring(1);
 
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);

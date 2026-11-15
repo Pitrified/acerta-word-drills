@@ -16,6 +16,7 @@ Future<void> _openSettings(
   FakeSettingsRepository? settings,
   List<int>? levels,
   List<List<String>?> it = const [],
+  List<List<String>> topics = const [],
 }) async {
   await pumpApp(
     tester,
@@ -31,6 +32,7 @@ Future<void> _openSettings(
                 i,
                 level: Level.values[levels[i]],
                 it: i < it.length ? it[i] : null,
+                topics: i < topics.length ? topics[i] : const [],
               ),
           ]),
   );
@@ -133,6 +135,102 @@ void main() {
 
     await tapKey(tester, 'level-C2');
     expect(line(), '4 words up to C2 have an Italian translation.');
+  });
+
+  group('topics', () {
+    // Three medical words (one also about people), two about people, one
+    // with no topic: medical 3, people 3 ties by name.
+    const topics = [
+      ['medical'],
+      ['medical'],
+      ['medical', 'people'],
+      ['people'],
+      ['people'],
+      <String>[],
+    ];
+
+    Future<FakeSettingsRepository> open(
+      WidgetTester tester, {
+      Set<String> off = const {},
+    }) async {
+      final settings = FakeSettingsRepository(DrillSettings(offTopics: off));
+      await _openSettings(
+        tester,
+        levels: [0, 0, 0, 0, 0, 0],
+        topics: topics,
+        settings: settings,
+      );
+      return settings;
+    }
+
+    String label(WidgetTester tester, String key) => tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byKey(Key(key)),
+            matching: find.byType(Text),
+          ),
+        )
+        .data!;
+
+    testWidgets('a chip per topic with its count, most words first', (
+      tester,
+    ) async {
+      await open(tester);
+      await tester.ensureVisible(find.byKey(const Key('topic-medical')));
+      expect(label(tester, 'topic-medical'), 'Medical 3');
+      expect(label(tester, 'topic-people'), 'People 3');
+      expect(
+        tester.getTopLeft(find.byKey(const Key('topic-medical'))).dx,
+        lessThan(tester.getTopLeft(find.byKey(const Key('topic-people'))).dx),
+      );
+      expect(
+        tester
+            .widget<FilterChip>(find.byKey(const Key('topic-medical')))
+            .selected,
+        isTrue,
+      );
+      expect(
+        tester.widget<Text>(find.byKey(const Key('settings-topics-note'))).data,
+        'Words with no topic are always included.',
+      );
+    });
+
+    testWidgets('a chip toggles its topic and writes it', (tester) async {
+      final settings = await open(tester);
+      await tapKey(tester, 'topic-medical');
+      expect(settings.read().offTopics, {'medical'});
+      expect(
+        tester
+            .widget<FilterChip>(find.byKey(const Key('topic-medical')))
+            .selected,
+        isFalse,
+      );
+      await tapKey(tester, 'topic-medical');
+      expect(settings.read().offTopics, isEmpty);
+    });
+
+    testWidgets('the stored off topics show as not selected', (tester) async {
+      await open(tester, off: {'people'});
+      await tester.ensureVisible(find.byKey(const Key('topic-people')));
+      FilterChip chip(String key) =>
+          tester.widget<FilterChip>(find.byKey(Key(key)));
+      expect(chip('topic-people').selected, isFalse);
+      expect(chip('topic-medical').selected, isTrue);
+    });
+
+    testWidgets('the count line follows the topics', (tester) async {
+      await open(tester);
+      String line() => tester
+          .widget<Text>(find.byKey(const Key('settings-language-count')))
+          .data!;
+      expect(line(), '6 words up to B1 have an English translation.');
+      await tapKey(tester, 'topic-medical');
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await tapKey(tester, 'home-settings');
+      // Medical off leaves the two people-only words and the one with none.
+      expect(line(), '3 words up to B1 have an English translation.');
+    });
   });
 
   testWidgets('the hidden entry shows the count and opens the list', (
