@@ -221,3 +221,6 @@ Append-only. Newest at the bottom.
 - 2026-11-15 : phase 9 done. Looked at on the emulator: the chips, medical off. The long
   settings screen ended under the navigation bar; settings, progress and about now pad for
   it, with a test seen failing without it. Phase 5 still waits on the user's phone.
+- 2026-11-15 : release APK `0.1.0+a2ba29e1` built from `a2ba29e`, looked at on the emulator
+  (the settings screen ends above the navigation bar; medical stays off across a reinstall
+  and a force-stop) and handed to the user.
