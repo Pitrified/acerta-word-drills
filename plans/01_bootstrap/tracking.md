@@ -173,3 +173,7 @@ Append-only. Newest at the bottom.
   word that is then reported and undone comes back too, as the docs say for `undo`; a save
   pending when the activity is destroyed never answers, which leaves only the snackbar
   unshown. Phase 5 still waits on the user's phone.
+- 2026-11-15 : the release APKs were built from `d69ce17`, label `0.1.0+d69ce175`. On the
+  emulator it installed over the `6676e6f` build with the two reports kept, survived a
+  force-stop, and a second save wrote a file whose lines carry `0.1.0+d69ce175`. The arm64
+  APK was handed to the user.
