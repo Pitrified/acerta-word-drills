@@ -1,6 +1,6 @@
 ---
-status: in progress
-priority: 1
+status: done
+priority: 0
 description: |
   A word page, opened from the round summary and the words to learn list: every meaning
   the Portuguese word has, and every other word for the card's meaning in pt, en and it,

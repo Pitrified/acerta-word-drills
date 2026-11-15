@@ -14,7 +14,7 @@ en and it. Analysis and decisions in [`00_start.md`](00_start.md).
 | #  | Phase                  | Plan                                         | Status  |
 | -- | ---------------------- | -------------------------------------------- | ------- |
 | 1  | Meanings asset         | [`01_meanings_asset.md`](01_meanings_asset.md) | done |
-| 2  | Word page              | [`02_word_page.md`](02_word_page.md)         | in progress |
+| 2  | Word page              | [`02_word_page.md`](02_word_page.md)         | done |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -38,3 +38,6 @@ Append-only. Newest at the bottom.
   own word in its first meaning, carreira lists profissão, ocupação, vocação), the e2e
   stage and the docs; four mutations caught. Review: no change. `scripts/check.sh` passes
   with 275 tests, `scripts/e2e.sh` passes.
+- 2026-11-15 : phase 2 done; release APK `0.1.0+842a5878` looked at on the emulator (canal's
+  page) and handed to the user. The page shows corpus noise the drill hid: plural pt
+  members (canais, condutas) and a wrong one (cachimbo). Folder done.

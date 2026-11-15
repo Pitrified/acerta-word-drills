@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 2 - Word page
@@ -28,3 +28,15 @@ status: in progress
 ## Done when
 
 - `scripts/check.sh` and `scripts/e2e.sh` pass; the page looked at on the emulator.
+
+## What the implementation found
+
+- Release build `0.1.0+842a5878` on the emulator: the word page of canal (A2, "conduit ...")
+  lists the en and pt glosses, "Also in Portuguese" with levels, "In English" tube B1,
+  tubing C1, "In Italian" cannello C2, then the other meanings (B2 "long and narrow strip
+  of water ..." with en canal, it canale, naviglio). The file loads in under the few
+  seconds the tap took; the parse was 266 ms on the VM in the asset test.
+- The APK grew by 2.5 MB, to 22.1 MB (arm64).
+- Corpus content shows on the page that the drill never showed: the pt members of the
+  conduit meaning include plurals stored as words of their own (canais, condutas) and a
+  wrong member (cachimbo, a smoking pipe). These are lang-tools data, not page bugs.
