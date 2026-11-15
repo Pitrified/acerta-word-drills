@@ -69,7 +69,7 @@ class ReportsNotifier extends Notifier<Map<String, WordReport>> {
         .read(fileSaverProvider)
         .saveText(
           fileName: ReportExport.fileName(ref.read(clockProvider)()),
-          text: ReportExport.toJsonLines(reports, appVersion: appVersion),
+          text: ReportExport.toJsonLines(reports, appVersion: appVersionLabel),
         );
     return saved ? reports.length : null;
   }

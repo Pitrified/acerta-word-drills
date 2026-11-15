@@ -52,7 +52,7 @@ The keys are snake_case like the asset.
 | `right` | The right word shown in the round |
 | `translations` | Every translation of the card in `language`, most frequent first |
 | `reported_at` | When the learner reported the pair, an ISO 8601 time |
-| `app_version` | The version of the app that wrote the file, `dev` for a build without a version |
+| `app_version` | The version and commit of the app that wrote the file, such as `0.1.0+6676e6f6`; the commit fixes which export of the words the app carries. `dev+local` for a build without them |
 
 The app writes the file through the Android dialog for a new file, so it needs no storage permission.
 The dialog is a method channel, `acerta/save_file`, answered by `MainActivity`.

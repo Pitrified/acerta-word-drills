@@ -112,6 +112,8 @@ void main() {
       expect(saver.saved, hasLength(1));
       expect(saver.saved.single.fileName, endsWith('.jsonl'));
       expect(saver.saved.single.text.trim().split('\n'), hasLength(2));
+      // The label carries the commit, which fixes the words the app ships.
+      expect(saver.saved.single.text, contains('"app_version":"dev+local"'));
       expect(find.text('Saved 2 reports'), findsOneWidget);
       expect(reports.all, hasLength(2));
     });

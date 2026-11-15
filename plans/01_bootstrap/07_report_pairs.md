@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 7 - Report a wrong pair
@@ -76,3 +76,14 @@ Technical:
 - On the emulator, with the release build: a pair reported from the summary is listed,
   saved to a file in Downloads, and the file holds one line per report.
 - No new permission in the merged manifest.
+
+## What the implementation found
+
+- The save dialog on the emulator opens on Downloads with the name filled in; Save wrote
+  `acerta-reports-20261115-0120.jsonl`, 579 bytes, two lines, every field present, and the
+  app said `Saved 2 reports`. The reports stayed listed after the save.
+- The first file carried `app_version` as the bare version name, `0.1.0`, which cannot tell
+  two builds of one version apart, and so not which export of the words was on the phone.
+  It now carries the version and commit label of the about screen, with a test.
+- The merged manifest of the release APK asks for no new permission.
+- The report time is written in UTC; the reports screen shows the local date.

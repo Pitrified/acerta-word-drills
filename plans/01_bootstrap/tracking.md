@@ -23,7 +23,7 @@ reference. Analysis and decisions in [`00_start.md`](00_start.md).
 | 4  | Screens around the drill | [`04_screens.md`](04_screens.md)             | done |
 | 5  | Device run               | [`05_device_run.md`](05_device_run.md)       | in progress |
 | 6  | Board layout             | [`06_board_layout.md`](06_board_layout.md)   | done |
-| 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | in progress |
+| 7  | Report a wrong pair      | [`07_report_pairs.md`](07_report_pairs.md)   | done |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -165,3 +165,11 @@ Append-only. Newest at the bottom.
   the channel caught only an I/O error, and a provider refusing the write with a
   `SecurityException` would have crashed the app; the report time is stored in UTC.
   `scripts/check.sh` passes with 209 tests, `scripts/e2e.sh` passes (53 s).
+- 2026-11-15 : phase 7 done. By hand on the emulator with the release build of `6676e6f`:
+  a round played, two pairs reported from the summary (both hidden), listed on the reported
+  pairs screen, saved through the Android dialog to Downloads; the pulled file holds one
+  line per report. The file's `app_version` was the bare version name, now the version and
+  commit label, with a test seen failing on the old value. Close review: the hand-hidden
+  word that is then reported and undone comes back too, as the docs say for `undo`; a save
+  pending when the activity is destroyed never answers, which leaves only the snackbar
+  unshown. Phase 5 still waits on the user's phone.
