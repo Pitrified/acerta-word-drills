@@ -1,4 +1,4 @@
-{"meta":{"format":2,"language":"pt","known_languages":["en","it"],"translation_languages":["en","it"],"gloss_language":"en","lang_tools":"v0.7.0-50-g920e064","corpus_built_at":"2026-11-15T12:27:57.566568+00:00","count":19467},
+{"meta":{"format":2,"language":"pt","known_languages":["en","it"],"translation_languages":["en","it"],"gloss_language":"en","lang_tools":"v0.9.0-2-gbf8a319","corpus_built_at":"2026-11-15T12:27:57.566568+00:00","count":19467},
 "cards":[
 {"id":"3e8552292296fbf7","text":"não","pos":"noun","level":"A1","freq":6.759,"gloss":"negation of a word or group of words","topics":[],"en":["not","non"],"it":["non","no","neanche"],"lookalikes":[{"language":"en","text":"non","kind":"cognate","note":""}]},
 {"id":"a1bd4734f8cdba6a","text":"como","pos":"adverb","level":"A1","freq":6.479,"gloss":"in what way or manner","topics":[],"en":["how"],"it":[],"lookalikes":[]},

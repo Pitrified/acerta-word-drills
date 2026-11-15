@@ -1,5 +1,5 @@
 ---
-status: draft
+status: in progress
 priority: 1
 description: |
   A word page, opened from the round summary and the words to learn list: every meaning

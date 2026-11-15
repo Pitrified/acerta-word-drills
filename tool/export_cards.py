@@ -8,7 +8,8 @@ The output depends only on the corpus: the same corpus gives the same bytes.
 Run it with lang-tools' environment, from this repo's root::
 
     uv run --no-sync --project ~/repos/lang-tools \
-        python tool/export_cards.py --out assets/cards/pt_cards.json
+        python tool/export_cards.py --out assets/cards/pt_cards.json \
+        --meanings-out assets/cards/pt_meanings.json
 
 A card query returns at most `MAX_CARD_LIMIT` cards and has no offset, so the
 corpus is read in slices (one CEFR band and one word length at a time), and a
@@ -27,7 +28,11 @@ from typing import Any
 import lang_tools
 from lang_tools.lexicon import CardQuery
 from lang_tools.lexicon import LemmaCard
+from lang_tools.lexicon import get_concept_by_id
+from lang_tools.lexicon import get_lemma_by_id
 from lang_tools.lexicon import lemma_cards
+from lang_tools.lexicon import senses_for_concept
+from lang_tools.lexicon import senses_for_lemma
 from lang_tools.lexicon.card import MAX_CARD_LIMIT
 from lang_tools.params.lang_tools_params import get_lang_tools_params
 
@@ -48,6 +53,12 @@ BANDS = ["A1", "A2", "B1", "B2", "C1", "C2"]
 
 #: Longest word length read as its own slice; longer words share one slice.
 MAX_SLICE_LENGTH = 30
+
+#: Version of the meanings asset layout; the app refuses a file with another one.
+MEANINGS_FORMAT = 1
+
+#: The languages a meaning lists its words in.
+MEANING_LANGUAGES = ["pt", "en", "it"]
 
 #: Translations kept per language: the first is the pair, the rest are spares
 #: for a round where two words share their first translation.
@@ -169,10 +180,87 @@ def render(cards: list[LemmaCard]) -> str:
     return f'{{"meta":{dump(corpus_meta(len(cards)))},\n"cards":[\n{lines}\n]}}\n'
 
 
+def _meaning(concept_id: str) -> dict[str, Any]:
+    """Return one meaning: its glosses and its words per language, with levels.
+
+    Words are listed most frequent first in the meaning (ties by text), and an
+    inflected form is left out, as `lemmas_for_concept` does.
+    """
+    concept = get_concept_by_id(concept_id)
+    definitions = concept.definitions if concept else {}
+    record: dict[str, Any] = {"gloss": definitions.get(GLOSS_LANGUAGE, "")}
+    if definitions.get(LANGUAGE):
+        record["gloss_pt"] = definitions[LANGUAGE]
+    words: dict[str, list[tuple[float, str, str | None]]] = {}
+    for sense in senses_for_concept(concept_id):
+        if sense.form_note is not None:
+            continue
+        lemma = get_lemma_by_id(sense.lemma_id)
+        if lemma is None or lemma.language not in MEANING_LANGUAGES:
+            continue
+        words.setdefault(lemma.language, []).append(
+            (-(sense.sense_frequency or 0.0), lemma.text, sense.cefr_level),
+        )
+    for language in MEANING_LANGUAGES:
+        if words.get(language):
+            record[language] = [
+                [text, level] for _, text, level in sorted(set(words[language]))
+            ]
+    return record
+
+
+def render_meanings(cards: list[LemmaCard]) -> tuple[str, int]:
+    """Return the meanings asset text and how many meanings it holds.
+
+    Each card lists its meanings as ``[index, level]`` into one shared list,
+    the card's own meaning first, then the others most frequent first. The
+    meanings are sorted by concept id, so the same corpus gives the same bytes.
+    """
+    links: dict[str, list[tuple[str, str | None]]] = {}
+    concept_ids: set[str] = set()
+    for card in cards:
+        senses = sorted(
+            senses_for_lemma(card.lemma.id),
+            key=lambda s: (
+                s.concept_id != card.concept_id,
+                -(s.sense_frequency or 0.0),
+                s.concept_id,
+            ),
+        )
+        links[card.lemma.id] = [(s.concept_id, s.cefr_level) for s in senses]
+        concept_ids.update(s.concept_id for s in senses)
+    ordered = sorted(concept_ids)
+    index = {concept_id: n for n, concept_id in enumerate(ordered)}
+
+    def dump(value: object) -> str:
+        return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+    meta = {
+        **{k: v for k, v in corpus_meta(len(cards)).items() if k != "format"},
+        "format": MEANINGS_FORMAT,
+        "meanings": len(ordered),
+    }
+    meanings = ",\n".join(dump(_meaning(concept_id)) for concept_id in ordered)
+    card_links = ",\n".join(
+        f"{dump(card_id)}:{dump([[index[c], level] for c, level in pairs])}"
+        for card_id, pairs in links.items()
+    )
+    text = (
+        f'{{"meta":{dump(meta)},\n"meanings":[\n{meanings}\n],\n'
+        f'"cards":{{\n{card_links}\n}}}}\n'
+    )
+    return text, len(ordered)
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Write the asset; return the exit code."""
+    """Write the assets; return the exit code."""
     parser = argparse.ArgumentParser(prog="export_cards")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--meanings-out",
+        type=Path,
+        help="also write each card's meanings and their words here",
+    )
     args = parser.parse_args(argv)
     cards = read_cards()
     text = render(cards)
@@ -180,6 +268,13 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout.write(
         f"{len(cards)} cards, {len(text.encode('utf-8'))} bytes -> {args.out}\n",
     )
+    if args.meanings_out is not None:
+        meanings, count = render_meanings(cards)
+        args.meanings_out.write_text(meanings, encoding="utf-8")
+        sys.stdout.write(
+            f"{count} meanings, {len(meanings.encode('utf-8'))} bytes"
+            f" -> {args.meanings_out}\n",
+        )
     return 0
 
 

@@ -59,28 +59,44 @@ The keys are snake_case like the asset.
 The app writes the file through the Android dialog for a new file, so it needs no storage permission.
 The dialog is a method channel, `acerta/save_file`, answered by `MainActivity`.
 
+## The meanings file
+
+`assets/cards/pt_meanings.json` holds, for every card, all the meanings its Portuguese word has, and for each meaning every word that expresses it in pt, en and it.
+It is a separate file from the cards because it is larger and only the word page reads it, the first time one opens.
+
+| Key | Holds |
+| --- | --- |
+| `meta` | Like the cards' header, with its own `format` (1) and the number of `meanings` |
+| `meanings` | One object per meaning: `gloss` (English), `gloss_pt` when the corpus has one, and `pt`, `en`, `it` as `[word, level]` lists, most frequent in that meaning first; a language with no word is left out |
+| `cards` | Card id to its meanings as `[index into meanings, the word's level in that meaning]`, the card's own meaning first, then the others most frequent first |
+
+A level belongs to a word in a meaning, so synonyms of one meaning can have different levels (*carreira* B1, *vocação* B2).
+Words include multiword and rare ones; inflected forms are left out.
+The meanings are sorted by their lang-tools concept id, so the same corpus gives the same bytes.
+
 ## Size
 
 Measured on 2026-11-15, stable until the next export:
 
-- 19,467 cards, 5,168,978 bytes, 1,403,727 bytes gzipped (`gzip -9`).
+- 19,467 cards, 5,168,977 bytes, 1,403,727 bytes gzipped (`gzip -9`).
 - Per level: A1 330, A2 516, B1 1,029, B2 2,668, C1 5,592, C2 9,332.
 - 14,215 cards have an Italian translation, and all have an English one.
 - 26 topics; `medical` is on 417 cards and 7,174 cards have no topic.
+- Meanings file: 29,926 meanings over 43,386 card links, 8,116,552 bytes, 2,476,860 gzipped.
 
 ## Regenerating
 
 From the repo root, with lang-tools checked out next to this repo and its corpus built:
 
 ```bash
-SAMPLE_API_KEY=placeholder uv run --no-sync --project ../lang-tools python tool/export_cards.py --out assets/cards/pt_cards.json
+SAMPLE_API_KEY=placeholder uv run --no-sync --project ../lang-tools python tool/export_cards.py --out assets/cards/pt_cards.json --meanings-out assets/cards/pt_meanings.json
 ```
 
 `SAMPLE_API_KEY` is the one variable lang-tools requires, with any value.
 `--no-sync` keeps uv from re-syncing the lang-tools environment.
 
 The export is deterministic: the same corpus gives the same bytes, so `git diff --stat` after a run says whether the corpus changed.
-The tool uses only the public card query of lang-tools (`CardQuery`, `lemma_cards`).
+The tool uses only the public read surface of lang-tools: the card query (`CardQuery`, `lemma_cards`) and, for the meanings, `senses_for_lemma`, `senses_for_concept`, `get_lemma_by_id` and `get_concept_by_id`.
 A query returns at most 500 cards and has no offset, so the tool reads one level and one word length at a time.
 
 ## What an update does to progress

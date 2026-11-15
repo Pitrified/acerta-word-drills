@@ -13,7 +13,7 @@ en and it. Analysis and decisions in [`00_start.md`](00_start.md).
 
 | #  | Phase                  | Plan                                         | Status  |
 | -- | ---------------------- | -------------------------------------------- | ------- |
-| 1  | Meanings asset         | [`01_meanings_asset.md`](01_meanings_asset.md) | planned |
+| 1  | Meanings asset         | [`01_meanings_asset.md`](01_meanings_asset.md) | done |
 | 2  | Word page              | [`02_word_page.md`](02_word_page.md)         | planned |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
@@ -28,3 +28,6 @@ Append-only. Newest at the bottom.
   first use. Branch cut from `feat/01_bootstrap` (acerta has no `main` yet). Review: the
   export's lang-tools calls are in its frozen surface; a word with 44 meanings needs the
   long list collapsed; empty languages are hidden rather than shown empty.
+- 2026-11-15 : the user said go. Phase 1 done: the export writes `pt_meanings.json`
+  (8.1 MB, 2.5 MB gzipped, reproducible); `docs/content.md` describes it. The plan's
+  Python test was wrong (the tool has none); the shape test moves to phase 2, in Dart.
