@@ -235,3 +235,4 @@ Append-only. Newest at the bottom.
   given a commonness): 19,467 cards (was 18,210; the common and uncommon reviewed words now
   pass the 2.0 floor), C2 9,332, medical on 417, Italian on 14,215. voluto and favelar
   are gone from the asset (dropped and rare). `scripts/check.sh` and `scripts/e2e.sh` pass.
+- 2026-11-15 : release APK `0.1.0+eecb21d6` built from `eecb21d` and handed to the user.
