@@ -63,10 +63,10 @@ The dialog is a method channel, `acerta/save_file`, answered by `MainActivity`.
 
 Measured on 2026-11-15, stable until the next export:
 
-- 18,210 cards, 4,881,493 bytes, 1,328,357 bytes gzipped (`gzip -9`).
+- 18,210 cards, 4,881,432 bytes, 1,328,280 bytes gzipped (`gzip -9`).
 - Per level: A1 330, A2 516, B1 1,029, B2 2,664, C1 5,508, C2 8,163.
 - 13,554 cards have an Italian translation, and all have an English one.
-- 27 topics; `medical` is on 395 cards and 6,515 cards have no topic.
+- 26 topics; `medical` is on 406 cards and 6,515 cards have no topic.
 
 ## Regenerating
 

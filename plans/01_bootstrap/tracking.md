@@ -224,3 +224,6 @@ Append-only. Newest at the bottom.
 - 2026-11-15 : release APK `0.1.0+a2ba29e1` built from `a2ba29e`, looked at on the emulator
   (the settings screen ends above the navigation bar; medical stays off across a reinstall
   and a force-stop) and handed to the user.
+- 2026-11-15 : the user asked to fold the Health chip into Medical; done in lang-tools
+  (`20_rare_words_topics` phase 6, a second rebuild) and the asset re-exported: 26 topics,
+  medical on 406 cards (395 plus the 11 health-only ones), other counts unchanged.
