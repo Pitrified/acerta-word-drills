@@ -57,7 +57,7 @@ Every change is written at once.
 - Level cap, A1 to C2, as a row of options that wraps on a narrow screen.
 - Pairs per round, 3 to 8, on a slider with the current number beside it.
 - Answer language, English or Italian, with a line under it saying how many words at or under the level cap have a translation in the chosen language.
-- Topics, under the answer language: a chip for each topic of the words, most words first, with the number of words of the topic, such as `Medical 406`.
+- Topics, under the answer language: a chip for each topic of the words, most words first, with the number of words of the topic, such as `Medical 417`.
   All are on at first; a chip that is off removes the words of that topic from the rounds and from the count lines, and a word with two topics goes when either is off.
   A line under the chips says `Words with no topic are always included.`.
 - Hidden words, with their count; it opens the hidden words screen.

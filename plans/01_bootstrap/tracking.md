@@ -230,3 +230,8 @@ Append-only. Newest at the bottom.
 - 2026-11-15 : `scripts/check.sh` and `scripts/e2e.sh` pass on the re-exported asset;
   release APK `0.1.0+5dcae049` built from `5dcae04`, the chips looked at on the emulator
   (26, Medical 406, no Health) and handed to the user.
+- 2026-11-15 : words re-exported from lang-tools 0.9.0 (`21_unranked_pt_words` in
+  lang-tools: the pt words wordfreq does not know were reviewed; 769 dropped, the rest
+  given a commonness): 19,467 cards (was 18,210; the common and uncommon reviewed words now
+  pass the 2.0 floor), C2 9,332, medical on 417, Italian on 14,215. voluto and favelar
+  are gone from the asset (dropped and rare). `scripts/check.sh` and `scripts/e2e.sh` pass.
