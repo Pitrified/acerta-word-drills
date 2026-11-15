@@ -113,6 +113,10 @@ A layout change therefore bumps `FORMAT` in the tool and `supportedCardsFormat` 
 The repository holds the cards in memory and answers the pool for a level, an answer language and the topics that are off, and its size, a card by id, the count at exactly one level, and the number of cards of each topic.
 `cardRepositoryProvider` exposes it.
 
+`MeaningsRepository.load` reads the meanings file the first time a word page asks for it, parses it in an isolate like the cards and keeps the result; `meaningsRepositoryProvider` exposes it, and the app's start does not wait for it.
+It answers the meanings of a card id in file order, the card's own meaning first, and nothing for an id it does not know.
+The app refuses a meanings file whose `format` it does not know (`UnsupportedMeaningsFormatError`); a layout change bumps the tool and `supportedMeaningsFormat` together.
+
 ## License
 
 The words, glosses and look-alikes come from the lang-tools lexicon and are licensed as described in [DATA_LICENSE.md](../DATA_LICENSE.md).

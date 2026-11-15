@@ -194,6 +194,20 @@ void main() {
       false,
     );
 
+    // The word page opens from the summary, reading the meanings file the
+    // first time, and back returns to the summary.
+    final opened = first.pairs[0];
+    await tapKey(tester, 'summary-open-${opened.card.id}');
+    await waitFor(
+      tester,
+      find.byKey(const Key('word-this')),
+      timeout: const Duration(seconds: 120),
+    );
+    expect(find.byKey(Key('word-${opened.card.id}')), findsOneWidget);
+    expect(find.text(opened.left), findsWidgets);
+    await tester.pageBack();
+    await waitFor(tester, find.byKey(const Key('next-round')));
+
     // 5. The next round holds none of the words just played.
     await tapKey(tester, 'next-round');
     final second = await awaitRound(tester, container);

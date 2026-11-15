@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app.dart';
 import '../../providers/learn_provider.dart';
 import '../../widgets/async_value_view.dart';
 
@@ -25,6 +27,7 @@ class LearnScreen extends ConsumerWidget {
               for (final (:card, markedAt: _) in words)
                 ListTile(
                   key: Key('learn-row-${card.id}'),
+                  onTap: () => unawaited(context.push(AppRoutes.word(card.id))),
                   title: Text(card.text),
                   subtitle: Text(
                     [

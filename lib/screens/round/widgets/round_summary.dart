@@ -112,53 +112,62 @@ class _EntryCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    key: Key('summary-title-${card.id}'),
-                    style: theme.textTheme.titleMedium,
+            InkWell(
+              key: Key('summary-open-${card.id}'),
+              onTap: () => unawaited(context.push(AppRoutes.word(card.id))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          key: Key('summary-title-${card.id}'),
+                          style: theme.textTheme.titleMedium,
+                        ),
+                      ),
+                      if (entry.missed)
+                        Container(
+                          key: Key('missed-${card.id}'),
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.errorContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'missed',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: colors.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-                if (entry.missed)
-                  Container(
-                    key: Key('missed-${card.id}'),
-                    margin: const EdgeInsets.only(left: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.errorContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'missed',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colors.onErrorContainer,
+                  Text(
+                    '${card.level.label} · ${card.pos}',
+                    style: theme.textTheme.labelMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(card.gloss),
+                  for (final lookalike in card.lookalikes)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        '${lookalike.languageLabel}: ${lookalike.text} '
+                        '(${lookalike.kind.label})'
+                        '${lookalike.note.isEmpty ? '' : ' - ${lookalike.note}'}',
+                        style: theme.textTheme.bodySmall,
                       ),
                     ),
-                  ),
-              ],
-            ),
-            Text(
-              '${card.level.label} · ${card.pos}',
-              style: theme.textTheme.labelMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(card.gloss),
-            for (final lookalike in card.lookalikes)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  '${lookalike.languageLabel}: ${lookalike.text} '
-                  '(${lookalike.kind.label})'
-                  '${lookalike.note.isEmpty ? '' : ' - ${lookalike.note}'}',
-                  style: theme.textTheme.bodySmall,
-                ),
+                ],
               ),
+            ),
             Align(
               alignment: Alignment.centerRight,
               child: Wrap(

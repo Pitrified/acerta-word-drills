@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:acerta/models/answer_language.dart';
@@ -12,11 +13,13 @@ import 'package:acerta/models/word_report.dart';
 import 'package:acerta/providers/cards_provider.dart';
 import 'package:acerta/providers/clock_provider.dart';
 import 'package:acerta/providers/learn_provider.dart';
+import 'package:acerta/providers/meanings_provider.dart';
 import 'package:acerta/providers/progress_provider.dart';
 import 'package:acerta/providers/reports_provider.dart';
 import 'package:acerta/providers/settings_provider.dart';
 import 'package:acerta/services/cards/card_repository.dart';
 import 'package:acerta/services/learn/learn_repository.dart';
+import 'package:acerta/services/meanings/meanings_repository.dart';
 import 'package:acerta/services/progress/progress_repository.dart';
 import 'package:acerta/services/reports/report_export.dart';
 import 'package:acerta/services/reports/report_repository.dart';
@@ -205,6 +208,30 @@ CardRepository cardRepositoryOf(List<WordCard> cards) => CardRepository(
 CardRepository fakeCardRepository(int count) =>
     cardRepositoryOf([for (var i = 0; i < count; i++) fakeCard(i)]);
 
+/// The text of a meanings asset in the layout of [supportedMeaningsFormat].
+///
+/// [meanings] are the entries of `meanings`, [cards] maps a card id to its
+/// `[index, level]` links.
+String meaningsText({
+  required List<Map<String, Object?>> meanings,
+  required Map<String, List<List<Object>>> cards,
+  int format = supportedMeaningsFormat,
+}) => jsonEncode({
+  'meta': {'format': format, 'meanings': meanings.length},
+  'meanings': meanings,
+  'cards': cards,
+});
+
+/// A meanings repository over [meaningsText].
+MeaningsRepository meaningsRepositoryOf({
+  required List<Map<String, Object?>> meanings,
+  required Map<String, List<List<Object>>> cards,
+}) => MeaningsRepository.parse(meaningsText(meanings: meanings, cards: cards));
+
+/// A meanings repository that knows no card.
+MeaningsRepository emptyMeaningsRepository() =>
+    meaningsRepositoryOf(meanings: [], cards: {});
+
 /// The provider overrides every test of the round uses.
 ///
 /// Pass [cards], or [loadCards] to control how the words load.
@@ -214,6 +241,12 @@ List<Override> roundOverrides({
   FakeLearnRepository? learn,
   FakeFileSaver? saver,
   CardRepository? cards,
+
+  /// The meanings the word page reads; none by default.
+  MeaningsRepository? meanings,
+
+  /// Replaces [meanings] to hold the loading or fail the loading of them.
+  Future<MeaningsRepository> Function()? loadMeanings,
 
   /// Replaces [cards] to hold the loading or fail the loading of the words.
   Future<CardRepository> Function()? loadCards,
@@ -225,6 +258,11 @@ List<Override> roundOverrides({
 }) => [
   cardRepositoryProvider.overrideWith(
     (ref) => loadCards == null ? Future.value(cards) : loadCards(),
+  ),
+  meaningsRepositoryProvider.overrideWith(
+    (ref) => loadMeanings == null
+        ? Future.value(meanings ?? emptyMeaningsRepository())
+        : loadMeanings(),
   ),
   progressRepositoryProvider.overrideWithValue(progress),
   reportRepositoryProvider.overrideWithValue(reports ?? FakeReportRepository()),

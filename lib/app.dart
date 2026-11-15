@@ -10,6 +10,7 @@ import 'screens/progress/progress_screen.dart';
 import 'screens/reports/reports_screen.dart';
 import 'screens/round/round_screen.dart';
 import 'screens/settings/settings_screen.dart';
+import 'screens/word/word_screen.dart';
 
 /// Route path constants.
 abstract final class AppRoutes {
@@ -21,6 +22,10 @@ abstract final class AppRoutes {
   static const learn = '/settings/learn';
   static const progress = '/progress';
   static const about = '/about';
+  static const wordPattern = '/word/:id';
+
+  /// The word page of the card with [id].
+  static String word(String id) => '/word/${Uri.encodeComponent(id)}';
 }
 
 /// App-level GoRouter configuration.
@@ -62,6 +67,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.about,
         builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.wordPattern,
+        builder: (context, state) =>
+            WordScreen(cardId: state.pathParameters['id']!),
       ),
     ],
   );

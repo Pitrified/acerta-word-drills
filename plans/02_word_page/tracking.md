@@ -14,7 +14,7 @@ en and it. Analysis and decisions in [`00_start.md`](00_start.md).
 | #  | Phase                  | Plan                                         | Status  |
 | -- | ---------------------- | -------------------------------------------- | ------- |
 | 1  | Meanings asset         | [`01_meanings_asset.md`](01_meanings_asset.md) | done |
-| 2  | Word page              | [`02_word_page.md`](02_word_page.md)         | planned |
+| 2  | Word page              | [`02_word_page.md`](02_word_page.md)         | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -31,3 +31,10 @@ Append-only. Newest at the bottom.
 - 2026-11-15 : the user said go. Phase 1 done: the export writes `pt_meanings.json`
   (8.1 MB, 2.5 MB gzipped, reproducible); `docs/content.md` describes it. The plan's
   Python test was wrong (the tool has none); the shape test moves to phase 2, in Dart.
+- 2026-11-15 : phase 2, the code. A sonnet subagent wrote the meanings models and
+  repository (loaded once, in an isolate, on the first word page), the providers, the
+  `/word/:id` route, the word screen, the two entry points (the summary card's title and
+  gloss, a words to learn row), 25 tests (a real-asset test included: every card has its
+  own word in its first meaning, carreira lists profissão, ocupação, vocação), the e2e
+  stage and the docs; four mutations caught. Review: no change. `scripts/check.sh` passes
+  with 275 tests, `scripts/e2e.sh` passes.

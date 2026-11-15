@@ -36,6 +36,7 @@ Below that is one card per pair, in round order:
 - The English gloss, whatever the answer language.
 - Every look-alike of the word, English and Italian: its language, its text, its kind in words (`false friend`, `partial false friend` or `cognate`) and its note when it has one.
 - A `missed` mark when the word was matched wrongly at least once in the round.
+- The part of the card above the buttons (title, level, gloss, look-alikes) is tappable and opens the [word page](#word-page); back returns to the summary.
 - A `Don't show again` button, which hides the word.
   A hidden word shows `Hidden, undo` in its place, which brings it back.
   The button follows the stored progress, so it reads the same after the screen is rebuilt.
@@ -77,9 +78,35 @@ An id in the progress that is no longer in the card set is left out.
 
 The words marked with `Learn this`, newest mark first.
 Each row shows the Portuguese word, with its first English translation, its first Italian translation and its level under it, separated by `·`; a translation the word does not have is left out.
-Each row has a Remove button.
+Tapping a row opens the [word page](#word-page) of the word.
+Each row has a Remove button, which removes the word and does not open the page.
 With none the screen says `No words to learn.`.
 An id that is no longer in the card set is left out.
+
+## Word page
+
+Opened from the round summary and from a row of the words to learn; back returns to where it came from.
+The words are not tappable: the page is one step from the card and has no further links.
+The app bar title is the Portuguese word.
+Under it the page shows the word, then its level and part of speech.
+The meanings load from their own asset the first time a page opens, with a spinner meanwhile; when the asset cannot be read the page says `The meanings could not be loaded.`.
+A word the cards or the meanings do not know shows `No details for this word.`.
+
+`This meaning` is the meaning of the card:
+
+- Its English gloss, and its Portuguese gloss under it when the corpus has one.
+- `Also in Portuguese`, `In English` and `In Italian`: the words that express the meaning, as chips such as `vocação · B2`.
+  The level is the level of the word in this meaning, and is left out when the asset gives none.
+  The card's own word is left out of the Portuguese words.
+  A language with no word left is not shown; with none left in any language the section says `No other words for this meaning.`.
+
+`Other meanings` are the other meanings of the same Portuguese word, most frequent first:
+
+- Each shows the level of the word in that meaning, the English gloss, the Portuguese gloss when there is one, and its words in Portuguese, English and Italian, with the same rules as above.
+  A meaning with no other word says `No other words.`.
+- The first five show.
+  When there are more, `Show all (N)` shows the rest; it is not folded again until the page is closed.
+- With none the section says `No other meanings.`.
 
 ## Reported pairs
 

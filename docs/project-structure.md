@@ -5,14 +5,14 @@
 ```
 acerta-word-drills/                   # Flutter project root, package name acerta
   android/                            # Android-specific (mostly generated)
-  assets/cards/                       # pt_cards.json, the bundled word cards
+  assets/cards/                       # pt_cards.json, the bundled word cards; pt_meanings.json, the meanings of each word
   lib/
     main.dart                         # Entry point
     app.dart                          # App widget, router, route paths
     build_info.dart                   # Version label and source address, from --dart-define
     data_credit.dart                  # The data credit and WordNet notice, registered as licenses
     models/                           # Freezed data models (generated)
-    providers/                        # Riverpod providers (cards, clock, progress, reports, learn, settings, round, round summary, derived word lists and counts)
+    providers/                        # Riverpod providers (cards, meanings, clock, progress, reports, learn, settings, round, round summary, derived word lists and counts)
     screens/                          # UI screens (one folder per screen)
       home/
       round/                          # RoundScreen, widgets/ (WordTile, RoundSummaryView)
@@ -21,11 +21,13 @@ acerta-word-drills/                   # Flutter project root, package name acert
       progress/
       reports/
       learn/
+      word/                           # WordScreen, the meanings of one word
       about/
     services/                         # Business logic services
       cards/                          # CardRepository, loads the asset
       learn/                          # LearnRepository, Hive box learn
       logging/                        # AppLogger
+      meanings/                       # MeaningsRepository, loads the meanings asset
       pair_matching/                  # buildRound, gradeTap
       progress/                       # ProgressRepository, Hive box progress
       reports/                        # ReportRepository, Hive box reports; ReportExport, the JSON lines and the save channel

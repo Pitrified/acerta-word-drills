@@ -1,6 +1,7 @@
 import 'package:acerta/app.dart';
 import 'package:acerta/models/drill_settings.dart';
 import 'package:acerta/services/cards/card_repository.dart';
+import 'package:acerta/services/meanings/meanings_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,8 @@ import 'fakes.dart';
 Future<ProviderContainer> pumpApp(
   WidgetTester tester, {
   CardRepository? cards,
+  MeaningsRepository? meanings,
+  Future<MeaningsRepository> Function()? loadMeanings,
   FakeProgressRepository? progress,
   FakeReportRepository? reports,
   FakeLearnRepository? learn,
@@ -25,6 +28,8 @@ Future<ProviderContainer> pumpApp(
     ProviderScope(
       overrides: roundOverrides(
         cards: cards ?? fakeCardRepository(12),
+        meanings: meanings,
+        loadMeanings: loadMeanings,
         progress: progress ?? FakeProgressRepository(),
         reports: reports,
         learn: learn,
