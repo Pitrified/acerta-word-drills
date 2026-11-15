@@ -227,3 +227,6 @@ Append-only. Newest at the bottom.
 - 2026-11-15 : the user asked to fold the Health chip into Medical; done in lang-tools
   (`20_rare_words_topics` phase 6, a second rebuild) and the asset re-exported: 26 topics,
   medical on 406 cards (395 plus the 11 health-only ones), other counts unchanged.
+- 2026-11-15 : `scripts/check.sh` and `scripts/e2e.sh` pass on the re-exported asset;
+  release APK `0.1.0+5dcae049` built from `5dcae04`, the chips looked at on the emulator
+  (26, Medical 406, no Health) and handed to the user.
