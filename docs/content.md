@@ -67,7 +67,7 @@ It is a separate file from the cards because it is larger and only the word page
 | Key | Holds |
 | --- | --- |
 | `meta` | Like the cards' header, with its own `format` (1) and the number of `meanings` |
-| `meanings` | One object per meaning: `gloss` (English), `gloss_pt` when the corpus has one, and `pt`, `en`, `it` as `[word, level]` lists, most frequent in that meaning first; a language with no word is left out |
+| `meanings` | One object per meaning: `gloss` (English), `gloss_pt` when the corpus has one, and `pt`, `en`, `it` as `[word, level]` lists, the reviewed lead first when the meaning has one (the word a card pairs), then most frequent in that meaning first; a language with no word is left out |
 | `cards` | Card id to its meanings as `[index into meanings, the word's level in that meaning]`, the card's own meaning first, then the others most frequent first |
 
 A level belongs to a word in a meaning, so synonyms of one meaning can have different levels (*carreira* B1, *vocação* B2).
@@ -76,13 +76,13 @@ The meanings are sorted by their lang-tools concept id, so the same corpus gives
 
 ## Size
 
-Measured on 2026-11-15, stable until the next export:
+Measured on 2026-11-17 (lang-tools 0.10.0), stable until the next export:
 
-- 19,467 cards, 5,168,977 bytes, 1,403,727 bytes gzipped (`gzip -9`).
-- Per level: A1 330, A2 516, B1 1,029, B2 2,668, C1 5,592, C2 9,332.
-- 14,215 cards have an Italian translation, and all have an English one.
-- 26 topics; `medical` is on 417 cards and 7,174 cards have no topic.
-- Meanings file: 29,926 meanings over 43,386 card links, 8,116,552 bytes, 2,476,860 gzipped.
+- 19,283 cards, 5,121,030 bytes, 1,399,690 bytes gzipped (`gzip -9`).
+- Per level: A1 329, A2 514, B1 1,026, B2 2,645, C1 5,533, C2 9,236.
+- 14,085 cards have an Italian translation, and all have an English one.
+- 26 topics; `medical` is on 412 cards and 7,123 cards have no topic.
+- Meanings file: 29,895 meanings over 43,100 card links, 8,092,055 bytes, 2,468,383 gzipped.
 
 ## Regenerating
 

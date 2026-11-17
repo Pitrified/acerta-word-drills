@@ -183,15 +183,16 @@ def render(cards: list[LemmaCard]) -> str:
 def _meaning(concept_id: str) -> dict[str, Any]:
     """Return one meaning: its glosses and its words per language, with levels.
 
-    Words are listed most frequent first in the meaning (ties by text), and an
-    inflected form is left out, as `lemmas_for_concept` does.
+    Words are listed most frequent first in the meaning (ties by text), after
+    the reviewed lead of each language (`Sense.is_lead`), the word a card pairs;
+    an inflected form is left out, as `lemmas_for_concept` does.
     """
     concept = get_concept_by_id(concept_id)
     definitions = concept.definitions if concept else {}
     record: dict[str, Any] = {"gloss": definitions.get(GLOSS_LANGUAGE, "")}
     if definitions.get(LANGUAGE):
         record["gloss_pt"] = definitions[LANGUAGE]
-    words: dict[str, list[tuple[float, str, str | None]]] = {}
+    words: dict[str, list[tuple[bool, float, str, str | None]]] = {}
     for sense in senses_for_concept(concept_id):
         if sense.form_note is not None:
             continue
@@ -199,12 +200,17 @@ def _meaning(concept_id: str) -> dict[str, Any]:
         if lemma is None or lemma.language not in MEANING_LANGUAGES:
             continue
         words.setdefault(lemma.language, []).append(
-            (-(sense.sense_frequency or 0.0), lemma.text, sense.cefr_level),
+            (
+                not sense.is_lead,
+                -(sense.sense_frequency or 0.0),
+                lemma.text,
+                sense.cefr_level,
+            ),
         )
     for language in MEANING_LANGUAGES:
         if words.get(language):
             record[language] = [
-                [text, level] for _, text, level in sorted(set(words[language]))
+                [text, level] for _, _, text, level in sorted(set(words[language]))
             ]
     return record
 
