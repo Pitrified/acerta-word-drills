@@ -76,13 +76,13 @@ The meanings are sorted by their lang-tools concept id, so the same corpus gives
 
 ## Size
 
-Measured on 2026-11-17 (lang-tools 0.10.0), stable until the next export:
+Measured on 2026-11-17 (lang-tools 0.10.1), stable until the next export:
 
-- 19,283 cards, 5,121,030 bytes, 1,399,690 bytes gzipped (`gzip -9`).
+- 19,283 cards, 5,120,964 bytes, 1,399,753 bytes gzipped (`gzip -9`).
 - Per level: A1 329, A2 514, B1 1,026, B2 2,645, C1 5,533, C2 9,236.
 - 14,085 cards have an Italian translation, and all have an English one.
 - 26 topics; `medical` is on 412 cards and 7,123 cards have no topic.
-- Meanings file: 29,895 meanings over 43,100 card links, 8,092,055 bytes, 2,468,383 gzipped.
+- Meanings file: 29,895 meanings over 43,099 card links, 8,091,966 bytes, 2,467,900 gzipped.
 
 ## Regenerating
 
