@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.acerta.app"
+    namespace = "com.pitrified.acerta"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.acerta.app"
+        applicationId = "com.pitrified.acerta"
         minSdk = 26
         targetSdk = 36
         versionCode = flutter.versionCode

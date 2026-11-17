@@ -115,7 +115,7 @@ adb install build/app/outputs/flutter-apk/app-release.apk
 flutter run                      # debug mode, hot reload
 flutter run --profile            # release performance, some debug info
 adb logcat | grep -i "flutter\|Fatal\|AndroidRuntime"
-adb logcat --pid=$(adb shell pidof com.acerta.app)
+adb logcat --pid=$(adb shell pidof com.pitrified.acerta)
 ```
 
 Look for `FATAL EXCEPTION` (unhandled crash), `FlutterError` (Dart-side exception) and `E/flutter` (engine errors).

@@ -68,7 +68,7 @@ a fresh install with the default settings, a round with one wrong tap, the summa
 
 `flutter test` on a device removes the app when it ends, so the restart happens inside the run: the test unmounts the app, closes the Hive boxes and calls `main` again, and the new app reads its settings and progress back from the files on the device.
 That does not prove the data survives the process being killed.
-Check that by hand with a release APK: play a round, `adb shell am force-stop com.acerta.app`, open the app again and look at the progress screen.
+Check that by hand with a release APK: play a round, `adb shell am force-stop com.pitrified.acerta`, open the app again and look at the progress screen.
 
 ## Target versions
 

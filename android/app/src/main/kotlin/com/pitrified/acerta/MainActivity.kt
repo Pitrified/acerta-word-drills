@@ -1,4 +1,4 @@
-package com.acerta.app
+package com.pitrified.acerta
 
 import android.app.Activity
 import android.content.Intent

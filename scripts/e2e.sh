@@ -62,7 +62,7 @@ fi
 echo "--- integration test"
 # The test starts from a fresh install; a run that was interrupted leaves the
 # app and its data behind.
-adb -s "$DEVICE" uninstall com.acerta.app >/dev/null 2>&1
+adb -s "$DEVICE" uninstall com.pitrified.acerta >/dev/null 2>&1
 flutter test integration_test/app_test.dart -d "$DEVICE" 2>&1 | tee "$OUT/test.log"
 # The test's exit code, not tee's.
 status=${PIPESTATUS[0]}
