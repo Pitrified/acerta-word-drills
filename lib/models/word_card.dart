@@ -30,6 +30,14 @@ abstract class WordCard with _$WordCard {
 
     /// The topics of the word, such as `medical`; empty for most words.
     @Default(<String>[]) List<String> topics,
+
+    /// Whether the word looks like a word of its own meaning; set by the card
+    /// repository on load, not read from the asset.
+    // Freezed copies the annotation onto the generated field, where it applies.
+    // ignore: invalid_annotation_target
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(false)
+    bool isCognate,
   }) = _WordCard;
 
   factory WordCard.fromJson(Map<String, dynamic> json) =>
@@ -38,10 +46,4 @@ abstract class WordCard with _$WordCard {
   /// The translations in [language], most frequent first.
   List<String> translationsIn(AnswerLanguage language) =>
       language == AnswerLanguage.en ? en : it;
-
-  /// Whether any look-alike is a false friend.
-  bool get isTrap => lookalikes.any((l) => l.isTrap);
-
-  /// Whether any look-alike is a cognate.
-  bool get hasCognate => lookalikes.any((l) => l.kind == LookalikeKind.cognate);
 }

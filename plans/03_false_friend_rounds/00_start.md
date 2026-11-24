@@ -1,6 +1,6 @@
 ---
-status: planned
-priority: 1
+status: done
+priority: 0
 description: |
   Rounds that teach false friends: fewer cognates, which are trivial pairs (andar - andare),
   and a false-friend decoy in every round.

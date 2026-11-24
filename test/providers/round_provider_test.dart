@@ -1,4 +1,5 @@
 import 'package:acerta/models/drill_settings.dart';
+import 'package:acerta/models/lookalike.dart';
 import 'package:acerta/models/round_state.dart';
 import 'package:acerta/providers/progress_provider.dart';
 import 'package:acerta/providers/round_provider.dart';
@@ -53,6 +54,61 @@ void main() {
       await startRound();
       expect(read().round!.pairs, hasLength(8));
     });
+
+    test(
+      'every round has a decoy, and a partial false friend from 5 pairs',
+      () async {
+        // Only id3 has a full false friend and only id7 a partial one.
+        final cards = [
+          for (var i = 0; i < 12; i++)
+            fakeCard(
+              i,
+              lookalikes: switch (i) {
+                3 => const [
+                  Lookalike(
+                    language: 'en',
+                    text: 'look3',
+                    kind: LookalikeKind.full,
+                  ),
+                ],
+                7 => const [
+                  Lookalike(
+                    language: 'en',
+                    text: 'look7',
+                    kind: LookalikeKind.partial,
+                  ),
+                ],
+                _ => const [],
+              },
+            ),
+        ];
+        for (final pairs in [3, 5, 8]) {
+          container = ProviderContainer(
+            overrides: roundOverrides(
+              cards: cardRepositoryOf(cards),
+              progress: progress,
+              settings: FakeSettingsRepository(
+                DrillSettings(pairsPerRound: pairs),
+              ),
+            ),
+          );
+          addTearDown(container.dispose);
+          var withPartial = 0;
+          for (var i = 0; i < 100; i++) {
+            await startRound();
+            final round = read().round!;
+            expect(round.decoys.single.text, 'look3', reason: '$pairs pairs');
+            if (round.pairs.any((p) => p.card.id == 'id7')) withPartial++;
+          }
+          if (pairs >= 5) {
+            expect(withPartial, 100, reason: '$pairs pairs');
+          } else {
+            // Drawn now and then, as any card, but not reserved.
+            expect(withPartial, lessThan(100));
+          }
+        }
+      },
+    );
 
     test('with too few words gives notEnoughWords', () async {
       container = containerOf(cards: 1);

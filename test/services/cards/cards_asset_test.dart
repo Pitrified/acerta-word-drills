@@ -1,7 +1,14 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:acerta/models/answer_language.dart';
+import 'package:acerta/models/level.dart';
 import 'package:acerta/models/lookalike.dart';
+import 'package:acerta/models/word_card.dart';
 import 'package:acerta/services/cards/card_repository.dart';
+import 'package:acerta/services/pair_matching/pair_matching.dart';
+import 'package:acerta/services/selection/lookalikes.dart';
+import 'package:acerta/services/selection/selection.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -58,6 +65,58 @@ void main() {
           expect(lookalike.note, isNotEmpty, reason: card.id);
         }
       }
+    }
+  });
+
+  test('cognate cards: dezembro and andar are, about half of all are', () {
+    WordCard byText(String text) => cards.firstWhere((c) => c.text == text);
+    expect(byText('dezembro').isCognate, isTrue);
+    expect(byText('andar').isCognate, isTrue);
+    final share = cards.where((c) => c.isCognate).length / cards.length;
+    // Loose bounds: a guard against matching all or nothing, not a pin.
+    expect(share, inInclusiveRange(0.4, 0.7));
+  });
+
+  test('8-pair C2 rounds have a decoy and a partial false friend', () {
+    // A round loses its decoy only when the decoy is already a right word.
+    for (final language in AnswerLanguage.values) {
+      final pool = repository.pool(
+        maxLevel: Level.c2,
+        language: language,
+        offTopics: const {},
+      );
+      final random = Random(7);
+      var noDecoy = 0;
+      for (var i = 0; i < 1000; i++) {
+        final drawn = drawRound(
+          pool,
+          const {},
+          8 + pairSpares,
+          language: language,
+          partialSlot: true,
+          random: random,
+          now: DateTime.utc(2026),
+        );
+        final round = buildRound(
+          drawn,
+          language: language,
+          numPairs: 8,
+          random: random,
+        )!;
+        if (round.decoys.isEmpty) noDecoy++;
+        expect(
+          round.pairs.any(
+            (p) => falseFriendsIn(
+              p.card,
+              language,
+              LookalikeKind.partial,
+            ).isNotEmpty,
+          ),
+          isTrue,
+          reason: language.code,
+        );
+      }
+      expect(noDecoy, lessThanOrEqualTo(10), reason: language.code);
     }
   });
 }

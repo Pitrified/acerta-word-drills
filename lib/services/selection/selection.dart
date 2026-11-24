@@ -1,8 +1,11 @@
 import 'dart:math';
 
+import '../../models/answer_language.dart';
 import '../../models/level.dart';
+import '../../models/lookalike.dart';
 import '../../models/word_card.dart';
 import '../../models/word_progress.dart';
+import 'lookalikes.dart';
 
 /// The numbers behind [computeWeight].
 class SelectionWeights {
@@ -13,7 +16,7 @@ class SelectionWeights {
     this.recencyHalfLife = const Duration(hours: 1),
     this.levelFactor = defaultLevelFactor,
     this.trapFactor = 1.3,
-    this.cognateFactor = 0.7,
+    this.cognateFactor = 0.1,
   });
 
   /// Easier words come up a little more often.
@@ -39,17 +42,20 @@ class SelectionWeights {
   final Duration recencyHalfLife;
   final Map<Level, double> levelFactor;
 
-  /// Multiplier for a word with a false friend.
+  /// Multiplier for a word with a false friend in the answer language.
   final double trapFactor;
 
-  /// Multiplier for a word with a cognate and no false friend.
+  /// Multiplier for a cognate card ([WordCard.isCognate]) with no false
+  /// friend in the answer language.
   final double cognateFactor;
 }
 
-/// The weight of [card] in the draw; 0 when the word is hidden.
+/// The weight of [card] in the draw, answered in [language]; 0 when the word
+/// is hidden.
 double computeWeight(
   WordCard card,
   WordProgress? progress, {
+  required AnswerLanguage language,
   required DateTime now,
   SelectionWeights weights = const SelectionWeights(),
 }) {
@@ -62,9 +68,9 @@ double computeWeight(
     weight *= 1 + weights.errorBoost * progress.errors;
   }
   weight *= weights.levelFactor[card.level] ?? 1.0;
-  if (card.isTrap) {
+  if (hasFalseFriendIn(card, language)) {
     weight *= weights.trapFactor;
-  } else if (card.hasCognate) {
+  } else if (card.isCognate) {
     weight *= weights.cognateFactor;
   }
   final lastSeenAt = progress?.lastSeenAt;
@@ -84,6 +90,7 @@ List<WordCard> selectCards(
   Iterable<WordCard> pool,
   Map<String, WordProgress> progress,
   int n, {
+  required AnswerLanguage language,
   required Random random,
   required DateTime now,
   SelectionWeights weights = const SelectionWeights(),
@@ -97,6 +104,7 @@ List<WordCard> selectCards(
     final weight = computeWeight(
       card,
       progress[card.id],
+      language: language,
       now: now,
       weights: weights,
     );
@@ -128,5 +136,67 @@ List<WordCard> selectCards(
     total -= cardWeights[index];
     cardWeights[index] = 0;
   }
+  return chosen;
+}
+
+/// Draws up to [n] distinct cards for a round answered in [language], with
+/// false friends reserved first.
+///
+/// The first card is drawn from the cards with a full false friend in
+/// [language], so the round can show its decoy; when [partialSlot] is set, the
+/// second from the rest with a partial one. The others come from the rest of
+/// [pool]. Each draw is a [selectCards] with the same weights; a reserved slot
+/// with nothing to draw leaves its card to the last draw, so the count is the
+/// one [selectCards] would give.
+List<WordCard> drawRound(
+  Iterable<WordCard> pool,
+  Map<String, WordProgress> progress,
+  int n, {
+  required AnswerLanguage language,
+  required bool partialSlot,
+  required Random random,
+  required DateTime now,
+  SelectionWeights weights = const SelectionWeights(),
+}) {
+  final cards = pool.toList();
+  final chosen = <WordCard>[];
+  final taken = <String>{};
+  List<WordCard> rest() => [
+    for (final card in cards)
+      if (!taken.contains(card.id)) card,
+  ];
+  void reserve(LookalikeKind kind) {
+    if (chosen.length >= n) return;
+    final slot = selectCards(
+      [
+        for (final card in rest())
+          if (falseFriendsIn(card, language, kind).isNotEmpty) card,
+      ],
+      progress,
+      1,
+      language: language,
+      random: random,
+      now: now,
+      weights: weights,
+    );
+    for (final card in slot) {
+      chosen.add(card);
+      taken.add(card.id);
+    }
+  }
+
+  reserve(LookalikeKind.full);
+  if (partialSlot) reserve(LookalikeKind.partial);
+  chosen.addAll(
+    selectCards(
+      rest(),
+      progress,
+      n - chosen.length,
+      language: language,
+      random: random,
+      now: now,
+      weights: weights,
+    ),
+  );
   return chosen;
 }

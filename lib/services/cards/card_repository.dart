@@ -8,6 +8,7 @@ import '../../models/cards_meta.dart';
 import '../../models/level.dart';
 import '../../models/word_card.dart';
 import '../logging/app_logger.dart';
+import '../selection/lookalikes.dart';
 
 /// Where the card asset is bundled.
 const cardsAssetPath = 'assets/cards/pt_cards.json';
@@ -30,8 +31,12 @@ class UnsupportedCardsFormatError extends Error {
 
 /// The word cards, held in memory.
 class CardRepository {
+  /// Marks each cognate card with [isCognateCard], once, so a draw does not
+  /// compare the words again.
   CardRepository({required this.meta, required List<WordCard> cards})
-    : cards = List.unmodifiable(cards);
+    : cards = List.unmodifiable([
+        for (final card in cards) card.copyWith(isCognate: isCognateCard(card)),
+      ]);
 
   /// Parses the asset text; synchronous and free of side effects.
   ///

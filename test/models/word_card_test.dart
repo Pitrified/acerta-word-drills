@@ -60,16 +60,8 @@ void main() {
     expect(_cards()[1].translationsIn(AnswerLanguage.it), isEmpty);
   });
 
-  test('isTrap and hasCognate', () {
-    final cards = _cards();
-    expect(cards[0].isTrap, isFalse);
-    expect(cards[0].hasCognate, isTrue);
-    expect(cards[1].isTrap, isTrue);
-    expect(cards[1].hasCognate, isFalse);
-    expect(cards[2].isTrap, isFalse);
-    expect(cards[2].hasCognate, isFalse);
-    expect(cards[3].isTrap, isTrue);
-    expect(cards[3].hasCognate, isTrue);
+  test('isCognate is not read from the asset', () {
+    expect(_cards().map((c) => c.isCognate), everyElement(isFalse));
   });
 
   test('level label and order', () {

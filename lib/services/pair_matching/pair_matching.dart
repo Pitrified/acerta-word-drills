@@ -4,6 +4,7 @@ import '../../models/answer_language.dart';
 import '../../models/lookalike.dart';
 import '../../models/pair_round.dart';
 import '../../models/word_card.dart';
+import '../selection/lookalikes.dart';
 
 /// Cards drawn beyond the round size, so a dropped card does not shrink it.
 const pairSpares = 3;
@@ -13,6 +14,10 @@ const minPairs = 2;
 
 /// The most false-friend decoys a round holds.
 const maxRoundDecoys = 1;
+
+/// The fewest pairs a round needs to reserve a partial false friend as well
+/// as a full one; a smaller round is mostly traps with both.
+const partialSlotMinPairs = 5;
 
 /// Builds a round from [cards], taken in order.
 ///
@@ -67,14 +72,11 @@ List<Decoy> _decoys(
   final decoys = <Decoy>[];
   for (final pair in pairs) {
     if (decoys.length >= maxDecoys) break;
-    final hint = pair.card.lookalikes
-        .where(
-          (l) =>
-              l.kind == LookalikeKind.full &&
-              l.language == language.code &&
-              !used.contains(l.text.toLowerCase()),
-        )
-        .firstOrNull;
+    final hint = falseFriendsIn(
+      pair.card,
+      language,
+      LookalikeKind.full,
+    ).where((l) => !used.contains(l.text.toLowerCase())).firstOrNull;
     if (hint == null) continue;
     used.add(hint.text.toLowerCase());
     decoys.add(Decoy(text: hint.text, left: pair.left, note: hint.note));

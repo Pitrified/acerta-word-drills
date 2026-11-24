@@ -28,24 +28,55 @@ The factors multiply, starting from a base of 1.
 | Never graded (no record, or `seen` is 0) | 5 |
 | Graded | 1 + 3 per error |
 | Level | A1 1.3, A2 1.2, B1 1.1, B2 1.0, C1 0.9, C2 0.8 |
-| Has a false friend (a `full` or `partial` look-alike) | 1.3 |
-| Has a cognate and no false friend | 0.7 |
+| Has a false friend in the answer language (see below) | 1.3 |
+| A cognate card (see below) with no false friend in the answer language | 0.1 |
 | Last seen at some time | 1 - 0.5 ^ (elapsed / 1 hour), elapsed never below 0 |
 
 The recency factor is 0 at the moment a word is graded, 0.5 an hour later and 0.75 after two hours, so a word just seen is not drawn again at once.
 A last seen time in the future counts as elapsed 0.
 The numbers are the defaults of `SelectionWeights`.
 
+### False friends and cognate cards
+
+The rules are in `lib/services/selection/lookalikes.dart`.
+
+A false friend of a card counts only in the answer language: a `full` or `partial` look-alike whose language is the answer language.
+A look-alike that is itself one of the card's own English or Italian words is no false friend of that card:
+the *andar* card means "go", *andare*, so its partial look-alike *andare* is left out.
+The weights and the decoys use the same test.
+
+A card is a cognate card when its Portuguese word looks like one of its own English or Italian words, whatever the answer language,
+since the learner knows both: *andar* "go" with *andare*, *dezembro* with *December*.
+The look-alikes of the card play no part, because a look-alike may name a word outside the card's meaning, and many plain cognates have none.
+Two words look alike when, in lower case and without accents, twice the length of their longest common subsequence over the sum of their lengths is at least 0.7:
+*dezembro* and *December* give 0.75, *não* and *not* 0.67.
+About half the cards are cognate cards, so their factor is low, to keep them near one a round.
+`CardRepository` marks the cognate cards once, when it is built, so a draw does not compare words.
+
 ## The draw
 
 A round of `n` pairs draws `n + 3` cards, the spares being there so that a card dropped while pairing does not shrink the round.
-`selectCards` draws without replacement:
+`drawRound` makes the draw, with false friends first (below); each of its steps is a `selectCards`, which draws without replacement:
 
 1. A card with a repeated id or a weight of 0 is left out.
 2. Each draw takes `r = random * total weight` and walks the running sum of the weights, taking the first card whose running sum exceeds `r`.
 3. The drawn card leaves the pool and the next draw starts again, up to `n + 3` cards or the end of the pool.
 
 The cost of a draw is linear in the pool size, with no sort.
+
+### False-friend slots
+
+`drawRound` reserves the first cards of a round for false friends in the answer language, then fills the rest with `selectCards`:
+
+1. One card from the cards with a full false friend, so the round can show its decoy.
+2. From 5 pairs up (`partialSlotMinPairs`), one card from the rest with a partial false friend.
+   A smaller round is mostly traps with both, so it gets the full one only.
+3. The other cards from the rest of the pool.
+
+Each step draws with the same weights.
+A step with no card of weight above 0 (no such false friend at the level cap, or all of them hidden or just seen) draws nothing, and the last step draws one more, so the round keeps its size.
+A card with both kinds fills one slot only.
+Since `buildRound` takes the cards in order, the full false friend is the first pair and the first to offer a decoy.
 
 ## Building the round
 
@@ -60,7 +91,7 @@ The cost of a draw is linear in the pool size, with no sort.
 ### Decoys
 
 A round holds at most one decoy.
-Going through the paired cards in order, the first look-alike with kind `full`, in the answer language and whose lower case text is not already a right word or a decoy, becomes a decoy.
+Going through the paired cards in order, the first full false friend in the answer language (as above) whose lower case text is not already a right word or a decoy becomes a decoy.
 A partial false friend is never a decoy, because it shares an everyday meaning with the Portuguese word and tapping it would not be wrong.
 The decoy joins the right column and matches nothing.
 Tapping it for the word it is a false friend of shows `False friend!` and the look-alike's note, when the note is not empty.
