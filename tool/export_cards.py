@@ -38,8 +38,9 @@ from lang_tools.lexicon.card import MAX_CARD_LIMIT
 from lang_tools.params.lang_tools_params import get_lang_tools_params
 
 #: Version of the asset layout; the app refuses a file with another one.
-#: 2 added `topics` to each card; 3 added `means` to a false friend's look-alike.
-FORMAT = 3
+#: 2 added `topics` to each card; 3 added `means` to a false friend's look-alike;
+#: 4 added `shares_meaning` to it.
+FORMAT = 4
 
 LANGUAGE = "pt"
 KNOWN_LANGUAGES = ["en", "it"]
@@ -141,7 +142,7 @@ def card_record(card: LemmaCard) -> dict[str, Any]:
 
 
 def _lookalike_record(hint: LookalikeHint) -> dict[str, Any]:
-    """Return a look-alike; `means` only when lang-tools gives it words."""
+    """Return a look-alike; `means` and `shares_meaning` only when set."""
     record: dict[str, Any] = {
         "language": hint.language,
         "text": hint.text,
@@ -150,6 +151,8 @@ def _lookalike_record(hint: LookalikeHint) -> dict[str, Any]:
     }
     if hint.means:
         record["means"] = hint.means
+    if hint.shares_meaning:
+        record["shares_meaning"] = True
     return record
 
 

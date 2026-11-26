@@ -69,6 +69,25 @@ void main() {
     }
   });
 
+  test('flagged look-alikes are false friends, and the asset has them', () {
+    final flagged = [
+      for (final card in cards)
+        for (final lookalike in card.lookalikes)
+          if (lookalike.sharesMeaning) lookalike,
+    ];
+    // lang-tools v0.12.0 flags 293 pairs; 266 are on a card the export keeps.
+    expect(flagged, isNotEmpty);
+    expect(flagged.where((l) => l.kind == LookalikeKind.cognate), isEmpty);
+    expect(flagged.where((l) => l.kind == LookalikeKind.partial), isNotEmpty);
+    expect(flagged.where((l) => l.kind == LookalikeKind.full), isNotEmpty);
+  });
+
+  test('pt tarde shares the main meaning of Italian tardi', () {
+    final tarde = cards.firstWhere((c) => c.text == 'tarde');
+    final tardi = tarde.lookalikes.firstWhere((l) => l.text == 'tardi');
+    expect(tardi.sharesMeaning, isTrue);
+  });
+
   test('cognate cards: dezembro and andar are, about half of all are', () {
     WordCard byText(String text) => cards.firstWhere((c) => c.text == text);
     expect(byText('dezembro').isCognate, isTrue);

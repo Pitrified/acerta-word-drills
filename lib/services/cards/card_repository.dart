@@ -14,7 +14,7 @@ import '../selection/lookalikes.dart';
 const cardsAssetPath = 'assets/cards/pt_cards.json';
 
 /// The asset layout this build reads.
-const supportedCardsFormat = 3;
+const supportedCardsFormat = 4;
 
 /// The card asset has a layout this build does not read.
 class UnsupportedCardsFormatError extends Error {
