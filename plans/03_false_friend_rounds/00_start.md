@@ -84,6 +84,7 @@ The lang-tools look-alike generator misses them; that is a lang-tools open point
   separately, not here.
 - No asset re-export in this folder:
   the lang-tools tier C rebuild adds few full false friends up to B1 (63 en in the corpus against 56 in the asset).
+  (Superseded by phase 4 on 2026-11-26: the asset is re-exported from lang-tools `v0.11.0` for `means`.)
 
 ## Known limits
 
@@ -326,3 +327,31 @@ Both drafts checked against the code before execution, with lang-tools `v0.11.0`
     before the recap is built on the pair order, and cheap: one `shuffle` and a test that over
     seeded rounds the decoy's card is not always first.
   - ANS: a, "shuffle it".
+
+## The other-language decoys, read (2026-11-26)
+
+All 661 decoys a false friend in the other language gives on the `v0.11.0` asset, read one by one
+(391 in English rounds, 270 in Italian): 515 make sense as a trap (78%).
+105 land on a meaning the pt word also has, so tapping it is not plainly wrong:
+pt *tarde* "afternoon" gets *late* from it *tardi*, *quarto* "room" gets *fourth*, *reparar*
+"note" gets *repair*, *aniversário* "birthday" gets *anniversary*.
+104 of those come from a `partial` look-alike (104 of 290 partial ones), 1 from a `full` one
+(1 of 371): a partial look-alike shares a meaning with the pt word by definition, and its main
+meaning is often that shared one.
+41 have a poor word or sense from lang-tools (*lying-in* for it *travaglio*, *milk bar* for
+*gelateria*, *noon* for *sesta*), the leftovers lang-tools `scratch_space/23_false_friend_meanings`
+already lists.
+Checking a partial one's lead word against every meaning of the pt word (the meanings file)
+catches 50 of the 104 and drops 37 of the 170 good partial ones.
+
+- Q19: What to do with the partial other-language decoys that land on a shared meaning?
+  - a. Keep them as they are: 78% of the decoys make sense, and the tap's note says what each word means.
+  - b. Full other-language false friends only (Q13 reversed): 1 shared in 371, but no decoy from a
+    partial one, so the user's example, it *bravo* for pt *bravo*, goes; the decoy slot pool shrinks.
+  - c. Keep partial ones whose lead word is not in any meaning of the pt word (the meanings file):
+    catches 50 of the 104, drops 37 of the 170 good ones.
+  - d. a now, and a lang-tools review of the 290 partial pairs: does the look-alike's main meaning
+    fall on the shared one? A `means`-level flag the export honours; a lang-tools folder of its own.
+  - Recommended: d, because the shared cases are a property of each pair that a reader settles in one
+    pass and the app cannot infer; b throws away the decoys the user asked for, and c is noisy both ways.
+  - NEW_ANS:

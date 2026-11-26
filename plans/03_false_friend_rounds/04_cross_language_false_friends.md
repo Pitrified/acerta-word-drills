@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 4 - False friends in either language
@@ -116,3 +116,23 @@ for the words a look-alike means.
 - The 500-decoy read is logged in `tracking.md` with how many make sense.
 - A release APK on the emulator shows the recap section (phase 3) and an other-language decoy;
   handed to the user for both phases.
+
+## What the implementation found
+
+- Pools at C2 on the re-exported asset: decoy slot 557 en / 394 it (full in the answer language
+  alone: 218 / 162), partial slot 323 / 256, any false friend 689 / 567.
+- 1,000 seeded 8-pair C2 rounds per language: a decoy in 1,000 en and 999 it rounds; 638 and 620
+  of the decoys come from the other language, since most decoy-slot cards have only an
+  other-language candidate. The random pick between candidates (Q12) applies within a card only.
+- The read of all 661 other-language decoys (`00_start.md`, "The other-language decoys, read"):
+  515 make sense; 105 land on a meaning the pt word also has, nearly all from partial look-alikes;
+  41 carry a poor lang-tools word. Raised as Q19.
+- `computeWeight` and `selectCards` lost their `language` argument: the weight no longer depends on
+  the answer language. `hasFalseFriendIn` became `hasFalseFriend` and `hasPartialFalseFriend`.
+- `Lookalike` takes `@Freezed(makeCollectionsUnmodifiable: false)` for its map, as `WordCard` does.
+- `scripts/e2e.sh` failed twice with "did not complete": the device log shows the host's adb
+  connection ending mid-test while the app ran on. A third run passed with no change. The emulator
+  (`fala_api36`) and the adb server on port 5037 are shared with other projects on the box (a
+  Unity editor compiled 7 s before one drop), so a failed e2e here is checked against
+  `build/e2e/` and the device log before it is read as a test result.
+- Five mutations caught; `scripts/check.sh` passes with 317 tests.

@@ -12,6 +12,7 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 - Two slots per round: one full and one partial false friend in the answer language; the
   partial one from 5 pairs up. Small rounds are to be tuned separately, later.
 - The asset stays at lang-tools `v0.10.1`.
+  (Superseded by phase 4: re-exported from `v0.11.0` for the look-alikes' `means`, format 3.)
 
 ## Phases
 
@@ -20,7 +21,8 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 | 1  | Cognate cards            | [`01_cognate_cards.md`](01_cognate_cards.md)             | done    |
 | 2  | False-friend slots       | [`02_false_friend_slot.md`](02_false_friend_slot.md)     | done    |
 | 3  | False friends in recap   | [`03_recap_false_friends.md`](03_recap_false_friends.md) | done    |
-| 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | in progress |
+| 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | done |
+| 5  | Partial decoys on a shared meaning | [`05_shared_meaning_decoys.md`](05_shared_meaning_decoys.md) | draft |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -116,3 +118,21 @@ Append-only. Newest at the bottom.
   translation is taken, *negro* / *preto*); the real-asset test tolerates it as it does a lost decoy.
   Four mutations caught; check passes with 305 tests, e2e passes. Review at close: plan and code
   agree; no APK (one hand-off after phase 4).
+- 2026-11-26 : phase 4 done (`a9fb5f0`). Asset re-exported from lang-tools `v0.11.0` (format 3,
+  826 false friends with `means`, tier C look-alikes in); false friends count in either language;
+  the decoy slot draws a card with a decoy candidate (C2: 557 en, 394 it, from 218 and 162), the
+  partial slot a partial in either language (323, 256); a decoy from the other language is its
+  look-alike's lead word, not a translation of the card; the tap names it; the recap row shows it.
+  Real asset, 1,000 8-pair C2 rounds: a decoy in 1,000 en and 999 it rounds, 638 / 620 of them from
+  the other language; recap rows 3.05 en, 3.24 it. Five mutations caught; check passes with 317
+  tests. `scripts/e2e.sh` failed twice ("did not complete", the host's adb connection dropped
+  mid-test with the app alive), passed run directly and on a third run with no change: the
+  emulator and adb server are shared with other projects on the box, and a Unity compile started
+  7 s before the drop. Read of all 661 other-language decoys: 515 make sense (78%; en 313 of 391,
+  it 202 of 270), 105 land on a meaning the pt word also has (104 of them from partial look-alikes,
+  104 of 290; 1 of 371 full), 41 have a poor lang-tools word or sense (*lying-in*, *milk bar*).
+  Raised as `00_start.md` Q19. Release APK `0.1.0+a9fb5f04` on the emulator: round 1 at the default
+  settings had *employee* for pt *assunto* from Italian *assunto*, the tap message and the recap
+  row as planned; left installed for the user.
+- 2026-11-26 : phase 5 added as a draft for Q19, the partial other-language decoys that land on a
+  meaning the pt word shares; it waits on the answer.
