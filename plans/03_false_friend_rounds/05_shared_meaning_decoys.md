@@ -1,8 +1,12 @@
 ---
-status: draft
+status: discarded
 ---
 
 # Phase 5 - Partial decoys on a shared meaning
+
+Discarded 2026-11-26 by `00_start.md` Q19 (d): the app keeps these decoys for now; the fix is a
+lang-tools review of the partial pairs (lang-tools `scratch_space/24_partial_false_friend_meanings`),
+then an export that honours its flag (`plans/open_points.md`).
 
 ## Overview
 

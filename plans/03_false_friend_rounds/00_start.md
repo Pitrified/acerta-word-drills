@@ -1,6 +1,6 @@
 ---
-status: in progress
-priority: 1
+status: done
+priority: 0
 description: |
   Rounds that teach false friends: fewer cognates, which are trivial pairs (andar - andare),
   and a false-friend decoy in every round.
@@ -354,4 +354,6 @@ catches 50 of the 104 and drops 37 of the 170 good partial ones.
     fall on the shared one? A `means`-level flag the export honours; a lang-tools folder of its own.
   - Recommended: d, because the shared cases are a property of each pair that a reader settles in one
     pass and the app cannot infer; b throws away the decoys the user asked for, and c is noisy both ways.
-  - NEW_ANS:
+  - ANS: d. The app keeps these decoys as they are; the review of the partial pairs is a lang-tools
+    folder of its own (`24_partial_false_friend_meanings`, draft), and the export honouring its flag is
+    an acerta open point (`plans/open_points.md`). Phase 5 discarded.

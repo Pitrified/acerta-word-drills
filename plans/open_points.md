@@ -21,3 +21,12 @@ candidates in that asset; 92% of the cards with a candidate have only one (515 o
 It cannot say which candidate was on the board when there were two or more, or whether the
 card's decoy was on the board at all.
 To do, if the reports show bad decoys: a `decoy` field on `WordReport`.
+
+## Decoys from a partial false friend that land on a shared meaning
+
+Raised 2026-11-26 in `03_false_friend_rounds`.
+A partial false friend in the other language gives as decoy the first word of what the look-alike
+mainly means, and for 104 of the 290 such pairs that is a meaning the pt word also has (pt *tarde*
+"afternoon" gets *late* from it *tardi*), so tapping it is not plainly wrong.
+lang-tools reviews the partial pairs and flags those (its `scratch_space/24_partial_false_friend_meanings`).
+To do once it ships: re-export, and have the export or the app give no decoy from a flagged pair.

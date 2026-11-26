@@ -22,7 +22,7 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 | 2  | False-friend slots       | [`02_false_friend_slot.md`](02_false_friend_slot.md)     | done    |
 | 3  | False friends in recap   | [`03_recap_false_friends.md`](03_recap_false_friends.md) | done    |
 | 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | done |
-| 5  | Partial decoys on a shared meaning | [`05_shared_meaning_decoys.md`](05_shared_meaning_decoys.md) | draft |
+| 5  | Partial decoys on a shared meaning | [`05_shared_meaning_decoys.md`](05_shared_meaning_decoys.md) | discarded |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -136,3 +136,6 @@ Append-only. Newest at the bottom.
   row as planned; left installed for the user.
 - 2026-11-26 : phase 5 added as a draft for Q19, the partial other-language decoys that land on a
   meaning the pt word shares; it waits on the answer.
+- 2026-11-26 : Q19 answered d: the partial other-language decoys stay as they are; lang-tools reviews
+  the 290 partial pairs in a folder of its own (`24_partial_false_friend_meanings`, draft), and the
+  export honouring its flag is an acerta open point. Phase 5 discarded; folder done.
