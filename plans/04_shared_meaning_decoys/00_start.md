@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 priority: 0
 description: |
   No false-friend decoy from a look-alike whose main meaning the pt word has too (pt tarde

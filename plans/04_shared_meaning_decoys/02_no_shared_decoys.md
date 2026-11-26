@@ -1,5 +1,5 @@
 ---
-status: in progress
+status: done
 ---
 
 # Phase 2 - No shared decoys
@@ -57,3 +57,18 @@ Context: [`00_start.md`](00_start.md) (Q1, Q2, Q4, Q5); depends on
 
 - `scripts/check.sh` and `scripts/e2e.sh` pass; the measurement is logged.
 - The hand-off done (Q5).
+
+## What the implementation found
+
+- Built by a Sonnet subagent at high effort from this file; accepted as is. The docs figures
+  were updated by the main session.
+- After, on the `v0.12.0` asset, 1,000 seeded 8-pair C2 rounds per language: decoy-slot pool 557
+  to 449 en, 394 to 330 it; a decoy in 999 en and 998 it rounds (1,000 and 999 before); 579 and
+  569 from the other language (638 and 620), about 58% and 57% of the decoys (64% and 62%); no
+  decoy from a flagged look-alike. Recap rows a round 3.05 en, 3.23 it.
+- Of the 661 other-language decoys read in `03_false_friend_rounds`, 166 drop out: 84 of the 104
+  read as shared, 65 of the 170 partial read as good (mostly meanings the pt word does share,
+  which that read missed), 14 of the 345 full good, 3 of the 41 bad.
+- `scripts/check.sh` passes with 325 tests; `scripts/e2e.sh` passes. Release APK `b6efaa0` on
+  the emulator, and the arm64 file sent to the user.
+- The open point leaves `plans/open_points.md`.
