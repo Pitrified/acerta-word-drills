@@ -16,8 +16,8 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 
 | #  | Phase                    | Plan                                       | Status |
 | -- | ------------------------ | ------------------------------------------ | ------ |
-| 1  | The flag in the asset    | [`01_asset_flag.md`](01_asset_flag.md)     | planned |
-| 2  | No shared decoys         | [`02_no_shared_decoys.md`](02_no_shared_decoys.md) | planned |
+| 1  | The flag in the asset    | [`01_asset_flag.md`](01_asset_flag.md)     | done |
+| 2  | No shared decoys         | [`02_no_shared_decoys.md`](02_no_shared_decoys.md) | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 
@@ -30,3 +30,8 @@ Append-only. Newest at the bottom.
   `v0.12.0` (293 of 973 false-friend pairs flagged). Read `decoyWordOf`, `decoyCandidates`,
   the recap row and the export's look-alike record. Phases drafted; Q1 to Q5 raised.
 - 2026-11-26 : Q1 to Q5 answered, all as recommended; folded in. Phases planned.
+- 2026-11-26 : before, on the `v0.11.0` asset: decoy-slot pool 557 en / 394 it; decoys in 1,000
+  en and 999 it of 1,000 seeded 8-pair C2 rounds, 638 and 620 from the other language.
+- 2026-11-26 : phase 1 done (`b8d2878`). Export writes `shares_meaning`, `Lookalike.sharesMeaning`,
+  format 4, re-exported from lang-tools `v0.12.0`: 266 flagged look-alikes on 227 cards (27 of
+  lang-tools' 293 sit on inflected-form cards the asset leaves out). 320 tests pass.

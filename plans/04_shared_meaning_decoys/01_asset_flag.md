@@ -1,5 +1,5 @@
 ---
-status: planned
+status: done
 ---
 
 # Phase 1 - The flag in the asset
@@ -27,5 +27,16 @@ Context: [`00_start.md`](00_start.md) (Q3).
 
 ## Done when
 
-- `scripts/check.sh` passes; the asset's flagged count matches lang-tools (293 edges, counted
-  per card look-alike).
+- `scripts/check.sh` passes; the asset's flagged look-alikes are lang-tools' 293 flagged pairs,
+  less those whose pt card the export leaves out (counted and explained).
+
+## What the implementation found
+
+- Built by a Sonnet subagent at high effort from a one-line prompt pointing at this file (an
+  audit-trial variation); accepted as is. `build.yaml`'s `field_rename: snake` maps
+  `sharesMeaning` to `shares_meaning`, so no `@JsonKey` (which also trips a lint).
+- The asset: 266 flagged look-alikes on 227 cards (131 en and 111 it `partial`, 14 en and 10 it
+  `full`), none on a cognate. lang-tools flags 293 pairs; the other 27 are on 21 pt words whose
+  card is an inflected form (*dados*, *era*, *preciso*), which the card query leaves out.
+- The re-export changed only the flag on those 227 cards and the header (format 4, `v0.12.0`).
+- `scripts/check.sh` passes with 320 tests.

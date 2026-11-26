@@ -1,5 +1,5 @@
 ---
-status: planned
+status: in progress
 ---
 
 # Phase 2 - No shared decoys
@@ -27,6 +27,22 @@ Context: [`00_start.md`](00_start.md) (Q1, Q2, Q4, Q5); depends on
    `03_false_friend_rounds` drop out; logged in `tracking.md`.
 5. The open point leaves `plans/open_points.md`.
 6. A release APK on the emulator and the file sent for the user's device (Q5).
+
+## Details for the build
+
+- `decoyWordOf` (`lib/services/selection/lookalikes.dart`): a flagged look-alike gives null
+  before either branch; `decoyCandidates`, the draw's first slot and `_decoys` need no change.
+- `_FalseFriendRow` (`lib/screens/round/widgets/round_summary.dart`) builds
+  `'${card.text} - ${right}, not $word'`; for a flagged look-alike it reads `also` instead of
+  `not`, and `word` is the look-alike's own text in the answer language, or else the lead of
+  its `means` in the answer language with the look-alike named (`late (Italian tardi)`), or else
+  the named look-alike alone (`Italian tardi`). The lead is taken even when it is one of the
+  card's translations: "also" stays true.
+- `docs/drill.md` (the decoy rule, lines on `decoyWordOf`) and `docs/functional-specs.md` (the
+  recap row): the wording; the measured numbers in them (`557 cards`, `64%`, `62%`) are updated
+  by the main session after the measurement, not by the build.
+- `cards_asset_test.dart`: the 8-pair C2 round test also fails on a decoy whose look-alike is
+  flagged, and prints the decoy-slot pool size per language (the cards with a decoy candidate).
 
 ## Tests
 
