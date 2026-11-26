@@ -32,6 +32,7 @@ Below that, when the round has any, is a `False friends` section: one row per fu
 A look-alike that is a word of the card's own meaning is not listed (*andar* / *andare*).
 A row reads `truque - trick, not truck`: the Portuguese word, the right word that was played and the look-alike.
 A look-alike in the other language shows the word it puts on the board and names itself, as `bravo - angry, not good (Italian bravo)`; with no such word it names itself only, as `esquisito - strano, not English exquisite`.
+A look-alike that shares meaning (the Portuguese word is also used for what it mainly means) puts no decoy on the board and reads `also` in place of `not`: `sorte - luck, also sort`; one in the other language gives the first word of its meaning in the answer language when it has one, as `tarde - afternoon, also late (Italian tardi)`, else only its name, as `tarde - afternoon, also Italian tardi`.
 Under it is the kind in words (`false friend` or `partial false friend`), with `on the board` when it was the round's decoy, and the note when it has one.
 A row opens the [word page](#word-page) of its Portuguese word.
 The cards below still list every look-alike, so a false friend shows in the section and on its card.

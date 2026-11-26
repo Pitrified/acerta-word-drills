@@ -127,12 +127,17 @@ class _FalseFriendRow extends StatelessWidget {
     final lookalike = entry.lookalike;
     // A look-alike in the other language shows the word it would put on the
     // board, when it has one: `bravo - angry, not good (Italian bravo)`.
+    // One that shares the card's meaning puts none, so its lead is read from
+    // `means` and the row says `also`: `tarde - afternoon, also late (Italian
+    // tardi)`.
     final String word;
     if (lookalike.language == language.code) {
       word = lookalike.text;
     } else {
       final named = '${lookalike.languageLabel} ${lookalike.text}';
-      final lead = decoyWordOf(card, lookalike, language);
+      final lead = lookalike.sharesMeaning
+          ? lookalike.means[language.code]?.firstOrNull
+          : decoyWordOf(card, lookalike, language);
       word = lead == null ? named : '$lead ($named)';
     }
     final kind = [
@@ -150,7 +155,8 @@ class _FalseFriendRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${card.text} - ${entry.pair.right}, not $word',
+              '${card.text} - ${entry.pair.right}, '
+              '${lookalike.sharesMeaning ? 'also' : 'not'} $word',
               style: theme.textTheme.bodyLarge,
             ),
             Text(kind, style: theme.textTheme.labelMedium),

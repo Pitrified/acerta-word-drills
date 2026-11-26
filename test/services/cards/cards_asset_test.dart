@@ -101,6 +101,7 @@ void main() {
     // A round loses its decoy only when the decoy is already a right word, and
     // its partial false friend only when that card's translations are all
     // taken by earlier cards (negro and preto share their only one, nero).
+    // No decoy comes from a look-alike that shares the card's meaning.
     for (final language in AnswerLanguage.values) {
       final pool = repository.pool(
         maxLevel: Level.c2,
@@ -108,7 +109,12 @@ void main() {
         offTopics: const {},
       );
       final random = Random(7);
+      // The decoy slot draws from the cards with a decoy candidate.
+      final slotPool = pool.where(
+        (card) => decoyCandidates(card, language).isNotEmpty,
+      );
       var noDecoy = 0;
+      var fromFlagged = 0;
       var noPartial = 0;
       var fromOther = 0;
       for (var i = 0; i < 1000; i++) {
@@ -128,6 +134,9 @@ void main() {
           random: random,
         )!;
         if (round.decoys.isEmpty) noDecoy++;
+        fromFlagged += round.decoys
+            .where((d) => d.lookalike.sharesMeaning)
+            .length;
         if (round.decoys.any((d) => d.lookalike.language != language.code)) {
           fromOther++;
         }
@@ -137,6 +146,9 @@ void main() {
       }
       expect(noDecoy, lessThanOrEqualTo(10), reason: language.code);
       expect(noPartial, lessThanOrEqualTo(10), reason: language.code);
+      expect(fromFlagged, 0, reason: language.code);
+      // ignore: avoid_print
+      print('decoy-slot pool, ${language.code}: ${slotPool.length} cards');
       // The decoy share from the other language is a measurement worth seeing.
       // ignore: avoid_print
       print(
