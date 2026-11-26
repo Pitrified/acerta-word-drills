@@ -139,3 +139,5 @@ Append-only. Newest at the bottom.
 - 2026-11-26 : Q19 answered d: the partial other-language decoys stay as they are; lang-tools reviews
   the 290 partial pairs in a folder of its own (`24_partial_false_friend_meanings`, draft), and the
   export honouring its flag is an acerta open point. Phase 5 discarded; folder done.
+- 2026-11-26 : the user installed the release APK `0.1.0+a9fb5f04` (arm64) on their device and
+  checked it: works.
