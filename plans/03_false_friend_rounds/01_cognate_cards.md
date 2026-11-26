@@ -1,5 +1,5 @@
 ---
-status: planned
+status: done
 ---
 
 # Phase 1 - Cognate cards
@@ -29,7 +29,7 @@ about the pair on screen, and many plain cognates have no edge (a lang-tools ope
 "Looks like": lowercase, accents stripped, `2 * LCS / (length a + length b)` of 0.7 or more,
 LCS being the longest common subsequence.
 *dezembro* / *December* 0.75, *andar* / *andare* 0.91, *saúde* / *salute* 0.73;
-*nação* / *not* 0.67 is not.
+*não* / *not* 0.67 is not.
 A Levenshtein ratio misses *dezembro* / *December* (0.62).
 
 On the shipped asset this marks 10,735 of 19,283 cards (56%).
@@ -91,3 +91,19 @@ so the cut is conservative.
 - `scripts/check.sh` passes.
 - The round simulation in `00_start.md`, rerun with the code's rule, logs the cognate cards per
   8-pair C2 round before and after in `tracking.md`.
+
+## What the implementation found
+
+- The models layer depends on nothing, so `falseFriendsIn` and `hasFalseFriendIn` are functions
+  in `lib/services/selection/lookalikes.dart` next to the cognate rule, not members of `WordCard`;
+  the file is `lookalikes.dart` rather than `cognate.dart` for that reason.
+- `CardRepository`'s constructor marks the cognate cards, not `parse`: the constructor is what
+  both the asset load (inside the isolate) and the test fakes go through.
+- The plan's *nação* / *not* example was wrong: 0.67 is *não* / *not*; *nação* / *not* is 0.5.
+- The freezed field outside the JSON needs `// ignore: invalid_annotation_target`.
+- Through the code on the real asset, 2,000 draws of 8 at C2: 1.02 en / 1.09 it cognate cards
+  (4.3 with the old weights, from the Python simulation). Parsing the asset with the cognate
+  marking takes 349 ms in the test VM.
+- Tests: 13 new or rewritten (`lookalikes_test.dart`, `selection_test.dart`, the asset test);
+  four mutations caught (no cognate damping, no own-word rule, false friends in any language,
+  en words only). `scripts/check.sh` passes with 288 tests.

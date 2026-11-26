@@ -14,4 +14,25 @@ void main() {
     expect(base.copyWith(language: 'it').languageLabel, 'Italian');
     expect(base.copyWith(language: 'es').languageLabel, 'es');
   });
+
+  test('means is read from the asset, and empty when absent', () {
+    final bravo = Lookalike.fromJson({
+      'language': 'it',
+      'text': 'bravo',
+      'kind': 'partial',
+      'note': 'n',
+      'means': {
+        'en': ['good', 'skilled'],
+      },
+    });
+    expect(bravo.means, {
+      'en': ['good', 'skilled'],
+    });
+    final plain = Lookalike.fromJson({
+      'language': 'en',
+      'text': 'x',
+      'kind': 'cognate',
+    });
+    expect(plain.means, isEmpty);
+  });
 }

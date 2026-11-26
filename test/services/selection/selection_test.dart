@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:acerta/models/answer_language.dart';
 import 'package:acerta/models/level.dart';
 import 'package:acerta/models/lookalike.dart';
 import 'package:acerta/models/word_card.dart';
@@ -13,6 +14,7 @@ WordCard _card(
   String id, {
   Level level = Level.b2,
   List<Lookalike> lookalikes = const [],
+  bool isCognate = false,
 }) => WordCard(
   id: id,
   text: id,
@@ -21,13 +23,34 @@ WordCard _card(
   freq: 1,
   gloss: id,
   lookalikes: lookalikes,
+  isCognate: isCognate,
 );
 
 const _trap = Lookalike(language: 'en', text: 'x', kind: LookalikeKind.full);
-const _cognate = Lookalike(
+const _partial = Lookalike(
+  language: 'en',
+  text: 'z',
+  kind: LookalikeKind.partial,
+);
+const _cognateEdge = Lookalike(
   language: 'en',
   text: 'y',
   kind: LookalikeKind.cognate,
+);
+
+/// An Italian false friend that means "x2" in English.
+const _itTrap = Lookalike(
+  language: 'it',
+  text: 'x',
+  kind: LookalikeKind.full,
+  means: {
+    'en': ['x2'],
+  },
+);
+const _itPartial = Lookalike(
+  language: 'it',
+  text: 'z',
+  kind: LookalikeKind.partial,
 );
 
 double _weight(WordCard card, [WordProgress? progress]) =>
@@ -77,20 +100,42 @@ void main() {
       expect(weights, [...weights]..sort((a, b) => b.compareTo(a)));
     });
 
-    test('a trap is boosted, a cognate damped', () {
+    test('a false friend is boosted, full or partial', () {
       expect(
         _weight(_card('a', lookalikes: [_trap])),
         closeTo(5.0 * 1.3, 1e-9),
       );
       expect(
-        _weight(_card('a', lookalikes: [_cognate])),
-        closeTo(5.0 * 0.7, 1e-9),
+        _weight(_card('a', lookalikes: [_partial])),
+        closeTo(5.0 * 1.3, 1e-9),
       );
     });
 
-    test('a trap and a cognate take the trap factor only', () {
+    test('a false friend counts in either language', () {
       expect(
-        _weight(_card('a', lookalikes: [_cognate, _trap])),
+        _weight(_card('a', lookalikes: [_itTrap])),
+        closeTo(5.0 * 1.3, 1e-9),
+      );
+      expect(
+        _weight(_card('a', lookalikes: [_itPartial])),
+        closeTo(5.0 * 1.3, 1e-9),
+      );
+    });
+
+    test('a cognate card is damped', () {
+      expect(_weight(_card('a', isCognate: true)), closeTo(5.0 * 0.1, 1e-9));
+    });
+
+    test('a cognate edge alone does not damp the card', () {
+      expect(
+        _weight(_card('a', lookalikes: [_cognateEdge])),
+        closeTo(5.0, 1e-9),
+      );
+    });
+
+    test('a cognate card with a false friend takes the trap factor only', () {
+      expect(
+        _weight(_card('a', lookalikes: [_trap], isCognate: true)),
         closeTo(5.0 * 1.3, 1e-9),
       );
     });
@@ -224,6 +269,122 @@ void main() {
         now: _now,
       );
       expect(chosen.single.id, 'e');
+    });
+  });
+
+  group('drawRound', () {
+    final full = _card('full', lookalikes: [_trap]);
+    final partial = _card('partial', lookalikes: [_partial]);
+    final both = _card('both', lookalikes: [_trap, _partial]);
+    final plain = [
+      for (final id in ['a', 'b', 'c', 'd', 'e', 'f']) _card(id),
+    ];
+
+    List<String> draw(
+      Iterable<WordCard> pool,
+      int n, {
+      bool partialSlot = true,
+      Map<String, WordProgress> progress = const {},
+      AnswerLanguage language = AnswerLanguage.en,
+      int seed = 0,
+    }) => [
+      for (final card in drawRound(
+        pool,
+        progress,
+        n,
+        language: language,
+        partialSlot: partialSlot,
+        random: Random(seed),
+        now: _now,
+      ))
+        card.id,
+    ];
+
+    test('the full then the partial false friend come first', () {
+      for (var seed = 0; seed < 50; seed++) {
+        final ids = draw([...plain, partial, full], 5, seed: seed);
+        expect(ids.take(2), ['full', 'partial'], reason: 'seed $seed');
+        expect(ids, hasLength(5));
+        expect(ids.toSet(), hasLength(5));
+      }
+    });
+
+    test('no partial slot when it is off', () {
+      expect(draw([full, partial], 1, partialSlot: false), ['full']);
+      for (var seed = 0; seed < 50; seed++) {
+        final ids = draw(
+          [...plain, partial, full],
+          3,
+          partialSlot: false,
+          seed: seed,
+        );
+        expect(ids.first, 'full');
+      }
+      final seconds = {
+        for (var seed = 0; seed < 50; seed++)
+          draw([...plain, partial, full], 2, partialSlot: false, seed: seed)[1],
+      };
+      expect(seconds.length, greaterThan(1));
+    });
+
+    test('a card with both kinds fills one slot, never both', () {
+      for (var seed = 0; seed < 50; seed++) {
+        final ids = draw([...plain, both], 4, seed: seed);
+        expect(ids.first, 'both', reason: 'seed $seed');
+        expect(ids.where((id) => id == 'both'), hasLength(1));
+        expect(ids, hasLength(4));
+      }
+    });
+
+    test(
+      'with no false friend, or all hidden, the round is drawn as usual',
+      () {
+        expect(draw(plain, 5), hasLength(5));
+        final hidden = {
+          'full': const WordProgress(hidden: true),
+          'partial': const WordProgress(hidden: true),
+        };
+        for (var seed = 0; seed < 20; seed++) {
+          final ids = draw(
+            [...plain, full, partial],
+            5,
+            progress: hidden,
+            seed: seed,
+          );
+          expect(ids, hasLength(5));
+          expect(ids, isNot(contains('full')));
+          expect(ids, isNot(contains('partial')));
+        }
+      },
+    );
+
+    test('the first slot takes only a card that can give a decoy', () {
+      // An English false friend with no Italian word gives no Italian decoy.
+      final firsts = {
+        for (var seed = 0; seed < 40; seed++)
+          draw(
+            [...plain, full],
+            1,
+            language: AnswerLanguage.it,
+            seed: seed,
+          ).single,
+      };
+      expect(firsts.length, greaterThan(1));
+    });
+
+    test('an Italian false friend fills the slots of an English round', () {
+      final itFull = _card('itFull', lookalikes: [_itTrap]);
+      final itPartial = _card('itPartial', lookalikes: [_itPartial]);
+      for (var seed = 0; seed < 50; seed++) {
+        final ids = draw([...plain, itPartial, itFull], 5, seed: seed);
+        expect(ids.take(2), ['itFull', 'itPartial'], reason: 'seed $seed');
+      }
+    });
+
+    test('never more than n, nor more than the pool', () {
+      expect(draw([full, partial], 1), ['full']);
+      expect(draw([full, partial, ...plain], 0), isEmpty);
+      expect(draw([full, partial], 5), ['full', 'partial']);
     });
   });
 }

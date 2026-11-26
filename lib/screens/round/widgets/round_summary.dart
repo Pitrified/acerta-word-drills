@@ -14,6 +14,7 @@ import '../../../providers/progress_provider.dart';
 import '../../../providers/reports_provider.dart';
 import '../../../providers/round_provider.dart';
 import '../../../providers/round_summary_provider.dart';
+import '../../../services/selection/lookalikes.dart';
 
 /// A finished round, pair by pair, with Next round and Home always in reach.
 class RoundSummaryView extends ConsumerWidget {
@@ -42,6 +43,8 @@ class RoundSummaryView extends ConsumerWidget {
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 8),
+                if (summary.falseFriends.isNotEmpty)
+                  _FalseFriendsSection(entries: summary.falseFriends),
                 for (final entry in summary.entries) _EntryCard(entry: entry),
               ],
             ),
@@ -74,6 +77,88 @@ class RoundSummaryView extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The round's false friends, one row each, before the pair cards.
+class _FalseFriendsSection extends ConsumerWidget {
+  const _FalseFriendsSection({required this.entries});
+
+  final List<FalseFriendEntry> entries;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final language = ref.read(roundProvider).round!.language;
+    return Card(
+      key: const Key('summary-false-friends'),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text('False friends', style: theme.textTheme.titleMedium),
+            ),
+            for (final entry in entries)
+              _FalseFriendRow(entry: entry, language: language),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FalseFriendRow extends StatelessWidget {
+  const _FalseFriendRow({required this.entry, required this.language});
+
+  final FalseFriendEntry entry;
+
+  /// The answer language of the round; a look-alike in another one names it.
+  final AnswerLanguage language;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final card = entry.pair.card;
+    final lookalike = entry.lookalike;
+    // A look-alike in the other language shows the word it would put on the
+    // board, when it has one: `bravo - angry, not good (Italian bravo)`.
+    final String word;
+    if (lookalike.language == language.code) {
+      word = lookalike.text;
+    } else {
+      final named = '${lookalike.languageLabel} ${lookalike.text}';
+      final lead = decoyWordOf(card, lookalike, language);
+      word = lead == null ? named : '$lead ($named)';
+    }
+    final kind = [
+      lookalike.kind.label,
+      if (entry.onBoard) 'on the board',
+    ].join(' · ');
+    return InkWell(
+      key: Key(
+        'false-friend-${card.id}-${lookalike.language}-${lookalike.text}',
+      ),
+      onTap: () => unawaited(context.push(AppRoutes.word(card.id))),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${card.text} - ${entry.pair.right}, not $word',
+              style: theme.textTheme.bodyLarge,
+            ),
+            Text(kind, style: theme.textTheme.labelMedium),
+            if (lookalike.note.isNotEmpty)
+              Text(lookalike.note, style: theme.textTheme.bodySmall),
+          ],
+        ),
+      ),
     );
   }
 }

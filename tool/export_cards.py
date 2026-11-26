@@ -28,6 +28,7 @@ from typing import Any
 import lang_tools
 from lang_tools.lexicon import CardQuery
 from lang_tools.lexicon import LemmaCard
+from lang_tools.lexicon import LookalikeHint
 from lang_tools.lexicon import get_concept_by_id
 from lang_tools.lexicon import get_lemma_by_id
 from lang_tools.lexicon import lemma_cards
@@ -37,8 +38,8 @@ from lang_tools.lexicon.card import MAX_CARD_LIMIT
 from lang_tools.params.lang_tools_params import get_lang_tools_params
 
 #: Version of the asset layout; the app refuses a file with another one.
-#: 2 added `topics` to each card.
-FORMAT = 2
+#: 2 added `topics` to each card; 3 added `means` to a false friend's look-alike.
+FORMAT = 3
 
 LANGUAGE = "pt"
 KNOWN_LANGUAGES = ["en", "it"]
@@ -135,15 +136,20 @@ def card_record(card: LemmaCard) -> dict[str, Any]:
     }
     for language in TRANSLATION_LANGUAGES:
         record[language] = card.translations.get(language, [])[:MAX_TRANSLATIONS]
-    record["lookalikes"] = [
-        {
-            "language": hint.language,
-            "text": hint.text,
-            "kind": hint.kind,
-            "note": hint.note,
-        }
-        for hint in card.lookalikes
-    ]
+    record["lookalikes"] = [_lookalike_record(hint) for hint in card.lookalikes]
+    return record
+
+
+def _lookalike_record(hint: LookalikeHint) -> dict[str, Any]:
+    """Return a look-alike; `means` only when lang-tools gives it words."""
+    record: dict[str, Any] = {
+        "language": hint.language,
+        "text": hint.text,
+        "kind": hint.kind,
+        "note": hint.note,
+    }
+    if hint.means:
+        record["means"] = hint.means
     return record
 
 

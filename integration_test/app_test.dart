@@ -146,6 +146,9 @@ void main() {
     expect(textOf(tester, 'summary-score'), '4 of 5 right first time');
     expect(find.byKey(Key('missed-${missed.card.id}')), findsOneWidget);
     expect(find.byKey(Key('missed-${first.pairs[1].card.id}')), findsNothing);
+    // The round reserves a card with a full false friend, so the summary
+    // lists it in its own section.
+    expect(find.byKey(const Key('summary-false-friends')), findsOneWidget);
 
     var progress = container.read(progressProvider);
     expect(progress, hasLength(5));

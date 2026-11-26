@@ -1,5 +1,5 @@
 ---
-status: planned
+status: done
 ---
 
 # Phase 2 - False-friend slots
@@ -53,3 +53,21 @@ for `falseFriendsIn` and the answer language in the draw.
 - `scripts/check.sh` passes; `scripts/e2e.sh` passes.
 - A release APK, played on the emulator at C2 with 8 pairs, shows a decoy in each round, and the
   first draw after a cold start is not visibly slower than before; handed to the user.
+
+## What the implementation found
+
+- `drawRound` follows the plan: a `reserve` step per slot over the cards not yet taken, then
+  `selectCards` for the rest; `partialSlotMinPairs = 5` sits next to `maxRoundDecoys` in
+  `pair_matching.dart`, and `RoundNotifier.start` passes `pairsPerRound >= partialSlotMinPairs`.
+- On the real asset, 1,000 8-pair C2 rounds per language: a decoy and a partial false friend in
+  every round, 0 rounds without a decoy (the 1% allowance was not needed).
+  Three mutations caught; `scripts/check.sh` passes with 296 tests.
+- `scripts/e2e.sh` first failed to boot the emulator: `/dev/kvm` is granted by logind to the
+  desktop session, and the box was at the login screen. With the desktop logged in it passes.
+- Release APK on the emulator, C2, 8 pairs, English: 13 rounds started, each with 8 words and 9
+  answers, the decoy on the first card (*tenente* / tenant, *curso* / curse, *lona* / loan,
+  *comer* / come, *estância* / stance). Rounds were abandoned rather than played, so nothing was
+  recorded and the same word can come back (*declive*, *reunião*, *tenente* twice).
+- Cold start to a home screen with the word count, polled through `uiautomator` (about 1 s per
+  poll, so a coarse measure): main 3.19 to 3.21 s, this branch 3.19 to 3.25 s over 4 starts each.
+  No visible cost from marking the cognate cards at load.

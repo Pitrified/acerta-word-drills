@@ -28,6 +28,14 @@ When the pool cannot fill a round the screen says `Not enough words for a round 
 When every pair is matched the round screen shows the summary in place of the board.
 It has a heading, `Round done`, and a line such as `4 of 5 right first time`: the pairs never missed out of all the pairs.
 
+Below that, when the round has any, is a `False friends` section: one row per full or partial false friend of the round's words, English and Italian, pair by pair, the answer language first and full before partial.
+A look-alike that is a word of the card's own meaning is not listed (*andar* / *andare*).
+A row reads `truque - trick, not truck`: the Portuguese word, the right word that was played and the look-alike.
+A look-alike in the other language shows the word it puts on the board and names itself, as `bravo - angry, not good (Italian bravo)`; with no such word it names itself only, as `esquisito - strano, not English exquisite`.
+Under it is the kind in words (`false friend` or `partial false friend`), with `on the board` when it was the round's decoy, and the note when it has one.
+A row opens the [word page](#word-page) of its Portuguese word.
+The cards below still list every look-alike, so a false friend shows in the section and on its card.
+
 Below that is one card per pair, in round order:
 
 - The Portuguese word and the right word that was played, then the first translation of the word in the other answer language when it has one: `estudo - work - studio` in an English round, the English word after the Italian one in an Italian round.

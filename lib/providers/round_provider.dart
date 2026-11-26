@@ -35,10 +35,12 @@ class RoundNotifier extends Notifier<RoundState> {
       language: settings.answerLanguage,
       offTopics: settings.offTopics,
     );
-    final drawn = selectCards(
+    final drawn = drawRound(
       pool,
       progress,
       settings.pairsPerRound + pairSpares,
+      language: settings.answerLanguage,
+      partialSlot: settings.pairsPerRound >= partialSlotMinPairs,
       random: random,
       now: now,
     );

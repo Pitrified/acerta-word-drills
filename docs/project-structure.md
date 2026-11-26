@@ -31,7 +31,7 @@ acerta-word-drills/                   # Flutter project root, package name acert
       pair_matching/                  # buildRound, gradeTap
       progress/                       # ProgressRepository, Hive box progress
       reports/                        # ReportRepository, Hive box reports; ReportExport, the JSON lines and the save channel
-      selection/                      # computeWeight, selectCards
+      selection/                      # computeWeight, selectCards, drawRound; lookalikes.dart, false friends and cognate cards
       settings/                       # SettingsRepository, Hive box settings
     utils/                            # Helpers shared by screens (count formatting)
     widgets/                          # Widgets shared by screens (AsyncValueView)

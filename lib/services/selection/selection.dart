@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import '../../models/answer_language.dart';
 import '../../models/level.dart';
 import '../../models/word_card.dart';
 import '../../models/word_progress.dart';
+import 'lookalikes.dart';
 
 /// The numbers behind [computeWeight].
 class SelectionWeights {
@@ -13,7 +15,7 @@ class SelectionWeights {
     this.recencyHalfLife = const Duration(hours: 1),
     this.levelFactor = defaultLevelFactor,
     this.trapFactor = 1.3,
-    this.cognateFactor = 0.7,
+    this.cognateFactor = 0.1,
   });
 
   /// Easier words come up a little more often.
@@ -39,10 +41,11 @@ class SelectionWeights {
   final Duration recencyHalfLife;
   final Map<Level, double> levelFactor;
 
-  /// Multiplier for a word with a false friend.
+  /// Multiplier for a word with a false friend, English or Italian.
   final double trapFactor;
 
-  /// Multiplier for a word with a cognate and no false friend.
+  /// Multiplier for a cognate card ([WordCard.isCognate]) with no false
+  /// friend.
   final double cognateFactor;
 }
 
@@ -62,9 +65,9 @@ double computeWeight(
     weight *= 1 + weights.errorBoost * progress.errors;
   }
   weight *= weights.levelFactor[card.level] ?? 1.0;
-  if (card.isTrap) {
+  if (hasFalseFriend(card)) {
     weight *= weights.trapFactor;
-  } else if (card.hasCognate) {
+  } else if (card.isCognate) {
     weight *= weights.cognateFactor;
   }
   final lastSeenAt = progress?.lastSeenAt;
@@ -128,5 +131,66 @@ List<WordCard> selectCards(
     total -= cardWeights[index];
     cardWeights[index] = 0;
   }
+  return chosen;
+}
+
+/// Draws up to [n] distinct cards for a round answered in [language], with
+/// false friends reserved first.
+///
+/// The first card is drawn from the cards that can give a decoy in
+/// [language] ([decoyCandidates]), so the round can show one; when
+/// [partialSlot] is set, the second from the rest with a partial false friend,
+/// English or Italian. The others come from the rest of [pool]. Each draw is a
+/// [selectCards] with the same weights; a reserved slot with nothing to draw
+/// leaves its card to the last draw, so the count is the one [selectCards]
+/// would give.
+List<WordCard> drawRound(
+  Iterable<WordCard> pool,
+  Map<String, WordProgress> progress,
+  int n, {
+  required AnswerLanguage language,
+  required bool partialSlot,
+  required Random random,
+  required DateTime now,
+  SelectionWeights weights = const SelectionWeights(),
+}) {
+  final cards = pool.toList();
+  final chosen = <WordCard>[];
+  final taken = <String>{};
+  List<WordCard> rest() => [
+    for (final card in cards)
+      if (!taken.contains(card.id)) card,
+  ];
+  void reserve(bool Function(WordCard card) fits) {
+    if (chosen.length >= n) return;
+    final slot = selectCards(
+      [
+        for (final card in rest())
+          if (fits(card)) card,
+      ],
+      progress,
+      1,
+      random: random,
+      now: now,
+      weights: weights,
+    );
+    for (final card in slot) {
+      chosen.add(card);
+      taken.add(card.id);
+    }
+  }
+
+  reserve((card) => decoyCandidates(card, language).isNotEmpty);
+  if (partialSlot) reserve(hasPartialFalseFriend);
+  chosen.addAll(
+    selectCards(
+      rest(),
+      progress,
+      n - chosen.length,
+      random: random,
+      now: now,
+      weights: weights,
+    ),
+  );
   return chosen;
 }

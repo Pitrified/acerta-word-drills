@@ -1,7 +1,15 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:acerta/models/answer_language.dart';
+import 'package:acerta/models/level.dart';
 import 'package:acerta/models/lookalike.dart';
+import 'package:acerta/models/word_card.dart';
+import 'package:acerta/providers/round_summary_provider.dart';
 import 'package:acerta/services/cards/card_repository.dart';
+import 'package:acerta/services/pair_matching/pair_matching.dart';
+import 'package:acerta/services/selection/lookalikes.dart';
+import 'package:acerta/services/selection/selection.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -58,6 +66,114 @@ void main() {
           expect(lookalike.note, isNotEmpty, reason: card.id);
         }
       }
+    }
+  });
+
+  test('cognate cards: dezembro and andar are, about half of all are', () {
+    WordCard byText(String text) => cards.firstWhere((c) => c.text == text);
+    expect(byText('dezembro').isCognate, isTrue);
+    expect(byText('andar').isCognate, isTrue);
+    final share = cards.where((c) => c.isCognate).length / cards.length;
+    // Loose bounds: a guard against matching all or nothing, not a pin.
+    expect(share, inInclusiveRange(0.4, 0.7));
+  });
+
+  test('8-pair C2 rounds have a decoy and a partial false friend', () {
+    // A round loses its decoy only when the decoy is already a right word, and
+    // its partial false friend only when that card's translations are all
+    // taken by earlier cards (negro and preto share their only one, nero).
+    for (final language in AnswerLanguage.values) {
+      final pool = repository.pool(
+        maxLevel: Level.c2,
+        language: language,
+        offTopics: const {},
+      );
+      final random = Random(7);
+      var noDecoy = 0;
+      var noPartial = 0;
+      var fromOther = 0;
+      for (var i = 0; i < 1000; i++) {
+        final drawn = drawRound(
+          pool,
+          const {},
+          8 + pairSpares,
+          language: language,
+          partialSlot: true,
+          random: random,
+          now: DateTime.utc(2026),
+        );
+        final round = buildRound(
+          drawn,
+          language: language,
+          numPairs: 8,
+          random: random,
+        )!;
+        if (round.decoys.isEmpty) noDecoy++;
+        if (round.decoys.any((d) => d.lookalike.language != language.code)) {
+          fromOther++;
+        }
+        if (!round.pairs.any((p) => hasPartialFalseFriend(p.card))) {
+          noPartial++;
+        }
+      }
+      expect(noDecoy, lessThanOrEqualTo(10), reason: language.code);
+      expect(noPartial, lessThanOrEqualTo(10), reason: language.code);
+      // The decoy share from the other language is a measurement worth seeing.
+      // ignore: avoid_print
+      print(
+        'decoys, ${language.code}: ${1000 - noDecoy} of 1000 rounds, '
+        '$fromOther from the other language',
+      );
+    }
+  });
+
+  test('pt bravo in an English round can show good, from Italian bravo', () {
+    final bravo = cards.firstWhere((c) => c.text == 'bravo');
+    expect(
+      decoyCandidates(bravo, AnswerLanguage.en).map((c) => c.text),
+      contains('good'),
+    );
+  });
+
+  test('8-pair C2 rounds list false friends in the summary', () {
+    // Through the draw, the build and the summary's own entry list.
+    for (final language in AnswerLanguage.values) {
+      final pool = repository.pool(
+        maxLevel: Level.c2,
+        language: language,
+        offTopics: const {},
+      );
+      final random = Random(11);
+      final rows = <int, int>{};
+      var total = 0;
+      const rounds = 1000;
+      for (var i = 0; i < rounds; i++) {
+        final round = buildRound(
+          drawRound(
+            pool,
+            const {},
+            8 + pairSpares,
+            language: language,
+            partialSlot: true,
+            random: random,
+            now: DateTime.utc(2026),
+          ),
+          language: language,
+          numPairs: 8,
+          random: random,
+        )!;
+        final count = falseFriendEntries(round).length;
+        expect(count, greaterThanOrEqualTo(1), reason: language.code);
+        total += count;
+        rows.update(min(count, 4), (n) => n + 1, ifAbsent: () => 1);
+      }
+      // The row counts are a measurement worth seeing in the test output.
+      // ignore: avoid_print
+      print(
+        'summary false friends, ${language.code}: '
+        '${(total / rounds).toStringAsFixed(2)} rows a round; rounds by rows '
+        '(4 = 4 or more): ${Map.fromEntries(rows.entries.toList()..sort((a, b) => a.key.compareTo(b.key)))}',
+      );
     }
   });
 }

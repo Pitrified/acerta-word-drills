@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/answer_language.dart';
+import '../models/lookalike.dart';
+import '../models/pair_round.dart';
 import '../models/round_summary.dart';
+import '../services/selection/lookalikes.dart';
 import 'progress_provider.dart';
 import 'round_provider.dart';
 
@@ -21,5 +25,32 @@ final roundSummaryProvider = Provider<RoundSummary?>((ref) {
           hidden: progress[pair.card.id]?.hidden ?? false,
         ),
     ],
+    falseFriends: falseFriendEntries(round),
   );
 });
+
+/// The false friends of [round]'s words, for the summary.
+///
+/// Pair by pair in round order; within a pair the answer language first, then
+/// the other, and full before partial in each. The own-word rule of
+/// [falseFriendsIn] holds, so a look-alike that is a word of the card's own
+/// meaning is not listed.
+List<FalseFriendEntry> falseFriendEntries(PairRound round) {
+  final languages = [
+    round.language,
+    ...AnswerLanguage.values.where((l) => l != round.language),
+  ];
+  return [
+    for (final pair in round.pairs)
+      for (final language in languages)
+        for (final kind in [LookalikeKind.full, LookalikeKind.partial])
+          for (final lookalike in falseFriendsIn(pair.card, language, kind))
+            FalseFriendEntry(
+              pair: pair,
+              lookalike: lookalike,
+              onBoard: round.decoys.any(
+                (d) => d.left == pair.left && d.lookalike == lookalike,
+              ),
+            ),
+  ];
+}

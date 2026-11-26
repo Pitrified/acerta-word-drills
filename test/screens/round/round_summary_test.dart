@@ -4,6 +4,7 @@ import 'package:acerta/models/level.dart';
 import 'package:acerta/models/lookalike.dart';
 import 'package:acerta/models/pair_round.dart';
 import 'package:acerta/models/round_state.dart';
+import 'package:acerta/models/word_card.dart';
 import 'package:acerta/providers/round_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -456,5 +457,109 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.byKey(const Key('round-home')), findsOneWidget);
+  });
+
+  group('False friends section', () {
+    Future<void> playWith(WidgetTester tester, List<WordCard> cards) async {
+      final container = await pumpApp(
+        tester,
+        cards: cardRepositoryOf(cards),
+        settings: FakeSettingsRepository(
+          DrillSettings(pairsPerRound: cards.length),
+        ),
+      );
+      await _playRound(tester, container, missFirst: false);
+    }
+
+    testWidgets('lists the false friends with their kind and note', (
+      tester,
+    ) async {
+      await playWith(tester, [
+        fakeCard(0),
+        fakeCard(
+          1,
+          lookalikes: const [
+            Lookalike(
+              language: 'en',
+              text: 'part1',
+              kind: LookalikeKind.partial,
+            ),
+          ],
+        ),
+        fakeCard(
+          2,
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'itlook2',
+              kind: LookalikeKind.full,
+              note: 'it note',
+            ),
+          ],
+        ),
+      ]);
+
+      final section = find.byKey(const Key('summary-false-friends'));
+      expect(section, findsOneWidget);
+      Finder inSection(String text) =>
+          find.descendant(of: section, matching: find.text(text));
+      expect(inSection('False friends'), findsOneWidget);
+      expect(inSection('w0 - en0, not look0'), findsOneWidget);
+      expect(inSection('false friend · on the board'), findsOneWidget);
+      expect(inSection('note 0'), findsOneWidget);
+      expect(inSection('w1 - en1, not part1'), findsOneWidget);
+      expect(inSection('partial false friend'), findsOneWidget);
+      expect(inSection('w2 - en2, not Italian itlook2'), findsOneWidget);
+      expect(inSection('false friend'), findsOneWidget);
+      expect(inSection('it note'), findsOneWidget);
+    });
+
+    testWidgets('an Italian look-alike shows the word it means', (
+      tester,
+    ) async {
+      await playWith(tester, [
+        fakeCard(
+          0,
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'itlook0',
+              kind: LookalikeKind.partial,
+              means: {
+                'en': ['lead0'],
+              },
+            ),
+          ],
+        ),
+        fakeCard(1, lookalikes: const []),
+        fakeCard(2, lookalikes: const []),
+      ]);
+      expect(
+        find.text('w0 - en0, not lead0 (Italian itlook0)'),
+        findsOneWidget,
+      );
+      expect(find.text('partial false friend · on the board'), findsOneWidget);
+    });
+
+    testWidgets('comes before the cards', (tester) async {
+      await playWith(tester, [fakeCard(0), fakeCard(1), fakeCard(2)]);
+      final top = tester
+          .getTopLeft(find.byKey(const Key('summary-false-friends')))
+          .dy;
+      for (var i = 0; i < 3; i++) {
+        expect(
+          tester.getTopLeft(find.byKey(Key('summary-id$i'))).dy,
+          greaterThan(top),
+        );
+      }
+    });
+
+    testWidgets('is absent when the round has no false friend', (tester) async {
+      await playWith(tester, [
+        for (var i = 0; i < 3; i++) fakeCard(i, lookalikes: const []),
+      ]);
+      expect(find.byKey(const Key('summary-false-friends')), findsNothing);
+      expect(find.text('False friends'), findsNothing);
+    });
   });
 }

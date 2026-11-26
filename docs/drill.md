@@ -28,24 +28,58 @@ The factors multiply, starting from a base of 1.
 | Never graded (no record, or `seen` is 0) | 5 |
 | Graded | 1 + 3 per error |
 | Level | A1 1.3, A2 1.2, B1 1.1, B2 1.0, C1 0.9, C2 0.8 |
-| Has a false friend (a `full` or `partial` look-alike) | 1.3 |
-| Has a cognate and no false friend | 0.7 |
+| Has a false friend, English or Italian (see below) | 1.3 |
+| A cognate card (see below) with no false friend | 0.1 |
 | Last seen at some time | 1 - 0.5 ^ (elapsed / 1 hour), elapsed never below 0 |
 
 The recency factor is 0 at the moment a word is graded, 0.5 an hour later and 0.75 after two hours, so a word just seen is not drawn again at once.
 A last seen time in the future counts as elapsed 0.
 The numbers are the defaults of `SelectionWeights`.
 
+### False friends and cognate cards
+
+The rules are in `lib/services/selection/lookalikes.dart`.
+
+A false friend of a card is a `full` or `partial` look-alike, English or Italian, whatever the answer language:
+the learner knows both and passes through both, so an Italian false friend misleads in an English round too (pt *bravo* is "angry", it *bravo* "good").
+A look-alike that is itself one of the card's own English or Italian words is no false friend of that card:
+the *andar* card means "go", *andare*, so its partial look-alike *andare* is left out.
+The weights, the slots, the decoys and the summary use the same test.
+
+A card is a cognate card when its Portuguese word looks like one of its own English or Italian words, whatever the answer language,
+since the learner knows both: *andar* "go" with *andare*, *dezembro* with *December*.
+The look-alikes of the card play no part, because a look-alike may name a word outside the card's meaning, and many plain cognates have none.
+Two words look alike when, in lower case and without accents, twice the length of their longest common subsequence over the sum of their lengths is at least 0.7:
+*dezembro* and *December* give 0.75, *não* and *not* 0.67.
+About half the cards are cognate cards, so their factor is low, to keep them near one a round.
+`CardRepository` marks the cognate cards once, when it is built, so a draw does not compare words.
+
 ## The draw
 
 A round of `n` pairs draws `n + 3` cards, the spares being there so that a card dropped while pairing does not shrink the round.
-`selectCards` draws without replacement:
+`drawRound` makes the draw, with false friends first (below); each of its steps is a `selectCards`, which draws without replacement:
 
 1. A card with a repeated id or a weight of 0 is left out.
 2. Each draw takes `r = random * total weight` and walks the running sum of the weights, taking the first card whose running sum exceeds `r`.
 3. The drawn card leaves the pool and the next draw starts again, up to `n + 3` cards or the end of the pool.
 
 The cost of a draw is linear in the pool size, with no sort.
+
+### False-friend slots
+
+`drawRound` reserves the first cards of a round for false friends, then fills the rest with `selectCards`:
+
+1. One card from the cards that can give a decoy in the answer language (`decoyCandidates`, below), so the round can show one.
+2. From 5 pairs up (`partialSlotMinPairs`), one card from the rest with a partial false friend, English or Italian.
+   A smaller round is mostly traps with both, so it gets the full one only.
+3. The other cards from the rest of the pool.
+
+Each step draws with the same weights.
+A step with no card of weight above 0 (no such false friend at the level cap, or all of them hidden or just seen) draws nothing, and the last step draws one more, so the round keeps its size.
+A card with both kinds fills one slot only.
+Since `buildRound` takes the cards in order, the decoy card is the first pair built and the first to offer a decoy.
+On the real asset at C2 the decoy slot draws from 557 cards in English and 394 in Italian, the partial slot from 323 and 256.
+The pairs are then shuffled, so the reserved cards have no fixed place on the board.
 
 ## Building the round
 
@@ -56,15 +90,27 @@ The cost of a draw is linear in the pool size, with no sort.
 - The right word of a card is its first translation in the answer language that no other pair uses, compared in lower case.
   A card with no such translation is skipped.
 - A round with fewer than 2 pairs is not built and `buildRound` returns null.
+- Once the pairs and the decoy are built, the pairs are shuffled with the round's random, so the pair order of the board and the summary is not the draw order.
+- A reserved card can still be skipped, when its translations are all taken by earlier cards (*negro* and *preto* share their only Italian one, *nero*); a few rounds in a thousand lose their partial false friend that way.
 
 ### Decoys
 
 A round holds at most one decoy.
-Going through the paired cards in order, the first look-alike with kind `full`, in the answer language and whose lower case text is not already a right word or a decoy, becomes a decoy.
-A partial false friend is never a decoy, because it shares an everyday meaning with the Portuguese word and tapping it would not be wrong.
+A false friend gives a decoy word in a round answered in language L (`decoyWordOf`):
+
+- a `full` one in L, its own text;
+- a `full` or `partial` one in the other language, the first word of what it mainly means in L (its `means`, from lang-tools): it *bravo* gives *good* for pt *bravo* in an English round.
+  None when that word is a translation of the card, since the trap then leads to a right answer; the words after it are near-synonyms of the right one (en *large* means *grande*, *grosso* for pt *largo*), so they are not taken either.
+  None when it has no word in L (en *exquisite* has none in Italian).
+- A `partial` one in L, none: it shares an everyday meaning with the Portuguese word and tapping it would not be wrong.
+
+Going through the paired cards in draw order, the first card with a decoy word not already a right word or a decoy (in lower case) gives the decoy; a card with several gives one of them at random.
+On the real asset, in 8-pair C2 rounds, about 64% of the decoys of an English round come from Italian and 62% of an Italian round's from English.
 The decoy joins the right column and matches nothing.
 Tapping it for the word it is a false friend of shows `False friend!` and the look-alike's note, when the note is not empty.
+A decoy from the other language first names its look-alike, as `False friend! Italian bravo means good.`, then the note, note or not.
 Tapping it for any other word, or any other wrong tap, shows `Wrong pair.`.
+A decoy keeps the look-alike it came from, which the summary reads to mark it `on the board`.
 
 The right column is the right words and the decoy texts, shuffled.
 
@@ -180,6 +226,8 @@ The tiles have the keys `left-<text>` and `right-<text>`, and the feedback line 
 
 When the round is finished the board gives way to the summary, built by `roundSummaryProvider` from the round, the missed set and the progress.
 It holds one entry per pair in round order, each flagged missed (its card id is in the missed set) and hidden (its progress record has the hidden flag), and the count of pairs never missed.
+It also lists the round's false friends (`falseFriendEntries`): pair by pair, the full and partial look-alikes of each word in both languages, through `falseFriendsIn`, so a look-alike that is a word of the card's own meaning is left out; the answer language first, full before partial; each flagged `onBoard` when the round's decoy came from it.
+On the real asset an 8-pair C2 round lists about 3 of them (3.05 in English, 3.24 in Italian, never fewer than 2).
 Hiding a word from the summary calls `setHidden` on the progress, so the word has weight 0 from the next round on, and `Hidden, undo` restores it.
 Reporting a pair from the summary adds a `WordReport` to the reports and calls `setHidden` the same way; `Reported, undo` removes the report and unhides the word.
 Removing a report from the reported pairs screen, or clearing them all, leaves the words hidden.

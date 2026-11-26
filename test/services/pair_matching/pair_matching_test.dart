@@ -58,7 +58,7 @@ void main() {
     test('pairs each card with its translation', () {
       final round = _build([amor, paz])!;
       expect(_pairs(round), {'amor': 'love', 'paz': 'peace'});
-      expect(round.pairs.first.card, amor);
+      expect(round.pairs.map((p) => p.card), unorderedEquals([amor, paz]));
       expect(round.language, AnswerLanguage.en);
     });
 
@@ -87,7 +87,10 @@ void main() {
         _card('luz', en: ['light']),
         _card('sol', en: ['sun']),
       ], numPairs: 3)!;
-      expect(round.pairs.map((p) => p.left), ['amor', 'paz', 'luz']);
+      expect(
+        round.pairs.map((p) => p.left),
+        unorderedEquals(['amor', 'paz', 'luz']),
+      );
     });
 
     test('skips a card whose text is already a left word', () {
@@ -130,12 +133,13 @@ void main() {
       test('a false friend joins the right column', () {
         final round = _build([trap(), paz])!;
         expect(round.decoys, [
-          const Decoy(
+          Decoy(
             text: 'exquisite',
             left: 'esquisito',
-            note: 'pt "esquisito" means weird',
+            lookalike: _full('exquisite', note: 'pt "esquisito" means weird'),
           ),
         ]);
+        expect(round.decoys.single.note, 'pt "esquisito" means weird');
         expect(round.rightColumn.toList()..sort(), [
           'exquisite',
           'peace',
@@ -210,6 +214,79 @@ void main() {
         expect(round.decoys, isEmpty);
       });
 
+      group('from a false friend in the other language', () {
+        const bravoIt = Lookalike(
+          language: 'it',
+          text: 'bravo',
+          kind: LookalikeKind.partial,
+          note: 'it bravo is good, pt bravo is angry',
+          means: {
+            'en': ['good'],
+          },
+        );
+        WordCard bravo({List<Lookalike> lookalikes = const [bravoIt]}) =>
+            _card('bravo', en: ['angry'], lookalikes: lookalikes);
+
+        test('gives its lead word, partial or full', () {
+          final round = _build([bravo(), paz])!;
+          expect(round.decoys, [
+            const Decoy(text: 'good', left: 'bravo', lookalike: bravoIt),
+          ]);
+          expect(round.rightColumn, contains('good'));
+        });
+
+        test('a tap names the look-alike, then the note', () {
+          final round = _build([bravo(), paz])!;
+          expect(
+            gradeTap(round, left: 'bravo', right: 'good').feedback,
+            'False friend! Italian bravo means good. '
+            'it bravo is good, pt bravo is angry',
+          );
+          const plain = Lookalike(
+            language: 'it',
+            text: 'bravo',
+            kind: LookalikeKind.full,
+            means: {
+              'en': ['good'],
+            },
+          );
+          final bare = _build([
+            bravo(lookalikes: const [plain]),
+            paz,
+          ])!;
+          expect(
+            gradeTap(bare, left: 'bravo', right: 'good').feedback,
+            'False friend! Italian bravo means good.',
+          );
+          expect(
+            gradeTap(bare, left: 'paz', right: 'good').feedback,
+            'Wrong pair.',
+          );
+        });
+
+        test('a lead word already a right word of the round is skipped', () {
+          final round = _build([
+            bravo(),
+            _card('bom', en: ['good']),
+          ])!;
+          expect(round.decoys, isEmpty);
+        });
+
+        test('a card with both kinds gives either, at random', () {
+          final card = bravo(lookalikes: [bravoIt, _full('brave')]);
+          final texts = {
+            for (var seed = 0; seed < 30; seed++)
+              buildRound(
+                [card, paz],
+                language: AnswerLanguage.en,
+                numPairs: 2,
+                random: Random(seed),
+              )!.decoys.single.text,
+          };
+          expect(texts, {'good', 'brave'});
+        });
+      });
+
       test('a decoy equal to a right word in the round is skipped', () {
         final card = _card(
           'esquisito',
@@ -240,6 +317,30 @@ void main() {
           'peace',
           'weird',
         ]);
+      });
+
+      test('the pairs are shuffled, so the decoy card has no fixed place', () {
+        // The first card is the one a round reserves for its decoy.
+        final cards = [
+          trap(),
+          for (final w in 'abcdefg'.split('')) _card(w, en: ['t$w']),
+        ];
+        final firsts = <String>{};
+        for (var seed = 0; seed < 20; seed++) {
+          final round = buildRound(
+            cards,
+            language: AnswerLanguage.en,
+            numPairs: 8,
+            random: Random(seed),
+          )!;
+          expect(
+            round.pairs.map((p) => p.left),
+            unorderedEquals(cards.map((c) => c.text)),
+          );
+          expect(round.decoys.single.left, 'esquisito');
+          firsts.add(round.pairs.first.left);
+        }
+        expect(firsts.length, greaterThan(1));
       });
 
       test('the right column is shuffled with the given random', () {
