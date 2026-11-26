@@ -19,7 +19,7 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 | -- | ------------------------ | -------------------------------------------------------- | ------- |
 | 1  | Cognate cards            | [`01_cognate_cards.md`](01_cognate_cards.md)             | done    |
 | 2  | False-friend slots       | [`02_false_friend_slot.md`](02_false_friend_slot.md)     | done    |
-| 3  | False friends in recap   | [`03_recap_false_friends.md`](03_recap_false_friends.md) | in progress |
+| 3  | False friends in recap   | [`03_recap_false_friends.md`](03_recap_false_friends.md) | done    |
 | 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | planned |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
@@ -108,3 +108,11 @@ Append-only. Newest at the bottom.
   tapped decoy, `means` on the word page. Parked in `plans/open_points.md` (new): the numbers
   below C1 (the user plays C1 and C2), and a pair report not naming the decoy (the card id and
   app version rebuild it for 92% of cards, which have one candidate). Phases 3 and 4 planned.
+- 2026-11-26 : phase 3 done (`08508e5`). The summary's `False friends` section (`falseFriendEntries`,
+  both languages, answer language and full first, `on the board` from the decoy's look-alike,
+  rows open the word page); `Decoy` keeps its look-alike; `buildRound` shuffles the pairs, so the
+  reserved cards leave the top of the board. Rows per 8-pair C2 round: 2.92 en, 3.05 it, at least 2.
+  The new random stream surfaced a phase 2 gap (a partial slot card skipped when its only
+  translation is taken, *negro* / *preto*); the real-asset test tolerates it as it does a lost decoy.
+  Four mutations caught; check passes with 305 tests, e2e passes. Review at close: plan and code
+  agree; no APK (one hand-off after phase 4).
