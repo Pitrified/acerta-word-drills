@@ -20,7 +20,7 @@ Analysis and decisions in [`00_start.md`](00_start.md).
 | 1  | Cognate cards            | [`01_cognate_cards.md`](01_cognate_cards.md)             | done    |
 | 2  | False-friend slots       | [`02_false_friend_slot.md`](02_false_friend_slot.md)     | done    |
 | 3  | False friends in recap   | [`03_recap_false_friends.md`](03_recap_false_friends.md) | done    |
-| 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | planned |
+| 4  | Either-language false friends | [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md) | in progress |
 
 Status values: draft / planned / in progress / done / superseded / discarded.
 

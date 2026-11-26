@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import '../../models/answer_language.dart';
-import '../../models/lookalike.dart';
 import '../../models/pair_round.dart';
 import '../../models/word_card.dart';
 import '../selection/lookalikes.dart';
@@ -52,7 +51,7 @@ PairRound? buildRound(
   }
   if (pairs.length < minPairs) return null;
 
-  final decoys = _decoys(pairs, language, used, maxDecoys);
+  final decoys = _decoys(pairs, language, used, maxDecoys, random);
   pairs.shuffle(random);
   final rightColumn = [
     for (final pair in pairs) pair.right,
@@ -66,23 +65,31 @@ PairRound? buildRound(
   );
 }
 
+/// Up to [maxDecoys] decoys, from the first pairs with a [decoyCandidates]
+/// word not already a right word or a decoy (in [used]); a pair with several
+/// gives one of them at random.
 List<Decoy> _decoys(
   List<RoundPair> pairs,
   AnswerLanguage language,
   Set<String> used,
   int maxDecoys,
+  Random random,
 ) {
   final decoys = <Decoy>[];
   for (final pair in pairs) {
     if (decoys.length >= maxDecoys) break;
-    final hint = falseFriendsIn(
-      pair.card,
-      language,
-      LookalikeKind.full,
-    ).where((l) => !used.contains(l.text.toLowerCase())).firstOrNull;
-    if (hint == null) continue;
-    used.add(hint.text.toLowerCase());
-    decoys.add(Decoy(text: hint.text, left: pair.left, lookalike: hint));
+    final candidates = [
+      for (final candidate in decoyCandidates(pair.card, language))
+        if (!used.contains(candidate.text.toLowerCase())) candidate,
+    ];
+    if (candidates.isEmpty) continue;
+    final pick = candidates.length == 1
+        ? candidates.single
+        : candidates[random.nextInt(candidates.length)];
+    used.add(pick.text.toLowerCase());
+    decoys.add(
+      Decoy(text: pick.text, left: pair.left, lookalike: pick.lookalike),
+    );
   }
   return decoys;
 }
@@ -90,7 +97,9 @@ List<Decoy> _decoys(
 /// Grades one tap of [left] and [right].
 ///
 /// The tap is correct when [right] is the pair's right word for [left]. A
-/// wrong tap on a decoy of the same [left] returns its note as feedback.
+/// wrong tap on a decoy of the same [left] returns its note as feedback; a
+/// decoy from a false friend in the other language first names it, as
+/// "Italian bravo means good.", note or not.
 TapResult gradeTap(
   PairRound round, {
   required String left,
@@ -100,8 +109,19 @@ TapResult gradeTap(
   final correct = pair != null && pair.right == right;
   if (correct) return TapResult(correct: true, cardId: pair.card.id);
   final decoy = round.decoys.where((d) => d.text == right).firstOrNull;
-  final feedback = decoy != null && decoy.left == left && decoy.note.isNotEmpty
-      ? 'False friend! ${decoy.note}'
-      : 'Wrong pair.';
+  final String feedback;
+  if (decoy == null || decoy.left != left) {
+    feedback = 'Wrong pair.';
+  } else if (decoy.lookalike.language != round.language.code) {
+    final lookalike = decoy.lookalike;
+    final named =
+        'False friend! ${lookalike.languageLabel} ${lookalike.text} means '
+        '${decoy.text}.';
+    feedback = decoy.note.isEmpty ? named : '$named ${decoy.note}';
+  } else {
+    feedback = decoy.note.isNotEmpty
+        ? 'False friend! ${decoy.note}'
+        : 'Wrong pair.';
+  }
   return TapResult(correct: false, feedback: feedback, cardId: pair?.card.id);
 }

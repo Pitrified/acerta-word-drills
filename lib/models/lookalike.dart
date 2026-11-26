@@ -26,7 +26,8 @@ enum LookalikeKind {
 }
 
 /// A word in another language that looks like the Portuguese one.
-@freezed
+// As on WordCard, the collections are left as parsed (a Freezed 3.2.3 bug).
+@Freezed(makeCollectionsUnmodifiable: false)
 abstract class Lookalike with _$Lookalike {
   const Lookalike._();
 
@@ -36,6 +37,12 @@ abstract class Lookalike with _$Lookalike {
     required String text,
     required LookalikeKind kind,
     @Default('') String note,
+
+    /// For a false friend, the words of what the look-alike mainly means in
+    /// the learner's other known language, by language code, most frequent
+    /// first: it *bravo* means `{"en": ["good"]}`. Empty for a cognate, and
+    /// where that meaning has no word in the other language.
+    @Default(<String, List<String>>{}) Map<String, List<String>> means,
   }) = _Lookalike;
 
   factory Lookalike.fromJson(Map<String, dynamic> json) =>

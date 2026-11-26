@@ -109,8 +109,8 @@ void main() {
       expect(falseFriendsIn(card, AnswerLanguage.it, LookalikeKind.partial), [
         partialIt,
       ]);
-      expect(hasFalseFriendIn(card, AnswerLanguage.en), isTrue);
-      expect(hasFalseFriendIn(card, AnswerLanguage.it), isTrue);
+      expect(hasFalseFriend(card), isTrue);
+      expect(hasPartialFalseFriend(card), isTrue);
     });
 
     test('a false friend that is a word of the meaning is left out', () {
@@ -130,7 +130,102 @@ void main() {
         falseFriendsIn(andar, AnswerLanguage.it, LookalikeKind.partial),
         isEmpty,
       );
-      expect(hasFalseFriendIn(andar, AnswerLanguage.it), isFalse);
+      expect(hasFalseFriend(andar), isFalse);
+      expect(hasPartialFalseFriend(andar), isFalse);
+    });
+  });
+
+  group('decoy candidates', () {
+    const bravoIt = Lookalike(
+      language: 'it',
+      text: 'bravo',
+      kind: LookalikeKind.partial,
+      note: 'it bravo is good',
+      means: {
+        'en': ['good', 'skilled'],
+      },
+    );
+    const angryEn = Lookalike(
+      language: 'en',
+      text: 'brave',
+      kind: LookalikeKind.full,
+      means: {
+        'it': ['coraggioso'],
+      },
+    );
+    final bravo = _card(
+      'bravo',
+      en: ['angry'],
+      it: ['arrabbiato'],
+      lookalikes: const [bravoIt, angryEn],
+    );
+
+    test('a false friend in the other language gives its lead word', () {
+      expect(decoyCandidates(bravo, AnswerLanguage.en), [
+        (text: 'brave', lookalike: angryEn),
+        (text: 'good', lookalike: bravoIt),
+      ]);
+      expect(decoyCandidates(bravo, AnswerLanguage.it), [
+        (text: 'coraggioso', lookalike: angryEn),
+      ]);
+      expect(decoyWordOf(bravo, bravoIt, AnswerLanguage.en), 'good');
+      // A partial false friend in the answer language puts nothing on the board.
+      expect(decoyWordOf(bravo, bravoIt, AnswerLanguage.it), isNull);
+    });
+
+    test('a lead word that translates the card gives none, not the next', () {
+      // pt largo is "wide, grande"; en large means grande, grosso.
+      const large = Lookalike(
+        language: 'en',
+        text: 'large',
+        kind: LookalikeKind.full,
+        means: {
+          'it': ['grande', 'grosso'],
+        },
+      );
+      final largo = _card(
+        'largo',
+        en: ['wide'],
+        it: ['Grande', 'largo'],
+        lookalikes: const [large],
+      );
+      expect(decoyCandidates(largo, AnswerLanguage.it), isEmpty);
+    });
+
+    test('a false friend with no word in the answer language gives none', () {
+      const exquisite = Lookalike(
+        language: 'en',
+        text: 'exquisite',
+        kind: LookalikeKind.full,
+      );
+      final card = _card(
+        'esquisito',
+        en: ['weird'],
+        it: ['strano'],
+        lookalikes: const [exquisite],
+      );
+      expect(decoyCandidates(card, AnswerLanguage.it), isEmpty);
+      expect(decoyCandidates(card, AnswerLanguage.en), [
+        (text: 'exquisite', lookalike: exquisite),
+      ]);
+    });
+
+    test('a cognate gives none, whatever it means', () {
+      final card = _card(
+        'nação',
+        en: ['nation'],
+        lookalikes: const [
+          Lookalike(
+            language: 'it',
+            text: 'nazione',
+            kind: LookalikeKind.cognate,
+            means: {
+              'en': ['country'],
+            },
+          ),
+        ],
+      );
+      expect(decoyCandidates(card, AnswerLanguage.en), isEmpty);
     });
   });
 }

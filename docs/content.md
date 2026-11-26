@@ -10,7 +10,7 @@ It is one JSON object with a `meta` header and a `cards` list, one card per line
 
 | Field | Meaning |
 |-------|---------|
-| `format` | Version of the asset layout, 2 |
+| `format` | Version of the asset layout, 3 |
 | `language` | Language of the words, `pt` |
 | `known_languages`, `translation_languages` | The languages the lexicon was queried with, `en` and `it` |
 | `gloss_language` | Language of `gloss`, `en` |
@@ -40,6 +40,11 @@ A look-alike has a `language`, a `text`, a `note` and a `kind`:
 - `full`: a false friend that never means the same; the note says what it means instead.
 - `partial`: a false friend that shares an everyday meaning.
 - `cognate`: an English or Italian word that descends from the same word and means the same.
+
+A `full` or `partial` look-alike can also have `means`: the words of what the look-alike itself mainly means in the other known language, by language code, most frequent first, from the reviewed main sense of that word in lang-tools.
+Italian *bravo*, a look-alike of pt *bravo* ("angry"), has `"means": {"en": ["good"]}`; an English look-alike's `means` holds `it`.
+The field is left out when it would be empty: for a cognate, and for a look-alike whose main meaning has no word in the other language (en *exquisite*).
+A round uses it for the decoy of a false friend in the language not on the board.
 
 ## The reports file
 
@@ -76,13 +81,14 @@ The meanings are sorted by their lang-tools concept id, so the same corpus gives
 
 ## Size
 
-Measured on 2026-11-17 (lang-tools 0.10.1), stable until the next export:
+Measured on 2026-11-26 (lang-tools 0.11.0), stable until the next export:
 
-- 19,283 cards, 5,120,964 bytes, 1,399,753 bytes gzipped (`gzip -9`).
+- 19,283 cards, 5,388,394 bytes, 1,440,035 bytes gzipped (`gzip -9`).
+- Look-alikes: 236 English and 208 Italian `full`, 232 and 231 `partial`, 3,748 and 4,918 `cognate`; 826 of the false friends have `means`.
 - Per level: A1 329, A2 514, B1 1,026, B2 2,645, C1 5,533, C2 9,236.
 - 14,085 cards have an Italian translation, and all have an English one.
 - 26 topics; `medical` is on 412 cards and 7,123 cards have no topic.
-- Meanings file: 29,895 meanings over 43,099 card links, 8,091,966 bytes, 2,467,900 gzipped.
+- Meanings file: 29,895 meanings over 43,099 card links, 8,091,966 bytes, 2,467,902 gzipped.
 
 ## Regenerating
 

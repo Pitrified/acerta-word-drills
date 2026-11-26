@@ -214,6 +214,79 @@ void main() {
         expect(round.decoys, isEmpty);
       });
 
+      group('from a false friend in the other language', () {
+        const bravoIt = Lookalike(
+          language: 'it',
+          text: 'bravo',
+          kind: LookalikeKind.partial,
+          note: 'it bravo is good, pt bravo is angry',
+          means: {
+            'en': ['good'],
+          },
+        );
+        WordCard bravo({List<Lookalike> lookalikes = const [bravoIt]}) =>
+            _card('bravo', en: ['angry'], lookalikes: lookalikes);
+
+        test('gives its lead word, partial or full', () {
+          final round = _build([bravo(), paz])!;
+          expect(round.decoys, [
+            const Decoy(text: 'good', left: 'bravo', lookalike: bravoIt),
+          ]);
+          expect(round.rightColumn, contains('good'));
+        });
+
+        test('a tap names the look-alike, then the note', () {
+          final round = _build([bravo(), paz])!;
+          expect(
+            gradeTap(round, left: 'bravo', right: 'good').feedback,
+            'False friend! Italian bravo means good. '
+            'it bravo is good, pt bravo is angry',
+          );
+          const plain = Lookalike(
+            language: 'it',
+            text: 'bravo',
+            kind: LookalikeKind.full,
+            means: {
+              'en': ['good'],
+            },
+          );
+          final bare = _build([
+            bravo(lookalikes: const [plain]),
+            paz,
+          ])!;
+          expect(
+            gradeTap(bare, left: 'bravo', right: 'good').feedback,
+            'False friend! Italian bravo means good.',
+          );
+          expect(
+            gradeTap(bare, left: 'paz', right: 'good').feedback,
+            'Wrong pair.',
+          );
+        });
+
+        test('a lead word already a right word of the round is skipped', () {
+          final round = _build([
+            bravo(),
+            _card('bom', en: ['good']),
+          ])!;
+          expect(round.decoys, isEmpty);
+        });
+
+        test('a card with both kinds gives either, at random', () {
+          final card = bravo(lookalikes: [bravoIt, _full('brave')]);
+          final texts = {
+            for (var seed = 0; seed < 30; seed++)
+              buildRound(
+                [card, paz],
+                language: AnswerLanguage.en,
+                numPairs: 2,
+                random: Random(seed),
+              )!.decoys.single.text,
+          };
+          expect(texts, {'good', 'brave'});
+        });
+      });
+
       test('a decoy equal to a right word in the round is skipped', () {
         final card = _card(
           'esquisito',

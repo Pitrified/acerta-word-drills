@@ -514,6 +514,33 @@ void main() {
       expect(inSection('it note'), findsOneWidget);
     });
 
+    testWidgets('an Italian look-alike shows the word it means', (
+      tester,
+    ) async {
+      await playWith(tester, [
+        fakeCard(
+          0,
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'itlook0',
+              kind: LookalikeKind.partial,
+              means: {
+                'en': ['lead0'],
+              },
+            ),
+          ],
+        ),
+        fakeCard(1, lookalikes: const []),
+        fakeCard(2, lookalikes: const []),
+      ]);
+      expect(
+        find.text('w0 - en0, not lead0 (Italian itlook0)'),
+        findsOneWidget,
+      );
+      expect(find.text('partial false friend · on the board'), findsOneWidget);
+    });
+
     testWidgets('comes before the cards', (tester) async {
       await playWith(tester, [fakeCard(0), fakeCard(1), fakeCard(2)]);
       final top = tester

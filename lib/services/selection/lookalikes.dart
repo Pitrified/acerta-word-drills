@@ -82,7 +82,62 @@ List<Lookalike> falseFriendsIn(
   ];
 }
 
-/// Whether [card] has a full or partial false friend in [language].
-bool hasFalseFriendIn(WordCard card, AnswerLanguage language) =>
-    falseFriendsIn(card, language, LookalikeKind.full).isNotEmpty ||
-    falseFriendsIn(card, language, LookalikeKind.partial).isNotEmpty;
+/// Whether [card] has a full or partial false friend, English or Italian.
+///
+/// The learner passes through both languages, so a false friend in the one
+/// not on the board misleads too: pt *bravo* is "angry", it *bravo* "good".
+bool hasFalseFriend(WordCard card) => AnswerLanguage.values.any(
+  (language) =>
+      falseFriendsIn(card, language, LookalikeKind.full).isNotEmpty ||
+      falseFriendsIn(card, language, LookalikeKind.partial).isNotEmpty,
+);
+
+/// Whether [card] has a partial false friend, English or Italian.
+bool hasPartialFalseFriend(WordCard card) => AnswerLanguage.values.any(
+  (language) =>
+      falseFriendsIn(card, language, LookalikeKind.partial).isNotEmpty,
+);
+
+/// The word [lookalike], a false friend of [card], puts on the board in a
+/// round answered in [language]; null when it puts none.
+///
+/// A full false friend in [language] shows its own text. A full or partial
+/// one in the other language shows the first word of what it means in
+/// [language] ([Lookalike.means]), it *bravo* giving *good* for pt *bravo*,
+/// unless that word is a translation of the card: the trap then leads to a
+/// right answer, and the words after it are near-synonyms of it, no trap.
+String? decoyWordOf(
+  WordCard card,
+  Lookalike lookalike,
+  AnswerLanguage language,
+) {
+  if (lookalike.language == language.code) {
+    return lookalike.kind == LookalikeKind.full ? lookalike.text : null;
+  }
+  final lead = lookalike.means[language.code]?.firstOrNull;
+  if (lead == null) return null;
+  final translations = {
+    for (final word in card.translationsIn(language)) word.toLowerCase(),
+  };
+  return translations.contains(lead.toLowerCase()) ? null : lead;
+}
+
+/// A word a round can show as the decoy of a card, with its look-alike.
+typedef DecoyCandidate = ({String text, Lookalike lookalike});
+
+/// The decoys [card] can give in a round answered in [language], through
+/// [decoyWordOf]: its full false friends in [language] first, then its full
+/// and partial ones in the other language.
+List<DecoyCandidate> decoyCandidates(WordCard card, AnswerLanguage language) {
+  final other = AnswerLanguage.values.firstWhere((l) => l != language);
+  final lookalikes = [
+    ...falseFriendsIn(card, language, LookalikeKind.full),
+    ...falseFriendsIn(card, other, LookalikeKind.full),
+    ...falseFriendsIn(card, other, LookalikeKind.partial),
+  ];
+  return [
+    for (final lookalike in lookalikes)
+      if (decoyWordOf(card, lookalike, language) case final text?)
+        (text: text, lookalike: lookalike),
+  ];
+}

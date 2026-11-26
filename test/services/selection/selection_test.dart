@@ -38,11 +38,23 @@ const _cognateEdge = Lookalike(
   kind: LookalikeKind.cognate,
 );
 
-double _weight(
-  WordCard card, [
-  WordProgress? progress,
-  AnswerLanguage language = AnswerLanguage.en,
-]) => computeWeight(card, progress, language: language, now: _now);
+/// An Italian false friend that means "x2" in English.
+const _itTrap = Lookalike(
+  language: 'it',
+  text: 'x',
+  kind: LookalikeKind.full,
+  means: {
+    'en': ['x2'],
+  },
+);
+const _itPartial = Lookalike(
+  language: 'it',
+  text: 'z',
+  kind: LookalikeKind.partial,
+);
+
+double _weight(WordCard card, [WordProgress? progress]) =>
+    computeWeight(card, progress, now: _now);
 
 void main() {
   group('computeWeight', () {
@@ -99,15 +111,19 @@ void main() {
       );
     });
 
-    test('a false friend counts in the answer language only', () {
-      final card = _card('a', lookalikes: [_trap]);
-      expect(_weight(card, null, AnswerLanguage.it), closeTo(5.0, 1e-9));
+    test('a false friend counts in either language', () {
+      expect(
+        _weight(_card('a', lookalikes: [_itTrap])),
+        closeTo(5.0 * 1.3, 1e-9),
+      );
+      expect(
+        _weight(_card('a', lookalikes: [_itPartial])),
+        closeTo(5.0 * 1.3, 1e-9),
+      );
     });
 
-    test('a cognate card is damped in both answer languages', () {
-      final card = _card('a', isCognate: true);
-      expect(_weight(card), closeTo(5.0 * 0.1, 1e-9));
-      expect(_weight(card, null, AnswerLanguage.it), closeTo(5.0 * 0.1, 1e-9));
+    test('a cognate card is damped', () {
+      expect(_weight(_card('a', isCognate: true)), closeTo(5.0 * 0.1, 1e-9));
     });
 
     test('a cognate edge alone does not damp the card', () {
@@ -163,13 +179,7 @@ void main() {
         recencyHalfLife: Duration(minutes: 30),
       );
       expect(
-        computeWeight(
-          _card('a'),
-          null,
-          language: AnswerLanguage.en,
-          now: _now,
-          weights: weights,
-        ),
+        computeWeight(_card('a'), null, now: _now, weights: weights),
         closeTo(20, 1e-9),
       );
     });
@@ -185,14 +195,7 @@ void main() {
       int n, {
       Map<String, WordProgress> progress = const {},
       int seed = 0,
-    }) => selectCards(
-      cards,
-      progress,
-      n,
-      language: AnswerLanguage.en,
-      random: Random(seed),
-      now: _now,
-    );
+    }) => selectCards(cards, progress, n, random: Random(seed), now: _now);
 
     test('returns n distinct cards', () {
       final chosen = select(pool, 3);
@@ -244,7 +247,6 @@ void main() {
           cards,
           progress,
           1,
-          language: AnswerLanguage.en,
           random: random,
           now: _now,
         ).single.id;
@@ -263,7 +265,6 @@ void main() {
         pool,
         const {},
         1,
-        language: AnswerLanguage.en,
         random: _MaxRandom(),
         now: _now,
       );
@@ -357,7 +358,8 @@ void main() {
       },
     );
 
-    test('false friends count in the answer language only', () {
+    test('the first slot takes only a card that can give a decoy', () {
+      // An English false friend with no Italian word gives no Italian decoy.
       final firsts = {
         for (var seed = 0; seed < 40; seed++)
           draw(
@@ -368,6 +370,15 @@ void main() {
           ).single,
       };
       expect(firsts.length, greaterThan(1));
+    });
+
+    test('an Italian false friend fills the slots of an English round', () {
+      final itFull = _card('itFull', lookalikes: [_itTrap]);
+      final itPartial = _card('itPartial', lookalikes: [_itPartial]);
+      for (var seed = 0; seed < 50; seed++) {
+        final ids = draw([...plain, itPartial, itFull], 5, seed: seed);
+        expect(ids.take(2), ['itFull', 'itPartial'], reason: 'seed $seed');
+      }
     });
 
     test('never more than n, nor more than the pool', () {

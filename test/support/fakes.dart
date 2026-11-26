@@ -195,7 +195,7 @@ WordCard fakeCard(
 /// A card repository holding [cards].
 CardRepository cardRepositoryOf(List<WordCard> cards) => CardRepository(
   meta: const CardsMeta(
-    format: 2,
+    format: supportedCardsFormat,
     language: 'pt',
     langTools: 'test',
     corpusBuiltAt: '2026-01-01T00:00:00+00:00',

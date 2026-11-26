@@ -91,6 +91,7 @@ void main() {
       final random = Random(7);
       var noDecoy = 0;
       var noPartial = 0;
+      var fromOther = 0;
       for (var i = 0; i < 1000; i++) {
         final drawn = drawRound(
           pool,
@@ -108,18 +109,30 @@ void main() {
           random: random,
         )!;
         if (round.decoys.isEmpty) noDecoy++;
-        final partial = round.pairs.any(
-          (p) => falseFriendsIn(
-            p.card,
-            language,
-            LookalikeKind.partial,
-          ).isNotEmpty,
-        );
-        if (!partial) noPartial++;
+        if (round.decoys.any((d) => d.lookalike.language != language.code)) {
+          fromOther++;
+        }
+        if (!round.pairs.any((p) => hasPartialFalseFriend(p.card))) {
+          noPartial++;
+        }
       }
       expect(noDecoy, lessThanOrEqualTo(10), reason: language.code);
       expect(noPartial, lessThanOrEqualTo(10), reason: language.code);
+      // The decoy share from the other language is a measurement worth seeing.
+      // ignore: avoid_print
+      print(
+        'decoys, ${language.code}: ${1000 - noDecoy} of 1000 rounds, '
+        '$fromOther from the other language',
+      );
     }
+  });
+
+  test('pt bravo in an English round can show good, from Italian bravo', () {
+    final bravo = cards.firstWhere((c) => c.text == 'bravo');
+    expect(
+      decoyCandidates(bravo, AnswerLanguage.en).map((c) => c.text),
+      contains('good'),
+    );
   });
 
   test('8-pair C2 rounds list false friends in the summary', () {

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import '../../models/answer_language.dart';
 import '../../models/level.dart';
-import '../../models/lookalike.dart';
 import '../../models/word_card.dart';
 import '../../models/word_progress.dart';
 import 'lookalikes.dart';
@@ -42,20 +41,18 @@ class SelectionWeights {
   final Duration recencyHalfLife;
   final Map<Level, double> levelFactor;
 
-  /// Multiplier for a word with a false friend in the answer language.
+  /// Multiplier for a word with a false friend, English or Italian.
   final double trapFactor;
 
   /// Multiplier for a cognate card ([WordCard.isCognate]) with no false
-  /// friend in the answer language.
+  /// friend.
   final double cognateFactor;
 }
 
-/// The weight of [card] in the draw, answered in [language]; 0 when the word
-/// is hidden.
+/// The weight of [card] in the draw; 0 when the word is hidden.
 double computeWeight(
   WordCard card,
   WordProgress? progress, {
-  required AnswerLanguage language,
   required DateTime now,
   SelectionWeights weights = const SelectionWeights(),
 }) {
@@ -68,7 +65,7 @@ double computeWeight(
     weight *= 1 + weights.errorBoost * progress.errors;
   }
   weight *= weights.levelFactor[card.level] ?? 1.0;
-  if (hasFalseFriendIn(card, language)) {
+  if (hasFalseFriend(card)) {
     weight *= weights.trapFactor;
   } else if (card.isCognate) {
     weight *= weights.cognateFactor;
@@ -90,7 +87,6 @@ List<WordCard> selectCards(
   Iterable<WordCard> pool,
   Map<String, WordProgress> progress,
   int n, {
-  required AnswerLanguage language,
   required Random random,
   required DateTime now,
   SelectionWeights weights = const SelectionWeights(),
@@ -104,7 +100,6 @@ List<WordCard> selectCards(
     final weight = computeWeight(
       card,
       progress[card.id],
-      language: language,
       now: now,
       weights: weights,
     );
@@ -142,12 +137,13 @@ List<WordCard> selectCards(
 /// Draws up to [n] distinct cards for a round answered in [language], with
 /// false friends reserved first.
 ///
-/// The first card is drawn from the cards with a full false friend in
-/// [language], so the round can show its decoy; when [partialSlot] is set, the
-/// second from the rest with a partial one. The others come from the rest of
-/// [pool]. Each draw is a [selectCards] with the same weights; a reserved slot
-/// with nothing to draw leaves its card to the last draw, so the count is the
-/// one [selectCards] would give.
+/// The first card is drawn from the cards that can give a decoy in
+/// [language] ([decoyCandidates]), so the round can show one; when
+/// [partialSlot] is set, the second from the rest with a partial false friend,
+/// English or Italian. The others come from the rest of [pool]. Each draw is a
+/// [selectCards] with the same weights; a reserved slot with nothing to draw
+/// leaves its card to the last draw, so the count is the one [selectCards]
+/// would give.
 List<WordCard> drawRound(
   Iterable<WordCard> pool,
   Map<String, WordProgress> progress,
@@ -165,16 +161,15 @@ List<WordCard> drawRound(
     for (final card in cards)
       if (!taken.contains(card.id)) card,
   ];
-  void reserve(LookalikeKind kind) {
+  void reserve(bool Function(WordCard card) fits) {
     if (chosen.length >= n) return;
     final slot = selectCards(
       [
         for (final card in rest())
-          if (falseFriendsIn(card, language, kind).isNotEmpty) card,
+          if (fits(card)) card,
       ],
       progress,
       1,
-      language: language,
       random: random,
       now: now,
       weights: weights,
@@ -185,14 +180,13 @@ List<WordCard> drawRound(
     }
   }
 
-  reserve(LookalikeKind.full);
-  if (partialSlot) reserve(LookalikeKind.partial);
+  reserve((card) => decoyCandidates(card, language).isNotEmpty);
+  if (partialSlot) reserve(hasPartialFalseFriend);
   chosen.addAll(
     selectCards(
       rest(),
       progress,
       n - chosen.length,
-      language: language,
       random: random,
       now: now,
       weights: weights,

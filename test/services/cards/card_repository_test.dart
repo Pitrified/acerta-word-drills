@@ -24,7 +24,7 @@ Map<String, Object?> _card(
   'topics': topics,
 };
 
-String _text({int format = 2}) => jsonEncode({
+String _text({int format = supportedCardsFormat}) => jsonEncode({
   'meta': {
     'format': format,
     'language': 'pt',
@@ -44,7 +44,7 @@ String _text({int format = 2}) => jsonEncode({
 void main() {
   test('parse reads the meta and the cards', () {
     final repository = CardRepository.parse(_text());
-    expect(repository.meta.format, 2);
+    expect(repository.meta.format, supportedCardsFormat);
     expect(repository.meta.langTools, 'v1');
     expect(repository.meta.count, 5);
     expect(repository.cards.map((c) => c.id), ['1', '2', '3', '4', '5']);

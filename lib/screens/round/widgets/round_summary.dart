@@ -14,6 +14,7 @@ import '../../../providers/progress_provider.dart';
 import '../../../providers/reports_provider.dart';
 import '../../../providers/round_provider.dart';
 import '../../../providers/round_summary_provider.dart';
+import '../../../services/selection/lookalikes.dart';
 
 /// A finished round, pair by pair, with Next round and Home always in reach.
 class RoundSummaryView extends ConsumerWidget {
@@ -124,9 +125,16 @@ class _FalseFriendRow extends StatelessWidget {
     final theme = Theme.of(context);
     final card = entry.pair.card;
     final lookalike = entry.lookalike;
-    final word = lookalike.language == language.code
-        ? lookalike.text
-        : '${lookalike.languageLabel} ${lookalike.text}';
+    // A look-alike in the other language shows the word it would put on the
+    // board, when it has one: `bravo - angry, not good (Italian bravo)`.
+    final String word;
+    if (lookalike.language == language.code) {
+      word = lookalike.text;
+    } else {
+      final named = '${lookalike.languageLabel} ${lookalike.text}';
+      final lead = decoyWordOf(card, lookalike, language);
+      word = lead == null ? named : '$lead ($named)';
+    }
     final kind = [
       lookalike.kind.label,
       if (entry.onBoard) 'on the board',
