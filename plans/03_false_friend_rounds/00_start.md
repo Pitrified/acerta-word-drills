@@ -1,6 +1,6 @@
 ---
-status: done
-priority: 0
+status: in progress
+priority: 1
 description: |
   Rounds that teach false friends: fewer cognates, which are trivial pairs (andar - andare),
   and a false-friend decoy in every round.
@@ -74,6 +74,8 @@ The lang-tools look-alike generator misses them; that is a lang-tools open point
   The flag is computed once when the cards load (Q1).
 - **False friends** count in the answer language only, and not when the false friend is a word
   of the card's own meaning.
+  (Reopened by Q9, the user on 2026-11-25: false friends in either language trip the learner,
+  who passes through Italian in an English round; phase 4 makes the change.)
 - **False friends in every round, both kinds**: two slots of the round are drawn, with the usual
   weights, one from cards with a `full` look-alike in the answer language (its decoy shows) and
   one from cards with a `partial` one.
@@ -141,3 +143,186 @@ The plan checked against the code before execution.
   - ANS: b. "But really it's a different game at such low pairs, to be tuned differently;
     also we do not care much right now about that." So b as a stopgap, and small rounds are
     not tuned in this folder.
+
+## Phase 3, the recap (the user, 2026-11-25)
+
+After playing the APK: "partial false friends, and full false friends, should have a dedicated
+section in the recap, like before or after the cards. not while matching in the main round."
+Done in this folder, as phase 3: [`03_recap_false_friends.md`](03_recap_false_friends.md).
+The same day: cognates fine, rounds "pretty hard now", repeats accepted, Italian fine,
+small rounds not relevant now.
+
+- Q4: Where does the false-friends section go in the summary?
+  - a. Before the cards, under the score.
+  - b. After the cards, above Next round and Home.
+  - Recommended: a, because it is the lesson of the round and is read before scrolling through
+    eight cards; after them it sits below the fold.
+  - ANS: a, before the cards.
+- Q5: Which false friends does it list?
+  - a. Those in the round's answer language only, by the test the slots use (own-word rule
+    included): usually two, the decoy's and the partial one.
+  - b. Both languages: every full and partial look-alike of the round's words.
+  - Recommended: a, because it lists what the round was built around and stays short;
+    b adds the other language's traps, which the round did not play.
+  - ANS: "those that are false friends? unclear question". Not answered; asked again as Q8.
+- Q6: The cards still list every look-alike. With the section, what do the cards show?
+  - a. Unchanged: the false friends show twice, in the section and on their card.
+  - b. The cards drop the look-alikes the section lists, and keep the rest (cognates, the
+    other language).
+  - Recommended: a, because the card is the full record of the word and the change stays
+    small; b is easy to add if the repeat bothers.
+  - ANS: a, keep.
+- Q7: Does a row of the section open the word page when tapped, as the cards do?
+  - a. Yes.
+  - b. No, plain text.
+  - Recommended: a, because it is the same gesture as the cards and costs one `InkWell`.
+  - ANS: a, tappable.
+- Q8 (Q5 asked again): Q5 was unclear. A card can have false friends in English, in Italian, or
+  both (63 cards have both: *comprimento*, en *compliments*, it *complimento*; *novela*, en *novel*,
+  it *novella*). The round shows answers in one language, the answer language of the settings,
+  and the slots are filled from false friends in that language (Decisions, "False friends").
+  In an English round, which false friends does the section list?
+  - a. The English ones of the round's words: the decoy's card and the partial slot's card,
+    sometimes another drawn card. *comprimento* shows *compliments* only.
+  - b. English and Italian ones of the round's words: *comprimento* shows both, and a card drawn
+    for its English answer can bring an Italian false friend the round never played.
+  - Recommended: b, because the user knows both languages and an Italian look-alike misleads as much
+    as an English one (*comprimento* / *complimento*); the section is a recap, not a board, so
+    showing what was not played costs only a line or two.
+  - ANS: b, both.
+
+## Phase 4, false friends in either language (the user, 2026-11-25)
+
+"They do not trip me because I do not see them on the board (Italian is not there), but they
+trip me if I still pass through Italian. [...] so like bravo / angry / arrabbiato: the false
+friend is in Italian, bravo / good: we show good as trap."
+
+So the answer-language rule of the Decisions goes: a false friend in English or Italian counts,
+for the weights and the slots, and the decoy of an Italian false friend in an English round is
+the English word for the Italian look-alike's meaning (pt *bravo* "angry", it *bravo* "good":
+the decoy is *good*). The other way round in an Italian round.
+Phase 4: [`04_cross_language_false_friends.md`](04_cross_language_false_friends.md).
+
+Measured on the shipped asset (read-only): of the full and partial look-alikes, a lookup of the
+look-alike's text in `pt_meanings.json` (meanings holding that en or it word) finds words in the
+other language for 182 of 197 en full, 147 of 174 en partial, 175 of 182 it full and 160 of 175
+it partial ones.
+The words found are often right (it *burro* gives *butter*, it *complimento* gives *compliment*)
+and sometimes noisy: the meanings are those of pt words, so it *bravo* gives *brave, courageous,
+good, respectable* and it *novella* gives *yarn, narration, recital, news*.
+
+- Q9: Do false friends count in either language? (Reopens the Decisions line above.)
+  - ANS: yes, the user on 2026-11-25, quoted above.
+- Q10: Where does the decoy word of an other-language false friend come from?
+  - a. In the app, from `pt_meanings.json`: the meanings that hold the look-alike's text in its
+    language, and their words in the answer language. No re-export; the word is a guess where
+    the look-alike has several meanings (it *bravo*).
+  - b. From lang-tools: the export writes, on each look-alike, its translations in the other
+    language, taken from the look-alike lemma's own senses (or from the review, which already
+    knows what the look-alike means, as its notes show). Needs a lang-tools change, a re-export
+    and a format bump; the words come from the look-alike's meaning, not from pt meanings.
+  - c. a now, b later as a lang-tools open point.
+  - Recommended: b, because the decoy is the word the learner is trapped into, and a wrong one
+    (*yarn* for *novella*) teaches nothing; a only works by accident of which pt meanings exist.
+  - ANS: "we do it well, plan the change cross with lang-tools if needed": b. The main meaning of each look-alike word is a reviewed best-sense pin in lang-tools, and the card's look-alike carries its words in the other language (`means`); lang-tools `scratch_space/23_false_friend_meanings`, on its branch `feat/23_false_friend_meanings`. Measured there: 1,085 known words, 798 with two or more senses; it senses have no frequency of their own, so they tie.
+- Q11: Which decoy word when the look-alike has several translations (it *bravo*: good, brave,
+  skilled)?
+  - a. The first, in the order the source gives (frequency, under b).
+  - b. The first that is not a right word or a translation of the card itself.
+  - Recommended: b, because a decoy equal to a translation of the card would be a right answer.
+  - ANS: b.
+    (Reopened by Q14 on 2026-11-26: the lead word only, since the words after it are near-synonyms
+    of the right answer.)
+- Q12: A card with false friends in both languages (*comprimento*: en *compliments*, it
+  *complimento*): which one gives the decoy?
+  - a. The answer-language one, as now; the other language only when the card has none.
+  - b. Either, at random.
+  - Recommended: a, because it is the trap on the board in its own form, and phase 2's numbers
+    stay as measured.
+  - ANS: b, at random: "when selecting a false friend it can be both the pt/en or the pt/it->en one. Both are valid options."
+- Q13: Can a partial other-language false friend give a decoy? Today a partial false friend never
+  does, since its look-alike shares a meaning with the pt word and tapping it would not be wrong.
+  Across languages the decoy is a translation, not the look-alike: for *bravo* (it, partial) the
+  decoy *good* is not a meaning of pt *bravo*, so it is wrong to tap.
+  - a. Yes, when the decoy word is not a translation of the card (Q11's check).
+  - b. No, full ones only, as in the answer language.
+  - Recommended: a, because *bravo*, the user's example, is partial, and Q11's check keeps out
+    the shared meaning.
+  - ANS: a.
+
+## Review of phases 3 and 4 (2026-11-26)
+
+Both drafts checked against the code before execution, with lang-tools `v0.11.0` released.
+
+- Claims checked, all hold: `RoundSummaryView` shows the heading, the score, then one card per
+  pair listing every look-alike; `roundSummaryProvider` builds the entries from the round, the
+  missed set and the progress; `Decoy` holds `text`, `left`, `note`, nothing of the look-alike;
+  `falseFriendsIn` filters by language and applies the own-word rule, and the trap factor,
+  `drawRound`'s two slots and `_decoys` all go through it; the export's card query asks for en and
+  it, so `means` comes through with the other language only; the test files the plans name exist.
+- Measured on a scratch dump of the export's cards from the built `v0.11.0` corpus (nothing
+  written in this repo): the numbers in `04_cross_language_false_friends.md`, Current state.
+  The re-export brings the tier C look-alikes too, 65 more full false friends and 3,240 more
+  cognates, so the Decisions line "no asset re-export" ends with phase 4.
+  The folder's "798 words with two or more senses" (Q10) was read from the curated file;
+  lang-tools counts 664 on the built corpus.
+- Corrected in the sub-plans: phase 4's Current state and Order (lang-tools done), the export
+  writes `means` only when not empty and the format goes from 2 to 3, the decoy read is 500
+  (the 500-item rule for assessments), the lang-tools Q2 reference names its file;
+  phase 3's entry order within a pair and the language label in a row.
+
+- Q14: Which `means` word is the decoy? (Reopens Q11, on the numbers.) Q11 answered "the first word
+  that is not a right word or a translation of the card". When the lead word is a translation of the
+  card, the trap leads the learner to a right answer, and the next word is mostly a near-synonym of
+  it: pt *largo* (it *grande*), en *large* means *grande, grosso*: the decoy would be *grosso*;
+  *forte* gives *rocca*, *campo* gives *accampamento*, *jornal* gives *diario*.
+  The lead is a translation of the card for 7 look-alikes in en rounds and 16 in it rounds.
+  - a. The lead word only: when it is a translation of the card, that look-alike gives no decoy.
+    Cards with a decoy candidate: 556 en, 394 it.
+  - b. The first word that passes, as Q11 answered: 558 en, 403 it.
+  - Recommended: a, because a word past the lead is not what the look-alike mainly means, so it is
+    no trap; it costs 2 en and 9 it cards of the pool.
+    The check reads the card's kept translations (4 per language); one en lead is a translation
+    beyond the 4 and slips through, a known limit.
+  - ANS: a.
+- Q15: Which cards does each slot draw from in phase 4? The full slot exists so the round has a decoy
+  (phase 2); the plan's step 2 makes both slots count any false friend in en or it, and then the
+  first card can be one with no decoy (an en false friend with no it word, in an it round).
+  - a. The decoy slot draws from the cards with a decoy candidate (a `full` look-alike in the answer
+    language, or an other-language false friend whose lead word passes Q14); the partial slot from
+    the rest with a `partial` look-alike in either language. The trap factor counts any false friend
+    in either language.
+  - b. As drafted: the full slot from cards with a `full` look-alike in either language, the partial
+    slot from a `partial` one in either language.
+  - Recommended: a, because it keeps phase 2's promise of a decoy in every round; the decoy pool grows
+    from 218 to 556 cards in en and from 195 to 394 in it.
+  - ANS: a. The user: "why are we filling decoy from a first slot anyway? is the decoy always for the first card shown?"; asked as Q18.
+- Q16: What does a tap on an other-language decoy say? Today: "False friend! <note>", where the note is
+  the lang-tools note on the pt word and its look-alike. On *bravo* / *good* the learner sees *good*,
+  not *bravo*, so the note alone may not say where *good* comes from.
+  - a. "False friend! Italian bravo means good." then the note.
+  - b. The note only, as for an answer-language decoy.
+  - Recommended: a, because it names the step through Italian, which is the trap.
+  - ANS: a.
+- Q17: The recap row of an other-language false friend, once `means` is in the asset (phase 3 shows
+  `bravo - angry, not Italian bravo`):
+  - a. Phase 4 adds the lead word: `bravo - angry, not good (Italian bravo)`; with no lead word in the
+    answer language, the phase 3 row stays.
+  - b. The phase 3 row stays.
+  - Recommended: a, because the row then shows the trap word as it was or would be on the board.
+  - ANS: a.
+- Q18: The reserved cards sit at the top of the board. `drawRound` puts the first slot's card first
+  and the partial slot's second, `buildRound` keeps that order, and the board lists the left column
+  in pair order (`round_screen.dart`), so the decoy belongs to the top word, every round, and the
+  partial false friend is the second. The slot itself is needed: at C2, weights alone reach a decoy
+  card in 7 to 8% of rounds. Its place is the leak.
+  (Phase 2's release check, "each with a decoy on its first card", saw it and took it for the slot
+  working.)
+  - a. `buildRound` shuffles the pairs with the round's `Random` once they and the decoys are built,
+    so the board, the summary and the recap follow the shuffled order. Building keeps the reserved
+    cards first, so they still get their right word before the others.
+  - b. Shuffle only the left column on the board, keeping `pairs` in draw order.
+  - Recommended: a, because one order serves the board and the summary alike; done in phase 3,
+    before the recap is built on the pair order, and cheap: one `shuffle` and a test that over
+    seeded rounds the decoy's card is not always first.
+  - ANS: a, "shuffle it".
