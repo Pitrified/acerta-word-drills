@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'lookalike.dart';
 import 'pair_round.dart';
 
 part 'round_summary.freezed.dart';
@@ -18,6 +19,20 @@ abstract class SummaryEntry with _$SummaryEntry {
   }) = _SummaryEntry;
 }
 
+/// A false friend of one of the round's words, as the summary lists it.
+@freezed
+abstract class FalseFriendEntry with _$FalseFriendEntry {
+  const factory FalseFriendEntry({
+    required RoundPair pair,
+
+    /// A full or partial look-alike of the pair's word, in either language.
+    required Lookalike lookalike,
+
+    /// Whether the round's decoy came from this look-alike.
+    required bool onBoard,
+  }) = _FalseFriendEntry;
+}
+
 /// The finished round, pair by pair.
 // The list is built once and never changed.
 @Freezed(makeCollectionsUnmodifiable: false)
@@ -27,6 +42,9 @@ abstract class RoundSummary with _$RoundSummary {
   const factory RoundSummary({
     /// One entry per pair, in round order.
     required List<SummaryEntry> entries,
+
+    /// The false friends of the round's words, in round order.
+    @Default(<FalseFriendEntry>[]) List<FalseFriendEntry> falseFriends,
   }) = _RoundSummary;
 
   /// The pairs never missed.

@@ -76,7 +76,8 @@ The cost of a draw is linear in the pool size, with no sort.
 Each step draws with the same weights.
 A step with no card of weight above 0 (no such false friend at the level cap, or all of them hidden or just seen) draws nothing, and the last step draws one more, so the round keeps its size.
 A card with both kinds fills one slot only.
-Since `buildRound` takes the cards in order, the full false friend is the first pair and the first to offer a decoy.
+Since `buildRound` takes the cards in order, the full false friend is the first pair built and the first to offer a decoy.
+The pairs are then shuffled, so the reserved cards have no fixed place on the board.
 
 ## Building the round
 
@@ -87,6 +88,8 @@ Since `buildRound` takes the cards in order, the full false friend is the first 
 - The right word of a card is its first translation in the answer language that no other pair uses, compared in lower case.
   A card with no such translation is skipped.
 - A round with fewer than 2 pairs is not built and `buildRound` returns null.
+- Once the pairs and the decoy are built, the pairs are shuffled with the round's random, so the pair order of the board and the summary is not the draw order.
+- A reserved card can still be skipped, when its translations are all taken by earlier cards (*negro* and *preto* share their only Italian one, *nero*); a few rounds in a thousand lose their partial false friend that way.
 
 ### Decoys
 
@@ -96,6 +99,7 @@ A partial false friend is never a decoy, because it shares an everyday meaning w
 The decoy joins the right column and matches nothing.
 Tapping it for the word it is a false friend of shows `False friend!` and the look-alike's note, when the note is not empty.
 Tapping it for any other word, or any other wrong tap, shows `Wrong pair.`.
+A decoy keeps the look-alike it came from, which the summary reads to mark it `on the board`.
 
 The right column is the right words and the decoy texts, shuffled.
 
@@ -211,6 +215,8 @@ The tiles have the keys `left-<text>` and `right-<text>`, and the feedback line 
 
 When the round is finished the board gives way to the summary, built by `roundSummaryProvider` from the round, the missed set and the progress.
 It holds one entry per pair in round order, each flagged missed (its card id is in the missed set) and hidden (its progress record has the hidden flag), and the count of pairs never missed.
+It also lists the round's false friends (`falseFriendEntries`): pair by pair, the full and partial look-alikes of each word in both languages, through `falseFriendsIn`, so a look-alike that is a word of the card's own meaning is left out; the answer language first, full before partial; each flagged `onBoard` when the round's decoy came from it.
+On the real asset an 8-pair C2 round lists about 3 of them (2.9 in English, 3.1 in Italian, never fewer than 2).
 Hiding a word from the summary calls `setHidden` on the progress, so the word has weight 0 from the next round on, and `Hidden, undo` restores it.
 Reporting a pair from the summary adds a `WordReport` to the reports and calls `setHidden` the same way; `Reported, undo` removes the report and unhides the word.
 Removing a report from the reported pairs screen, or clearing them all, leaves the words hidden.

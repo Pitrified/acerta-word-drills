@@ -1,3 +1,7 @@
+import 'package:acerta/models/answer_language.dart';
+import 'package:acerta/models/drill_settings.dart';
+import 'package:acerta/models/lookalike.dart';
+import 'package:acerta/models/round_summary.dart';
 import 'package:acerta/providers/progress_provider.dart';
 import 'package:acerta/providers/round_provider.dart';
 import 'package:acerta/providers/round_summary_provider.dart';
@@ -54,5 +58,95 @@ void main() {
     expect(container.read(roundSummaryProvider)!.entries.first.hidden, isFalse);
     await container.read(progressProvider.notifier).setHidden(id, hidden: true);
     expect(container.read(roundSummaryProvider)!.entries.first.hidden, isTrue);
+  });
+
+  group('false friends', () {
+    const parz = Lookalike(
+      language: 'it',
+      text: 'parz0',
+      kind: LookalikeKind.partial,
+      note: 'shares a meaning',
+    );
+    const part = Lookalike(
+      language: 'en',
+      text: 'part1',
+      kind: LookalikeKind.partial,
+    );
+    final full = fakeCard(0).lookalikes.single;
+    final cards = cardRepositoryOf([
+      fakeCard(0, lookalikes: [full, parz]),
+      fakeCard(1, lookalikes: const [part]),
+      // A look-alike that is a word of the card's own meaning is no trap.
+      fakeCard(
+        2,
+        lookalikes: const [
+          Lookalike(language: 'it', text: 'it2', kind: LookalikeKind.partial),
+        ],
+      ),
+      fakeCard(3, lookalikes: const []),
+    ]);
+
+    ProviderContainer containerFor(AnswerLanguage language) {
+      final container = ProviderContainer(
+        overrides: roundOverrides(
+          cards: cards,
+          progress: FakeProgressRepository(),
+          settings: FakeSettingsRepository(
+            DrillSettings(pairsPerRound: 4, answerLanguage: language),
+          ),
+        ),
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    Future<RoundSummary> summaryOf(AnswerLanguage language) async {
+      final container = containerFor(language);
+      await container.read(roundProvider.notifier).start();
+      final summary = container.read(roundSummaryProvider);
+      return summary!;
+    }
+
+    List<(String, Lookalike, bool)> rows(RoundSummary summary) => [
+      for (final e in summary.falseFriends)
+        (e.pair.card.id, e.lookalike, e.onBoard),
+    ];
+
+    test('lists both languages, the answer language and full first', () async {
+      final summary = await summaryOf(AnswerLanguage.en);
+      final byCard = {
+        'id0': [('id0', full, true), ('id0', parz, false)],
+        'id1': [('id1', part, false)],
+      };
+      expect(rows(summary), [
+        for (final e in summary.entries) ...?byCard[e.pair.card.id],
+      ]);
+    });
+
+    test('an Italian round lists the Italian ones first', () async {
+      final summary = await summaryOf(AnswerLanguage.it);
+      final byCard = {
+        // No full false friend in Italian, so no decoy is on the board.
+        'id0': [('id0', parz, false), ('id0', full, false)],
+        'id1': [('id1', part, false)],
+      };
+      expect(rows(summary), [
+        for (final e in summary.entries) ...?byCard[e.pair.card.id],
+      ]);
+    });
+
+    test('a round with no false friend has none', () async {
+      final container = ProviderContainer(
+        overrides: roundOverrides(
+          cards: cardRepositoryOf([
+            for (var i = 0; i < 6; i++) fakeCard(i, lookalikes: const []),
+          ]),
+          progress: FakeProgressRepository(),
+        ),
+      );
+      addTearDown(container.dispose);
+      await container.read(roundProvider.notifier).start();
+      expect(container.read(roundSummaryProvider)!.falseFriends, isEmpty);
+    });
   });
 }

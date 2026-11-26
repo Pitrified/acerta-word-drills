@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'answer_language.dart';
+import 'lookalike.dart';
 import 'word_card.dart';
 
 part 'pair_round.freezed.dart';
@@ -24,16 +25,21 @@ abstract class RoundPair with _$RoundPair {
 /// A false friend placed in the right column; it matches nothing.
 @freezed
 abstract class Decoy with _$Decoy {
+  const Decoy._();
+
   const factory Decoy({
-    /// The look-alike shown in the right column.
+    /// The word shown in the right column.
     required String text,
 
     /// The Portuguese word it is a false friend of.
     required String left,
 
-    /// The explanation shown when the learner taps it for [left].
-    required String note,
+    /// The look-alike of [left] the decoy comes from.
+    required Lookalike lookalike,
   }) = _Decoy;
+
+  /// The explanation shown when the learner taps it for [left].
+  String get note => lookalike.note;
 }
 
 /// A built round: pairs, decoys and the shuffled right column.

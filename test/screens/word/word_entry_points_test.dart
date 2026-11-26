@@ -50,6 +50,24 @@ void main() {
     expect(find.byKey(Key('word-$id')), findsNothing);
   });
 
+  testWidgets('a false-friend row of the summary opens the word page', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester, meanings: meanings);
+    await tapKey(tester, 'start-round');
+    final pairs = container.read(roundProvider).round!.pairs;
+    for (final RoundPair(:left, :right) in pairs) {
+      await tapKey(tester, 'left-$left');
+      await tapKey(tester, 'right-$right');
+    }
+    final id = pairs[0].card.id;
+
+    // Every fake card has a full English false friend, look<index>.
+    await tapKey(tester, 'false-friend-$id-en-look${id.substring(2)}');
+
+    expect(find.byKey(Key('word-$id')), findsOneWidget);
+  });
+
   testWidgets('a button of the summary card does not open the page', (
     tester,
   ) async {

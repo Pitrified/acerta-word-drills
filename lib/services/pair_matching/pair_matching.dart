@@ -25,7 +25,9 @@ const partialSlotMinPairs = 5;
 /// its first translation in [language] that no other pair uses (compared in
 /// lower case); a card with none left is skipped. Building stops at
 /// [numPairs] pairs. Up to [maxDecoys] false friends of the paired cards join
-/// the right column. Returns null when fewer than [minPairs] pairs were built.
+/// the right column. The pairs come back shuffled with [random], so a card
+/// drawn first for its false friend has no fixed place on the board. Returns
+/// null when fewer than [minPairs] pairs were built.
 PairRound? buildRound(
   List<WordCard> cards, {
   required AnswerLanguage language,
@@ -51,6 +53,7 @@ PairRound? buildRound(
   if (pairs.length < minPairs) return null;
 
   final decoys = _decoys(pairs, language, used, maxDecoys);
+  pairs.shuffle(random);
   final rightColumn = [
     for (final pair in pairs) pair.right,
     for (final decoy in decoys) decoy.text,
@@ -79,7 +82,7 @@ List<Decoy> _decoys(
     ).where((l) => !used.contains(l.text.toLowerCase())).firstOrNull;
     if (hint == null) continue;
     used.add(hint.text.toLowerCase());
-    decoys.add(Decoy(text: hint.text, left: pair.left, note: hint.note));
+    decoys.add(Decoy(text: hint.text, left: pair.left, lookalike: hint));
   }
   return decoys;
 }

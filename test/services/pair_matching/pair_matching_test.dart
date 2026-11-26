@@ -58,7 +58,7 @@ void main() {
     test('pairs each card with its translation', () {
       final round = _build([amor, paz])!;
       expect(_pairs(round), {'amor': 'love', 'paz': 'peace'});
-      expect(round.pairs.first.card, amor);
+      expect(round.pairs.map((p) => p.card), unorderedEquals([amor, paz]));
       expect(round.language, AnswerLanguage.en);
     });
 
@@ -87,7 +87,10 @@ void main() {
         _card('luz', en: ['light']),
         _card('sol', en: ['sun']),
       ], numPairs: 3)!;
-      expect(round.pairs.map((p) => p.left), ['amor', 'paz', 'luz']);
+      expect(
+        round.pairs.map((p) => p.left),
+        unorderedEquals(['amor', 'paz', 'luz']),
+      );
     });
 
     test('skips a card whose text is already a left word', () {
@@ -130,12 +133,13 @@ void main() {
       test('a false friend joins the right column', () {
         final round = _build([trap(), paz])!;
         expect(round.decoys, [
-          const Decoy(
+          Decoy(
             text: 'exquisite',
             left: 'esquisito',
-            note: 'pt "esquisito" means weird',
+            lookalike: _full('exquisite', note: 'pt "esquisito" means weird'),
           ),
         ]);
+        expect(round.decoys.single.note, 'pt "esquisito" means weird');
         expect(round.rightColumn.toList()..sort(), [
           'exquisite',
           'peace',
@@ -240,6 +244,30 @@ void main() {
           'peace',
           'weird',
         ]);
+      });
+
+      test('the pairs are shuffled, so the decoy card has no fixed place', () {
+        // The first card is the one a round reserves for its decoy.
+        final cards = [
+          trap(),
+          for (final w in 'abcdefg'.split('')) _card(w, en: ['t$w']),
+        ];
+        final firsts = <String>{};
+        for (var seed = 0; seed < 20; seed++) {
+          final round = buildRound(
+            cards,
+            language: AnswerLanguage.en,
+            numPairs: 8,
+            random: Random(seed),
+          )!;
+          expect(
+            round.pairs.map((p) => p.left),
+            unorderedEquals(cards.map((c) => c.text)),
+          );
+          expect(round.decoys.single.left, 'esquisito');
+          firsts.add(round.pairs.first.left);
+        }
+        expect(firsts.length, greaterThan(1));
       });
 
       test('the right column is shuffled with the given random', () {
