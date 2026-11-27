@@ -39,3 +39,5 @@ Append-only. Newest at the bottom.
   look-alike; its recap row says `also`. After: decoy-slot pool 449 en / 330 it, a decoy in 999 en
   and 998 it rounds, 58% / 57% from the other language, none from a flagged look-alike; 166 of the
   661 read decoys drop out (84 of the 104 shared). e2e passes; APK on the emulator and sent.
+- 2026-11-27 : the user installed the release APK `b6efaa0` (arm64) on their device and checked
+  it: works.
