@@ -43,6 +43,12 @@ abstract class Lookalike with _$Lookalike {
     /// first: it *bravo* means `{"en": ["good"]}`. Empty for a cognate, and
     /// where that meaning has no word in the other language.
     @Default(<String, List<String>>{}) Map<String, List<String>> means,
+
+    /// Whether a review found the Portuguese word is also used for what this
+    /// look-alike mainly means: pt *tarde* ("afternoon") shares the main
+    /// meaning of Italian *tardi* ("late"). Only a false friend can be
+    /// flagged. False when the asset has no flag.
+    @Default(false) bool sharesMeaning,
   }) = _Lookalike;
 
   factory Lookalike.fromJson(Map<String, dynamic> json) =>

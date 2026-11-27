@@ -35,4 +35,20 @@ void main() {
     });
     expect(plain.means, isEmpty);
   });
+
+  test('sharesMeaning is read from shares_meaning, and false when absent', () {
+    final tardi = Lookalike.fromJson({
+      'language': 'it',
+      'text': 'tardi',
+      'kind': 'partial',
+      'shares_meaning': true,
+    });
+    expect(tardi.sharesMeaning, isTrue);
+    final plain = Lookalike.fromJson({
+      'language': 'it',
+      'text': 'bravo',
+      'kind': 'partial',
+    });
+    expect(plain.sharesMeaning, isFalse);
+  });
 }

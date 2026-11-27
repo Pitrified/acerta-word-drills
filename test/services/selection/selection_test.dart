@@ -372,6 +372,32 @@ void main() {
       expect(firsts.length, greaterThan(1));
     });
 
+    test(
+      'a card whose only decoy candidate shares meaning is not drawn for it',
+      () {
+        final flagged = _card(
+          'flagged',
+          lookalikes: const [
+            Lookalike(
+              language: 'en',
+              text: 'x',
+              kind: LookalikeKind.full,
+              sharesMeaning: true,
+            ),
+          ],
+        );
+        for (var seed = 0; seed < 40; seed++) {
+          final ids = draw(
+            [...plain, flagged, full],
+            1,
+            partialSlot: false,
+            seed: seed,
+          );
+          expect(ids, ['full'], reason: 'seed $seed');
+        }
+      },
+    );
+
     test('an Italian false friend fills the slots of an English round', () {
       final itFull = _card('itFull', lookalikes: [_itTrap]);
       final itPartial = _card('itPartial', lookalikes: [_itPartial]);

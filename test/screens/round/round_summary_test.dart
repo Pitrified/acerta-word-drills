@@ -541,6 +541,86 @@ void main() {
       expect(find.text('partial false friend · on the board'), findsOneWidget);
     });
 
+    testWidgets('a look-alike that shares meaning reads also, not not', (
+      tester,
+    ) async {
+      await playWith(tester, [
+        fakeCard(
+          0,
+          lookalikes: const [
+            Lookalike(
+              language: 'en',
+              text: 'sort0',
+              kind: LookalikeKind.full,
+              sharesMeaning: true,
+            ),
+          ],
+        ),
+        fakeCard(
+          1,
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'tardi1',
+              kind: LookalikeKind.partial,
+              means: {
+                'en': ['late1'],
+              },
+              sharesMeaning: true,
+            ),
+          ],
+        ),
+        fakeCard(
+          2,
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'tardi2',
+              kind: LookalikeKind.partial,
+              sharesMeaning: true,
+            ),
+          ],
+        ),
+      ]);
+      expect(find.text('w0 - en0, also sort0'), findsOneWidget);
+      expect(
+        find.text('w1 - en1, also late1 (Italian tardi1)'),
+        findsOneWidget,
+      );
+      expect(find.text('w2 - en2, also Italian tardi2'), findsOneWidget);
+      expect(find.textContaining('not '), findsNothing);
+      // No decoy came from a flagged look-alike.
+      expect(find.textContaining('on the board'), findsNothing);
+    });
+
+    testWidgets('a flagged lead that translates the card is still named', (
+      tester,
+    ) async {
+      await playWith(tester, [
+        fakeCard(
+          0,
+          en: ['afternoon'],
+          lookalikes: const [
+            Lookalike(
+              language: 'it',
+              text: 'pomeriggio',
+              kind: LookalikeKind.partial,
+              means: {
+                'en': ['Afternoon'],
+              },
+              sharesMeaning: true,
+            ),
+          ],
+        ),
+        fakeCard(1, lookalikes: const []),
+        fakeCard(2, lookalikes: const []),
+      ]);
+      expect(
+        find.text('w0 - afternoon, also Afternoon (Italian pomeriggio)'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('comes before the cards', (tester) async {
       await playWith(tester, [fakeCard(0), fakeCard(1), fakeCard(2)]);
       final top = tester

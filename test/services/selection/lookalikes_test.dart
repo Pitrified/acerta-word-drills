@@ -210,6 +210,69 @@ void main() {
       ]);
     });
 
+    test('a look-alike that shares meaning gives none, in either language', () {
+      // pt tarde is "afternoon" and also "late", the main meaning of it tardi.
+      const tardi = Lookalike(
+        language: 'it',
+        text: 'tardi',
+        kind: LookalikeKind.partial,
+        means: {
+          'en': ['late'],
+        },
+        sharesMeaning: true,
+      );
+      // pt sorte is "luck" and also "sort", en sort.
+      const sort = Lookalike(
+        language: 'en',
+        text: 'sort',
+        kind: LookalikeKind.full,
+        sharesMeaning: true,
+      );
+      final tarde = _card(
+        'tarde',
+        en: ['afternoon'],
+        it: ['pomeriggio'],
+        lookalikes: const [tardi],
+      );
+      final sorte = _card(
+        'sorte',
+        en: ['luck'],
+        it: ['fortuna'],
+        lookalikes: const [sort],
+      );
+      expect(decoyWordOf(tarde, tardi, AnswerLanguage.en), isNull);
+      expect(decoyCandidates(tarde, AnswerLanguage.en), isEmpty);
+      expect(decoyWordOf(sorte, sort, AnswerLanguage.en), isNull);
+      expect(decoyCandidates(sorte, AnswerLanguage.en), isEmpty);
+      // Still false friends of their cards: only the decoy is withheld.
+      expect(hasFalseFriend(tarde), isTrue);
+      expect(hasFalseFriend(sorte), isTrue);
+    });
+
+    test('the same look-alike unflagged still gives its decoy', () {
+      const tardi = Lookalike(
+        language: 'it',
+        text: 'tardi',
+        kind: LookalikeKind.partial,
+        means: {
+          'en': ['late'],
+        },
+      );
+      const sort = Lookalike(
+        language: 'en',
+        text: 'sort',
+        kind: LookalikeKind.full,
+      );
+      final tarde = _card(
+        'tarde',
+        en: ['afternoon'],
+        lookalikes: const [tardi],
+      );
+      final sorte = _card('sorte', en: ['luck'], lookalikes: const [sort]);
+      expect(decoyWordOf(tarde, tardi, AnswerLanguage.en), 'late');
+      expect(decoyWordOf(sorte, sort, AnswerLanguage.en), 'sort');
+    });
+
     test('a cognate gives none, whatever it means', () {
       final card = _card(
         'nação',

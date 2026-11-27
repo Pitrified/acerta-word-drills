@@ -106,11 +106,16 @@ bool hasPartialFalseFriend(WordCard card) => AnswerLanguage.values.any(
 /// [language] ([Lookalike.means]), it *bravo* giving *good* for pt *bravo*,
 /// unless that word is a translation of the card: the trap then leads to a
 /// right answer, and the words after it are near-synonyms of it, no trap.
+///
+/// A look-alike that [Lookalike.sharesMeaning] puts none, in either language:
+/// the Portuguese word is also used for what it mainly means, so tapping it
+/// would not be wrong (pt *tarde* is also "late", it *tardi*).
 String? decoyWordOf(
   WordCard card,
   Lookalike lookalike,
   AnswerLanguage language,
 ) {
+  if (lookalike.sharesMeaning) return null;
   if (lookalike.language == language.code) {
     return lookalike.kind == LookalikeKind.full ? lookalike.text : null;
   }

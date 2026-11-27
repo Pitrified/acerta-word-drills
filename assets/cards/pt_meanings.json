@@ -1,4 +1,4 @@
-{"meta":{"language":"pt","known_languages":["en","it"],"translation_languages":["en","it"],"gloss_language":"en","lang_tools":"v0.11.0","corpus_built_at":"2026-11-25T21:36:16.974457+00:00","count":19283,"format":1,"meanings":29895},
+{"meta":{"language":"pt","known_languages":["en","it"],"translation_languages":["en","it"],"gloss_language":"en","lang_tools":"v0.12.0","corpus_built_at":"2026-11-26T15:54:42.351657+00:00","count":19283,"format":1,"meanings":29895},
 "meanings":[
 {"gloss":"to a small degree; somewhat","gloss_pt":"em pequena medida; um tanto","pt":[["um","A1"],["um tanto","A1"],["pouco","A1"]],"en":[["a little","A1"],["a bit","A1"],["a trifle","B2"]],"it":[["poco","A1"]]},
 {"gloss":"more than one but indefinitely small in number","gloss_pt":"mais de um, mas em quantidade pequena e indefinida","pt":[["alguns","A1"],["certo número de","A2"],["vários","A1"]],"en":[["a few","A1"],["a couple of","A1"]],"it":[["qualche","A1"],["alcuni","A1"]]},

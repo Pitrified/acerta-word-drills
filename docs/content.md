@@ -10,7 +10,7 @@ It is one JSON object with a `meta` header and a `cards` list, one card per line
 
 | Field | Meaning |
 |-------|---------|
-| `format` | Version of the asset layout, 3 |
+| `format` | Version of the asset layout, 4 |
 | `language` | Language of the words, `pt` |
 | `known_languages`, `translation_languages` | The languages the lexicon was queried with, `en` and `it` |
 | `gloss_language` | Language of `gloss`, `en` |
@@ -45,6 +45,9 @@ A `full` or `partial` look-alike can also have `means`: the words of what the lo
 Italian *bravo*, a look-alike of pt *bravo* ("angry"), has `"means": {"en": ["good"]}`; an English look-alike's `means` holds `it`.
 The field is left out when it would be empty: for a cognate, and for a look-alike whose main meaning has no word in the other language (en *exquisite*).
 A round uses it for the decoy of a false friend in the language not on the board.
+
+A `full` or `partial` look-alike also has `"shares_meaning": true` when a review in lang-tools found that the pt word is also used for what the look-alike mainly means (pt *tarde* "afternoon" shares the main meaning of Italian *tardi* "late").
+The field is left out when false, so a cognate never has it, and the app reads an absent one as false.
 
 ## The reports file
 
@@ -81,10 +84,12 @@ The meanings are sorted by their lang-tools concept id, so the same corpus gives
 
 ## Size
 
-Measured on 2026-11-26 (lang-tools 0.11.0), stable until the next export:
+Measured on 2026-11-26 (lang-tools 0.12.0), stable until the next export:
 
-- 19,283 cards, 5,388,394 bytes, 1,440,035 bytes gzipped (`gzip -9`).
+- 19,283 cards, 5,394,246 bytes, 1,440,963 bytes gzipped (`gzip -9`).
 - Look-alikes: 236 English and 208 Italian `full`, 232 and 231 `partial`, 3,748 and 4,918 `cognate`; 826 of the false friends have `means`.
+- Flagged `shares_meaning`: 266 look-alikes on 227 cards, 131 English and 111 Italian `partial`, 14 English and 10 Italian `full`.
+  lang-tools flags 293 pairs; the other 27 are on 21 pt words whose card is an inflected form (*dados*, *era*, *preciso*, *precisa*), which the card query leaves out, so the asset has no card for them.
 - Per level: A1 329, A2 514, B1 1,026, B2 2,645, C1 5,533, C2 9,236.
 - 14,085 cards have an Italian translation, and all have an English one.
 - 26 topics; `medical` is on 412 cards and 7,123 cards have no topic.
